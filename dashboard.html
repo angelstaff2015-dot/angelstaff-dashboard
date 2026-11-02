@@ -218,6 +218,11 @@
   .modal h3{font-weight:700;font-size:19px;letter-spacing:-0.02em;margin:0 0 4px}
   .modal .m-sub{color:var(--ink-3);font-size:12.5px;margin:0 0 20px}
   .modal .m-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+  #bg-save{position:fixed;left:20px;bottom:22px;z-index:96;display:flex;align-items:center;gap:8px;background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:0 10px 30px -12px rgba(20,18,16,.35);font-size:12.5px;font-weight:600;padding:8px 14px 8px 12px;border-radius:100px;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .18s,transform .18s}
+  #bg-save.on{opacity:1;transform:none}
+  #bg-save i{width:12px;height:12px;border-radius:50%;border:2px solid #D9D4C9;border-top-color:var(--ink);animation:bgspin .7s linear infinite}
+  #bg-save s{text-decoration:none;color:#1F8A4C;font-weight:800}
+  @keyframes bgspin{to{transform:rotate(360deg)}}
   .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);z-index:95;background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:11px 18px;border-radius:100px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -2310,6 +2315,7 @@
       const n=DATA[key]; if(n && n!==c){ render(n.v); return; }
     }
     const v = await fetcher();                           // 3) 백그라운드 갱신
+    if(BG && BG.n>0 && c) return;   // 저장 중이면 저장 전 서버 값으로 화면을 덮지 않음 (저장 끝나면 다시 불러옴)
     DATA[key] = { t: Date.now(), v: v };
     if(key==='dash' || PF_KEY.test(key)) persistSave();
     render(v);
@@ -2366,6 +2372,38 @@
   function fmtDate(v){ if(!v) return '–'; const d=new Date(v); if(isNaN(d)) return '–';
     return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0'); }
   function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),2400); }
+  /* ═══ 즉시 반영 엔진: 화면은 먼저 바꾸고 서버 저장은 뒤에서 ═══
+     · 같은 대상(key)에 대한 저장은 순서대로 보냄 (빠르게 여러 번 바꿔도 마지막 값이 남음)
+     · 실패하면 revert() 로 화면을 되돌리고 사유를 길게 보여 줌 (retry() 가 있으면 입력값으로 창을 다시 엶)
+     · 저장 중에는 화면 아래 '저장 중 N건' 표시, 그 상태로 탭을 닫으면 브라우저가 경고 */
+  var BG={ n:0, chain:{}, t:null };
+  function bgBadge(){
+    let b=document.getElementById('bg-save');
+    if(!b){ b=document.createElement('div'); b.id='bg-save'; b.setAttribute('role','status'); b.setAttribute('aria-live','polite'); document.body.appendChild(b); }
+    clearTimeout(BG.t);
+    if(BG.n>0){ b.className='on'; b.innerHTML='<i></i>저장 중 '+BG.n+'건'; }
+    else if(b.classList.contains('on')){ b.className='on ok'; b.innerHTML='<s>✓</s>모두 저장됨'; BG.t=setTimeout(()=>{ b.className=''; }, 1400); }
+  }
+  function toastLong(msg, ms){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'), ms||6000); }
+  function bgSave(o){
+    try{ if(o.apply) o.apply(); }catch(e){ console.warn('[bgSave apply]', e); }
+    if(o.okMsg) toast(o.okMsg);
+    BG.n++; bgBadge();
+    const key=o.key||('_'+Math.random()), prev=BG.chain[key]||Promise.resolve();
+    const p=prev.catch(()=>{}).then(()=>o.req());
+    BG.chain[key]=p;
+    p.then(r=>{ try{ if(o.done) o.done(r); }catch(e){ console.warn('[bgSave done]', e); } })
+     .catch(e=>{
+       const m=String((e&&e.message)||e);
+       try{ if(o.revert) o.revert(e); }catch(_){ }
+       if(/세션/.test(m)){ authFail(e); return; }
+       toastLong((o.label||'저장')+'하지 못해 원래대로 되돌렸습니다 — '+m+(o.retry?' (입력한 내용으로 창을 다시 열었습니다)':''), 7000);
+       try{ if(o.retry) setTimeout(()=>o.retry(e), 60); }catch(_){ }
+     })
+     .finally(()=>{ BG.n--; if(BG.chain[key]===p) delete BG.chain[key]; bgBadge(); });
+    return p;
+  }
+  window.addEventListener('beforeunload', e=>{ if(BG.n>0){ e.preventDefault(); e.returnValue='아직 저장 중인 항목이 있습니다.'; return e.returnValue; } });
   function authFail(e){
     const m=String((e&&e.message)||e);
     if(/세션/.test(m)){ v5Flash('세션이 만료되었습니다. 다시 로그인하세요.'); logout(); }   // '권한'은 드라이브 승인 오류일 수 있어 로그아웃하지 않음
@@ -2393,6 +2431,7 @@
   function prefetchAll(force){
     if(!TOKEN) return null;
     if(__pfP) return __pfP;
+    if(BG && BG.n>0) return null;   // 저장 중에는 미리 불러오기 보류
     if(!force && Date.now()-__pfAt < 120000) return null;
     const calls=[
       {api:'getHospitals'}, {api:'getCandidates',args:['전체','']}, {api:'getCandidateDates'},
@@ -2678,6 +2717,17 @@
     if(!name){ $('#hm-err').textContent='병원명을 입력하세요.'; $('#hm-err').classList.add('on'); $('#hm-name').focus(); return; }
     const data={ 병원명:name, 담당자:$('#hm-mgr').value.trim(), 연락처:$('#hm-tel').value.trim(), 상태:$('#hm-status').value, 비고:$('#hm-note').value.trim() };
     const id=$('#hm-id').value;
+    { /* 즉시 반영 */
+      const lst=DATA['hosp'] && Array.isArray(DATA['hosp'].v) ? DATA['hosp'].v : null, h=lst && id ? lst.find(x=>String(x['병원ID'])===String(id)) : null, prev=h?Object.assign({}, h):null;
+      closeHModal();
+      bgSave({ key:'hosp:'+(id||data.병원명), label:id?'병원 정보 수정':'병원 추가', okMsg:id?'수정되었습니다.':'병원을 추가하는 중입니다 — 몇 초 뒤 목록에 표시됩니다.',
+        apply:()=>{ if(h){ Object.assign(h, data); renderHospitals(lst); } },
+        req:()=> id ? call('updateHospital', TOKEN, id, data) : call('addHospital', TOKEN, data),
+        done:()=>{ hospitalCache=null; invalidateAll(); loadHospitals(); if(!id) toast('병원이 추가되었습니다.'); },
+        revert:()=>{ if(h && prev){ Object.keys(h).forEach(k=>delete h[k]); Object.assign(h, prev); renderHospitals(lst); } },
+        retry:()=>openHModal(Object.assign({}, prev||{}, data, { '병원ID':id })) });
+      return;
+    }
     $('#hm-save').disabled=true; $('#hm-save').textContent='저장 중…';
     try{
       if(id) await call('updateHospital', TOKEN, id, data);
@@ -2882,6 +2932,14 @@
     const data={ 이름:name, 연락처:$('#cm-tel').value.trim(), 병원ID:$('#cm-hospital').value, 병원명:($('#cm-hospital').value?'':$('#cm-hospname').value.trim()),
       직무:$('#cm-job').value.trim(), 지원경로:$('#cm-source').value.trim(), 상태:$('#cm-status').value, 메모:$('#cm-memo').value.trim() };
     const id=$('#cm-id').value;
+    { closeCModal();
+      const draft={ id, name:data.이름, tel:data.연락처, hospitalId:data.병원ID, hospital:data.병원명, job:data.직무, source:data.지원경로, status:data.상태, memo:data.메모 };
+      bgSave({ key:'cand:'+(id||data.이름), label:id?'지원자 정보 수정':'지원자 추가', okMsg:id?'수정되었습니다.':'지원자를 추가했습니다.',
+        req:()=> id ? call('updateCandidate', TOKEN, id, data) : call('addCandidate', TOKEN, data),
+        done:()=>{ candListCache=null; invalidate('cand','ev','ct','dash'); loadCandidates(); },
+        retry:()=>openCModal(id?draft:null) });
+      return;
+    }
     $('#cm-save').disabled=true; $('#cm-save').textContent='저장 중…';
     try{
       if(id) await call('updateCandidate', TOKEN, id, data); else await call('addCandidate', TOKEN, data);
@@ -2905,8 +2963,12 @@
   $('#cand-table').addEventListener('change', async e=>{
     const sel=e.target.closest('.st-sel');
     if(sel){
-      sel.dataset.s=sel.value;
-      try{ await call('setCandidateStatus', TOKEN, sel.dataset.id, sel.value); invalidate('cand','dash'); toast('상태: '+sel.value); }catch(err){ authFail(err); }
+      const pv=sel.dataset.s, nv=sel.value, cid=sel.dataset.id;
+      bgSave({ key:'cand:'+cid, label:'상태 변경', okMsg:'상태: '+nv,
+        apply:()=>{ sel.dataset.s=nv; },
+        req:()=>call('setCandidateStatus', TOKEN, cid, nv),
+        done:()=>{ invalidate('cand','dash'); },
+        revert:()=>{ sel.value=pv; sel.dataset.s=pv; } });
       return;
     }
   });
@@ -3149,6 +3211,30 @@
     if(!cid){ $('#em-err').textContent='지원자를 선택하세요.'; $('#em-err').classList.add('on'); return; }
     const data={ candidateId:cid, scores:evalScores, notes:$('#em-notes').value.trim(), evaluator:$('#em-evaluator').value.trim(), aiComment:evalAi.comment||'', aiScore:evalAi.overall, date:$('#em-date').value };
     const id=$('#em-id').value;
+    { /* 즉시 반영: 목록·캘린더에 바로 표시하고 창을 닫음 → 서버 저장은 뒤에서 */
+      const origDate=$('#em-date').dataset.orig||'';
+      const dateChanged = id ? (data.date && data.date!==origDate) : (data.date && data.date!==dateToInput(''));
+      const V=DATA['ev'] && DATA['ev'].v, evals=V && V.evals, snap=evals ? evals.slice() : null;
+      const sv=Object.values(data.scores||{}).map(Number).filter(n=>!isNaN(n)), ov=sv.length?Math.round(sv.reduce((a,b)=>a+b,0)/sv.length*10)/10:null;
+      const sep=(evals&&evals.find(e=>/\d-\d/.test(String(e.date||''))))?'-':'.', dShow=String(data.date||'').replace(/-/g,sep);
+      const cand=((V&&V.cands)||candListCache||[]).find(c=>String(c.id)===String(cid))||{};
+      const tmpId=id||('tmp_'+Date.now());
+      const rec={ id:tmpId, candidateId:cid, name:cand.name||'', hospital:cand.hospital||'', job:cand.job||'', scores:Object.assign({}, data.scores), overall:ov, notes:data.notes, evaluator:data.evaluator, aiComment:data.aiComment, date:dShow };
+      const draft=Object.assign({}, rec, { id:id||'', date:data.date });
+      closeEModal();
+      bgSave({ key:'ev:'+(id||cid), label:'면접 평가 저장', okMsg:id?'평가가 수정되었습니다.':'평가가 저장되었습니다.',
+        apply:()=>{ if(evals){ const i=evals.findIndex(e=>String(e.id)===String(tmpId)); if(i>=0) evals[i]=Object.assign({}, evals[i], rec); else evals.unshift(rec); renderEvals(V); } },
+        req:async()=>{
+          let evalId=id;
+          if(id){ await call('updateEvaluation',TOKEN,id,data); }
+          else{ const r=await call('addEvaluation',TOKEN,data); evalId=(r&&r.id)||''; }
+          if(dateChanged){ try{ await call('setEvaluationDate',TOKEN,evalId||'',cid,data.date); }catch(_){ } }
+        },
+        done:()=>{ invalidate('dash'); if(DATA['ev']) DATA['ev'].t=0; loadEvals(); },
+        revert:()=>{ if(evals && snap){ evals.length=0; snap.forEach(e=>evals.push(e)); renderEvals(V); } },
+        retry:()=>openEModal(draft) });
+      return;
+    }
     $('#em-save').disabled=true; $('#em-save').textContent='저장 중…';
     try{
       let evalId=id;
@@ -3297,6 +3383,14 @@
     const cand=candByName[nm.replace(/\s/g,'')];   // 기존 지원자와 이름 일치 시 자동 연결, 아니면 이름만 저장
     const data={ 이름:nm, 지원자ID:cand?cand.id:'', 병원ID:$('#cn-hospital').value, 시작일:$('#cn-start').value, 파견만료일:$('#cn-expiry').value, 상태:$('#cn-status').value, 비고:$('#cn-memo').value.trim() };
     const id=$('#cn-id').value;
+    { closeCnModal();
+      const draft={ id, name:data.이름, hospitalId:data.병원ID, startRaw:data.시작일, expiryRaw:data.파견만료일, status:data.상태, memo:data.비고 };
+      bgSave({ key:'ct:'+(id||nm), label:id?'계약 수정':'계약 등록', okMsg:id?'수정되었습니다.':'계약을 등록했습니다.',
+        req:()=> id ? call('updateContract',TOKEN,id,data) : call('addContract',TOKEN,data),
+        done:()=>{ invalidate('ct','dash'); loadContracts(); },
+        retry:()=>openCnModal(id?draft:null) });
+      return;
+    }
     $('#cn-save').disabled=true; $('#cn-save').textContent='저장 중…';
     try{
       if(id) await call('updateContract',TOKEN,id,data); else await call('addContract',TOKEN,data);
@@ -3327,8 +3421,12 @@
   });
   $('#contract-table').addEventListener('change', async e=>{
     const sel=e.target.closest('.st-sel'); if(!sel) return;
-    sel.dataset.s=sel.value;
-    try{ await call('setContractStatus',TOKEN,sel.dataset.id,sel.value); invalidate('ct','dash'); toast('상태: '+sel.value); }catch(err){ authFail(err); }
+    const pv=sel.dataset.s, nv=sel.value, id=sel.dataset.id;
+    bgSave({ key:'ct:'+id, label:'계약 상태 변경', okMsg:'상태: '+nv,
+      apply:()=>{ sel.dataset.s=nv; },
+      req:()=>call('setContractStatus',TOKEN,id,nv),
+      done:()=>{ invalidate('ct','dash'); },
+      revert:()=>{ sel.value=pv; sel.dataset.s=pv; } });
   });
   $$('#view-contracts .seg').forEach(b=>b.addEventListener('click',()=>{
     $$('#view-contracts .seg').forEach(x=>x.classList.remove('active')); b.classList.add('active');
@@ -4332,6 +4430,28 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         const date=$('#v3iv-date').value, sel=$('#v3iv-c').value;
         if(!date){ toast('면접일을 고르세요.'); return true; }
         if(!sel){ toast('지원자를 고르세요.'); return true; }
+        if(sel!=='__new__'){   /* 기존 지원자: 캘린더에 바로 표시 → 서버 저장은 뒤에서 */
+          const cid=sel, prev=cands.find(c=>String(c.id)===String(sel)), pst=prev?prev.status:null;
+          const old=candDatesCache && candDatesCache[cid] ? Object.assign({}, candDatesCache[cid]) : null, join=(old&&old.join)||'';
+          bgSave({ key:'cd:'+cid, label:'면접 일정 등록', okMsg:'면접 일정을 등록했습니다.',
+            apply:()=>{ candDatesCache=Object.assign({}, candDatesCache||{}); candDatesCache[cid]={ interview:date, join }; if(prev && (pst||'서류')==='서류') prev.status='면접';
+              const d=v3Date(date); evCal.y=d.getFullYear(); evCal.m=d.getMonth(); renderEvals(v3EvData()); },
+            req:async()=>{ await call('setCandidateDates', TOKEN, cid, '', date, join); if(prev && (pst||'서류')==='서류') await call('setCandidateStatus', TOKEN, cid, '면접'); },
+            done:()=>{ candListCache=null; invalidate('cand','dash'); if(DATA['ev']) DATA['ev'].t=0; },
+            revert:()=>{ candDatesCache=Object.assign({}, candDatesCache||{}); if(old) candDatesCache[cid]=old; else delete candDatesCache[cid]; if(prev) prev.status=pst; renderEvals(v3EvData()); } });
+          return;
+        }
+        { /* 새 지원자: 창은 바로 닫고 등록은 뒤에서 (끝나면 캘린더에 표시) */
+          const nm=$('#v3iv-n').value.trim(); if(!nm){ toast('이름을 입력하세요.'); return true; }
+          const body={ 이름:nm, 연락처:$('#v3iv-t').value.trim(), 병원ID:$('#v3iv-h').value, 병원명:'', 직무:$('#v3iv-j').value.trim(), 지원경로:'면접 일정 직접 등록', 상태:'면접', 메모:'' };
+          let newId='';
+          bgSave({ key:'cdnew:'+nm, label:nm+' 님 면접 일정 등록', okMsg:nm+' 님 면접 일정을 등록하는 중입니다 — 몇 초 뒤 캘린더에 표시됩니다.',
+            req:async()=>{ const r=await call('addCandidate', TOKEN, body); newId=r && r.id; if(!newId) throw new Error('지원자 등록에 실패했습니다.'); await call('setCandidateDates', TOKEN, newId, '', date, ''); },
+            done:()=>{ candDatesCache=Object.assign({}, candDatesCache||{}); candDatesCache[newId]={ interview:date, join:'' }; candListCache=null; invalidate('ev','cand','dash');
+              const d=v3Date(date); evCal.y=d.getFullYear(); evCal.m=d.getMonth(); loadEvals(); toast(nm+' 님 면접 일정을 캘린더에 표시했습니다.'); },
+            revert:()=>{ if(newId){ candListCache=null; invalidate('ev','cand'); loadEvals(); } } });
+          return;
+        }
         btn.disabled=true; btn.textContent='등록 중…';
         try{
           let cid=sel, prev=cands.find(c=>String(c.id)===String(sel));
@@ -4366,9 +4486,13 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         (c.memo?`<div class="b-head"><h3>메모</h3></div><div class="v3-box">${esc(c.memo)}</div>`:''),
       onOpen:(el)=>{ el.querySelector('#v3d-ivsave').addEventListener('click', async ()=>{
         const nd=el.querySelector('#v3d-iv').value;
-        try{ const join=(candDatesCache && candDatesCache[cid] && candDatesCache[cid].join)||''; await call('setCandidateDates', TOKEN, cid, '', nd, join);
-          candDatesCache=Object.assign({}, candDatesCache||{}); candDatesCache[cid]={ interview:nd, join }; invalidate('ev'); toast(nd?'면접일을 바꿨습니다.':'면접일을 지웠습니다.'); xClose(); loadEvals(); }
-        catch(err){ xFail(err); }
+        const old=candDatesCache && candDatesCache[cid] ? Object.assign({}, candDatesCache[cid]) : null, join=(old&&old.join)||'';
+        xClose();
+        bgSave({ key:'cd:'+cid, label:'면접일 저장', okMsg:nd?'면접일을 바꿨습니다.':'면접일을 지웠습니다.',
+          apply:()=>{ candDatesCache=Object.assign({}, candDatesCache||{}); candDatesCache[cid]={ interview:nd, join }; renderEvals(v3EvData()); },
+          req:()=>call('setCandidateDates', TOKEN, cid, '', nd, join),
+          done:()=>{ if(DATA['ev']) DATA['ev'].t=0; },
+          revert:()=>{ candDatesCache=Object.assign({}, candDatesCache||{}); if(old) candDatesCache[cid]=old; else delete candDatesCache[cid]; renderEvals(v3EvData()); } });
       }); },
       foot:[ { label:'닫기', ghost:true } ]
         .concat(res ? [{ label:'이력서 보기', ghost:true, onClick:()=>{ window.open(res.url,'_blank'); return true; } }] : [])
@@ -4938,9 +5062,12 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   }
   async function k3Move(id, st){
     const c=h3Cands().find(x=>String(x.id)===String(id)); if(!c || (c.status||'서류')===st) return;
-    const prev=c.status; c.status=st; k3Render();
-    try{ await call('setCandidateStatus', TOKEN, id, st); invalidate('cand','dash'); if(DATA['cand:전체:']) DATA['cand:전체:'].t=Date.now(); toast(c.name+' 님을 \''+st+'\'(으)로 옮겼습니다.'); if(st==='면접' && !(candDatesCache||{})[String(id)]) setTimeout(()=>toast('면접 평가 캘린더에서 면접일을 정해 주세요.'),2500); }
-    catch(e){ c.status=prev; k3Render(); xFail(e); }
+    const prev=c.status;
+    bgSave({ key:'cand:'+id, label:c.name+' 님 상태 변경', okMsg:c.name+' 님을 \''+st+'\'(으)로 옮겼습니다.',
+      apply:()=>{ c.status=st; k3Render(); },
+      req:()=>call('setCandidateStatus', TOKEN, id, st),
+      done:()=>{ invalidate('cand','dash'); if(DATA['cand:전체:']) DATA['cand:전체:'].t=Date.now(); if(st==='면접' && !(candDatesCache||{})[String(id)]) setTimeout(()=>toast('면접 평가 캘린더에서 면접일을 등록하세요.'), 1600); },
+      revert:()=>{ c.status=prev; k3Render(); } });
   }
   const k3B=$('#cand-board');
   k3B.addEventListener('dragstart', e=>{ const c=e.target.closest('[data-k3]'); if(!c) return; e.dataTransfer.setData('text/plain', c.dataset.k3); e.dataTransfer.effectAllowed='move'; c.classList.add('drag'); });
@@ -4973,10 +5100,11 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const c=DATA['v2wk']; const x=c && c.v && c.v.list ? c.v.list.find(o=>String(o.id)===String(w.id)) : null;
     const prev=x ? { status:x.status, left:x.left } : null;
     const d=new Date(), today=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
-    if(x){ x.status=status; x.left=status==='퇴사'?today:''; renderWorkers(c.v); }
-    toast(okMsg);
-    req().then(()=>{ invalidate('v2rk','v2fc'); if(DATA['v2wk']) DATA['v2wk'].t=0; persistSave(); })
-      .catch(e=>{ if(x && prev){ x.status=prev.status; x.left=prev.left; const cc=DATA['v2wk']; if(cc) renderWorkers(cc.v); } xFail(e); toast('저장하지 못해 원래대로 되돌렸습니다: '+String((e&&e.message)||e)); });
+    bgSave({ key:'wk:'+w.id, label:w.name+' 님 '+(status==='퇴사'?'퇴사 처리':'재직 되돌리기'), okMsg,
+      apply:()=>{ if(x){ x.status=status; x.left=status==='퇴사'?today:''; renderWorkers(c.v); } },
+      req,
+      done:()=>{ invalidate('v2rk','v2fc'); if(DATA['v2wk']) DATA['v2wk'].t=0; persistSave(); },
+      revert:()=>{ if(x && prev){ x.status=prev.status; x.left=prev.left; const cc=DATA['v2wk']; if(cc) renderWorkers(cc.v); } } });
   }
   async function wkEdit(w, focusSurvey){
     if(!w) return;
@@ -5005,8 +5133,16 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
             {label:'저장', onClick: async(btn)=>{
               const att=$('#wf-att').value;
               const patch={ '고용형태':$('#wf-emp').value, '생년월일':$('#wf-birth').value, '연락처':$('#wf-tel').value.trim(), '검진월':$('#wf-chk').value?Number($('#wf-chk').value):'', '근태이상':att===''?'':Number(att), '비고':$('#wf-memo').value.trim(), '만료일직접':$('#wf-exp').value||'', '파견법해제':$('#wf-exm').value==='Y'?'Y':'' };
-              await xRun(btn,'저장 중…',()=>call('updateWorker',TOKEN,w.id,patch));
-              invalidate('v2wk','v2rk','v2fc'); V2_LOAD.workers(); toast('저장했습니다.'); }}],
+              const lv={ emp:patch['고용형태'], birth:patch['생년월일'], tel:patch['연락처'], checkup:patch['검진월'], attend:patch['근태이상'], memo:patch['비고'], expiryManual:patch['만료일직접'], exempt:patch['파견법해제']==='Y' };
+              const c=DATA['v2wk'], x=(c&&c.v&&c.v.list||[]).find(o=>String(o.id)===String(w.id))||w, F=['emp','birth','tel','checkup','attend','memo','expiryManual','exempt','expiry'];
+              const prev={}; F.forEach(k=>prev[k]=x[k]);
+              bgSave({ key:'wk:'+w.id, label:w.name+' 님 정보 저장', okMsg:'저장했습니다.',
+                apply:()=>{ Object.assign(x, lv); x.expiry = lv.exempt ? '' : (lv.expiryManual || x.expiryAuto || (prev.expiryManual||prev.exempt ? '' : prev.expiry) || ''); if(c) renderWorkers(c.v); },
+                req:()=>call('updateWorker',TOKEN,w.id,patch),
+                done:()=>{ invalidate('v2rk','v2fc'); if(DATA['v2wk']) DATA['v2wk'].t=0; V2_LOAD.workers(); },
+                revert:()=>{ Object.assign(x, prev); const cc=DATA['v2wk']; if(cc) renderWorkers(cc.v); },
+                retry:()=>wkEdit(Object.assign({}, x, lv)) });
+            }}],
       onOpen: async()=>{
         try{
           const all=await svList(); const mine=svOfWorker(all, w);
@@ -5088,7 +5224,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       const r=(DATA['v2rk'].v.list||[]).find(x=>String(x.id)===fu.dataset.rkfu); if(!r) return;
       xOpen({ title:r.name+' · 면담 기록', sub:'점수 '+r.score+' · '+r.tags.join(' · '),
         body:`<div class="x-form"><div><label class="x-lab" for="fu-act">조치</label><select id="fu-act" class="x-select"><option>면담</option><option>관찰</option><option>조치 없음</option></select></div><div><label class="x-lab" for="fu-memo">메모</label><input id="fu-memo" class="x-input" placeholder="예: 10.23 면담 예정 · 교대 일정 조정 요청"></div></div>`,
-        foot:[{label:'취소', ghost:true},{label:'기록', onClick: async(btn)=>{ await xRun(btn,'기록 중…',()=>call('logRiskFollowUp',TOKEN,r.id,$('#fu-act').value,$('#fu-memo').value)); invalidate('v2au','v2flow'); toast('결정 기록에 남겼습니다.'); }}] });
+        foot:[{label:'취소', ghost:true},{label:'기록', onClick: (btn)=>{ const act=$('#fu-act').value, memo=$('#fu-memo').value;
+          bgSave({ key:'rk:'+r.id, label:'후속 조치 기록', okMsg:'결정 기록에 남겼습니다.', req:()=>call('logRiskFollowUp',TOKEN,r.id,act,memo), done:()=>invalidate('v2au','v2flow') }); }}] });
     }
     else if(wv){ await xRun(wv,'처리 중…',()=>call('decideWeights',TOKEN, wv.dataset.rkw==='1')).catch(xFail); invalidate('v2rk','v2flow','v2au','v2fc'); V2_LOAD.risk(); toast(wv.dataset.rkw==='1'?'가중치를 바꿨습니다.':'수정안을 보류했습니다.'); }
     else if(pr){ const r=await xRun(pr,'계산 중…',()=>call('proposeWeights',TOKEN)).catch(xFail); if(!r) return; if(!r.ok){ toast(r.reason); return; } invalidate('v2rk','v2flow'); V2_LOAD.risk(); toast('수정안을 만들었습니다. 승인해야 반영됩니다.'); }
@@ -5285,7 +5422,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     if(dr) xDraft({ kind:'재연락', candidateId:p.id, onDone: async()=>{ try{ await call('addRecontact',TOKEN,{ candidateId:p.id, target:p.match, result:'연락함', fromAi:!!p.match, name:p.name }); invalidate('v2fc','v2au'); V2_LOAD.forecast(); }catch(err){ xFail(err); } } });
     else xOpen({ title:p.name+' · 재연락 결과', sub:p.match?'맞는 자리: '+p.match:'',
       body:`<div class="x-form"><div><label class="x-lab" for="rc-res">결과</label><select id="rc-res" class="x-select"><option>연락함</option><option>응답</option><option>가능</option><option>불가</option><option>미응답</option></select></div><div><label class="x-lab" for="rc-memo">메모</label><input id="rc-memo" class="x-input" placeholder="예: 12월부터 가능"></div></div>`,
-      foot:[{label:'취소', ghost:true},{label:'기록', onClick: async(btn)=>{ await xRun(btn,'기록 중…',()=>call('addRecontact',TOKEN,{ candidateId:p.id, target:p.match, result:$('#rc-res').value, memo:$('#rc-memo').value, fromAi:!!p.match, name:p.name })); invalidate('v2fc','v2au','v2flow'); V2_LOAD.forecast(); toast('기록했습니다.'); }}] });
+      foot:[{label:'취소', ghost:true},{label:'기록', onClick: (btn)=>{ const body={ candidateId:p.id, target:p.match, result:$('#rc-res').value, memo:$('#rc-memo').value, fromAi:!!p.match, name:p.name };
+          bgSave({ key:'rc:'+p.id, label:'재연락 기록', okMsg:'기록했습니다.', req:()=>call('addRecontact',TOKEN,body), done:()=>{ invalidate('v2fc','v2au','v2flow'); V2_LOAD.forecast(); } }); }}] });
   });
 
   /* ═══════ 담당자 수정 학습 ═══════ */
@@ -5352,7 +5490,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   });
   $('#view-learn').addEventListener('click', async e=>{
     const ru=e.target.closest('[data-rule]'), rd=e.target.closest('[data-rdel]'), mk=e.target.closest('[data-mkrule]');
-    if(ru){ try{ await call('setRuleStatus',TOKEN,ru.dataset.rule,ru.dataset.st); }catch(err){ xFail(err); return; } invalidate('v2ln','v2flow','v2au'); V2_LOAD.learn(); toast(ru.dataset.st==='사용'?'규칙을 켰습니다.':'규칙을 껐습니다.'); }
+    if(ru){ const rid=ru.dataset.rule, rst=ru.dataset.st; ru.disabled=true;
+      bgSave({ key:'rule:'+rid, label:'규칙 변경', okMsg:rst==='사용'?'규칙을 켰습니다.':'규칙을 껐습니다.', req:()=>call('setRuleStatus',TOKEN,rid,rst),
+        done:()=>{ invalidate('v2ln','v2flow','v2au'); V2_LOAD.learn(); }, revert:()=>{ ru.disabled=false; } }); }
     else if(rd){ if(!await confirmAction('규칙을 삭제할까요?','삭제하면 다음 초안부터 빠집니다.')) return; try{ await call('deleteRule',TOKEN,rd.dataset.rdel); }catch(err){ xFail(err); return; } invalidate('v2ln','v2flow'); V2_LOAD.learn(); }
     else if(mk){ const r=DATA['v2ln'].v.recent.find(x=>x.id===mk.dataset.mkrule); if(r) xRuleModal({ text:r.reason||'', scope:r.kind, hospital:r.hospital, source:'수정 기록에서 · '+r.at, example:String(r.final||'').slice(0,120) }); }
   });
@@ -5381,7 +5521,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   $('#view-knowledge').addEventListener('click', async e=>{
     const hh=e.target.closest('[data-knh]'), st=e.target.closest('[data-kns]'), dl=e.target.closest('[data-kndel]');
     if(hh){ knHosp=hh.dataset.knh; renderKnowledge(DATA['v2kn'].v); }
-    else if(st){ try{ await xRun(st,'처리 중…',()=>call('setKnowledgeStatus',TOKEN,st.dataset.kns,st.dataset.st)); }catch(err){ xFail(err); return; } invalidate('v2kn','v2flow','v2au'); V2_LOAD.knowledge(); toast(st.dataset.st==='확정'?'반영했습니다. 다음 인터뷰·초안부터 쓰입니다.':'무시했습니다.'); }
+    else if(st){ const kid=st.dataset.kns, kst=st.dataset.st, row=st.closest('tr,.x-card,li,div'); if(row) row.style.opacity='.45';
+      bgSave({ key:'kn:'+kid, label:'지식 처리', okMsg:kst==='확정'?'반영했습니다. 다음 인터뷰·초안부터 쓰입니다.':'무시했습니다.', req:()=>call('setKnowledgeStatus',TOKEN,kid,kst),
+        done:()=>{ invalidate('v2kn','v2flow','v2au'); V2_LOAD.knowledge(); }, revert:()=>{ if(row) row.style.opacity=''; } }); }
     else if(dl){ if(!await confirmAction('지식을 삭제할까요?','삭제하면 인터뷰·초안에 더 이상 쓰이지 않습니다.')) return; try{ await call('deleteKnowledge',TOKEN,dl.dataset.kndel); }catch(err){ xFail(err); return; } invalidate('v2kn','v2flow'); V2_LOAD.knowledge(); }
   });
   $('#kn-add').addEventListener('click', async e=>{
@@ -6261,15 +6403,24 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   $('#kpf-mgr').addEventListener('click', ()=>{ const b=$('#kpf-mgrbox'); b.hidden=!b.hidden; if(!b.hidden){ kpChips(); $('#kpf-nd').focus(); } });
   const kpAddDept=async btn=>{
     const hid=$('#kpf-h').value, name=$('#kpf-nd').value.trim(); if(!hid||!name){ toast('병원과 부서 이름을 입력하세요.'); return; }
-    try{ const r=await xRun(btn,'…',()=>call('addKpiDept', TOKEN, hid, name)); KP.info.depts[hid]=r.depts||[]; $('#kpf-nd').value=''; kpChips(); kpSyncSel(); toast('부서를 추가했습니다.'); }
-    catch(err){ xFail(err); }
+    const prev=(KP.info.depts||{})[hid];
+    bgSave({ key:'kpdept:'+hid, label:'부서 추가', okMsg:'부서를 추가했습니다.',
+      apply:()=>{ KP.info.depts=KP.info.depts||{}; const cur=kpDepts(hid).slice(); if(cur.indexOf(name)<0) cur.push(name); KP.info.depts[hid]=cur; $('#kpf-nd').value=''; kpChips(); kpSyncSel(); },
+      req:()=>call('addKpiDept', TOKEN, hid, name),
+      done:r=>{ if(r && r.depts){ KP.info.depts[hid]=r.depts; kpChips(); kpSyncSel(); } },
+      revert:()=>{ if(prev===undefined) delete KP.info.depts[hid]; else KP.info.depts[hid]=prev; kpChips(); kpSyncSel(); } });
   };
   $('#kpf-nd-add').addEventListener('click', e=>kpAddDept(e.currentTarget));
   $('#kpf-nd').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); kpAddDept($('#kpf-nd-add')); } });
   $('#kpf-chips').addEventListener('click', async e=>{
     const b=e.target.closest('[data-ddel]'); if(!b) return; const hid=$('#kpf-h').value, name=b.dataset.ddel;
     if(!await confirmAction('"'+name+'" 부서를 목록에서 뺄까요?','이미 입력한 KPI 기록은 그대로 남습니다.')) return;
-    try{ const r=await call('deleteKpiDept', TOKEN, hid, name); KP.info.depts[hid]=r.depts||[]; kpChips(); kpSyncSel(); }catch(err){ xFail(err); }
+    const prev=(KP.info.depts||{})[hid];
+    bgSave({ key:'kpdept:'+hid, label:'부서 빼기', okMsg:'"'+name+'" 부서를 목록에서 뺐습니다.',
+      apply:()=>{ KP.info.depts=KP.info.depts||{}; KP.info.depts[hid]=kpDepts(hid).filter(d=>d!==name); kpChips(); kpSyncSel(); },
+      req:()=>call('deleteKpiDept', TOKEN, hid, name),
+      done:r=>{ if(r && r.depts){ KP.info.depts[hid]=r.depts; kpChips(); kpSyncSel(); } },
+      revert:()=>{ if(prev===undefined) delete KP.info.depts[hid]; else KP.info.depts[hid]=prev; kpChips(); kpSyncSel(); } });
   });
   $('#kpf-save').addEventListener('click', async e=>{
     const v=(r,k)=>r.querySelector('[data-k='+k+']').value;
@@ -6281,12 +6432,19 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     if(rows.some(r=>r.dept==='__')){ toast('부서를 선택하지 않은 줄이 있습니다.'); return; }
     const bad=rows.find(r=>Number(r.tb||0)>Number(r.ta||0)||Number(r.tc||0)>Number(r.tb||0));
     if(bad){ toast((bad.dept||'부서 구분 없음')+': 타사는 접수 ≥ 참석 ≥ 합격이어야 합니다.'); return; }
-    try{
-      const r=await xRun(e.currentTarget,'저장 중…',()=>call('saveKpiBatch', TOKEN, { date, hospitalId:hid, rows, week:true }));
-      await kpOrders(true);
-      KP.cache={}; toast(kpWLab(date).replace(' · 이번 주','')+' · '+r.saved+'개 부서를 저장했습니다.'+(r.removed?' (정리 '+r.removed+'건)':''));
-      await kpPrefill(); await kpRender(true);
-    }catch(err){ xFail(err); }
+    /* 즉시 반영: 이 주(월~일) 내 입력을 화면 캐시에서 바로 바꿔 대시보드에 반영 → 서버 저장은 뒤에서 */
+    const me=KP.info.me, end=kpAdd(date,6), snap={}; Object.keys(KP.cache).forEach(k=>{ snap[k]=KP.cache[k]; });
+    const recs=rows.map(r=>{ const o={ uid:me.id, uname:me.name, hid, date, dept:r.dept, memo:r.memo, need:r.need }; [...KP_F,...KP_T].forEach(([k])=>{ o[k]=+r[k]||0; }); return o; });
+    bgSave({ key:'kpi:'+hid+':'+date, label:'KPI 저장', okMsg:kpWLab(date).replace(' · 이번 주','')+' · '+rows.length+'개 부서를 저장했습니다.',
+      apply:()=>{
+        Object.keys(KP.cache).forEach(k=>{ const [a,b]=k.split('|'); const keep=KP.cache[k].filter(x=>!(x.uid===me.id && x.hid===hid && x.date>=date && x.date<=end));
+          KP.cache[k]= (date<=b && end>=a) ? keep.concat(recs.filter(x=>x.date>=a && x.date<=b)) : keep; });
+        $('#kp-state').textContent='이 주 입력됨 · 수정하면 덮어씀'; $('#kp-state').classList.add('edit');
+        kpRender();
+      },
+      req:()=>call('saveKpiBatch', TOKEN, { date, hospitalId:hid, rows, week:true }),
+      done:async r=>{ if(r && r.removed) toast('같은 주 일별 기록 '+r.removed+'건을 한 건으로 정리했습니다.'); try{ await kpOrders(true); }catch(_){ } KP.cache={}; kpRender(true); },
+      revert:()=>{ KP.cache=snap; kpRender(); } });
   });
   $('#kp-fold').addEventListener('click', ()=>{ KP.formOpen=!KP.formOpen; $('#kp-formbody').hidden=!KP.formOpen; $('#kp-fold').textContent=KP.formOpen?'－ 접기':'＋ 펼치기'; });
   $('#kp-out').addEventListener('click', e=>{
@@ -6296,7 +6454,12 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     else if(act==='metric'){ D.metric=b.dataset.v; }
     else if(act==='today'){ D.anchor=''; }
     else if(act==='close'){ (async()=>{ if(!await confirmAction('이 채용 건을 종료할까요?','필요 인원을 채우지 못하고 끝난 건(병원 철회 등)에 씁니다. 종료하면 이후 같은 부서 입력은 새 건이 됩니다.', '종료')) return;
-        try{ await call('closeKpiOrder', TOKEN, b.dataset.v, '종료'); await kpOrders(true); toast('채용 건을 종료했습니다.'); kpRender(); }catch(err){ xFail(err); } })(); return; }
+        const o=(KP.orders||[]).find(x=>String(x.id)===String(b.dataset.v)), ps=o?o.status:null, pe=o?o.end:null;
+        bgSave({ key:'kpord:'+b.dataset.v, label:'채용 건 종료', okMsg:'채용 건을 종료했습니다.',
+          apply:()=>{ if(o){ o.status='종료'; o.end=kpTodayS(); } kpRender(); },
+          req:()=>call('closeKpiOrder', TOKEN, b.dataset.v, '종료'),
+          done:async()=>{ try{ await kpOrders(true); }catch(_){ } kpRender(); },
+          revert:()=>{ if(o){ o.status=ps; o.end=pe; } kpRender(); } }); })(); return; }
     else if(act==='prev'||act==='next'){ const n=act==='prev'?-1:1, a=KP.lastA||D.anchor||kpTodayS();
       if(D.period==='daily') D.anchor=kpAdd(a,n); else if(D.period==='weekly') D.anchor=kpAdd(kpMon(a),7*n); else { const d=kpDate(a); D.anchor=kpStr(new Date(d.getFullYear(),d.getMonth()+n,1)); }
       if(D.anchor>kpTodayS()) D.anchor=''; }
