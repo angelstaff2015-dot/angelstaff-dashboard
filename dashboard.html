@@ -1487,7 +1487,7 @@
         <div class="h3-hosp" id="h3-hosp"></div>
         <div class="h3-sec"><h2>추이와 분포</h2><span>휴먼관리시스템 재직자·이력서 관리 기준</span></div>
         <div class="h3-charts">
-          <div class="h3-card h3-chart"><div class="h3-ch" style="padding:0 0 10px;border:0"><h3>월별 입사 (최근 12개월)</h3></div><div class="h3-bsum" id="h3-c1s"></div><div class="h3-bars" id="h3-c1"></div><div class="h3-note">막대 위 숫자 = 그 달 입사 인원 · 현재 근무자 명단(재직·입사대기) 기준 · 점선 = 월평균</div></div>
+          <div class="h3-card h3-chart"><div class="h3-ch" style="padding:0 0 10px;border:0"><h3>월별 입사 (최근 12개월)</h3></div><div class="h3-bsum" id="h3-c1s"></div><div class="h3-bars" id="h3-c1"></div><div class="h3-note">막대 위 숫자 = 그 달 입사 인원 · 현재 근무자 명단(재직·입사대기) 기준</div></div>
           <div class="h3-card h3-chart"><div class="h3-ch" style="padding:0 0 8px;border:0"><h3>근속 기간 분포</h3></div><div class="h3-chips" id="h3-c2h"></div><div class="h3-hb" id="h3-c2"></div><div class="h3-note" id="h3-c2n"></div></div>
           <div class="h3-card h3-chart"><div class="h3-ch" style="padding:0 0 8px;border:0"><h3>채용 단계 · 월별</h3><div class="h3-mnav" id="h3-c3nav"></div></div><div class="h3-mini" id="h3-c3m"></div><div class="h3-hb" id="h3-c3"></div><div class="h3-note" id="h3-c3n"></div></div>
         </div>
@@ -4594,9 +4594,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const mx=Math.max(1,...mc), tot=mc.reduce((a,b)=>a+b,0), done=mc.slice(0,11), avg=done.reduce((a,b)=>a+b,0)/11, top=Math.max(...done), ti=done.lastIndexOf(top);
     const ml=d=>d.getMonth()+1+'월', yl=d=>"'"+String(d.getFullYear()).slice(2);
     $('#h3-c1s').innerHTML=`<div>12개월 합계<b>${tot}<small>명</small></b></div><div>월평균 <span class="x-mut">(이번 달 제외)</span><b>${avg.toFixed(1)}<small>명</small></b></div>`+
-      (top>0?`<div>가장 많은 달<b>${yl(months[ti])}.${ml(months[ti])}<small>${top}명</small></b></div>`:'')+`<div>이번 달<b>${mc[11]}<small>명</small></b></div>`;
+      (top>0?`<div>가장 많은 달<b>${top}<small>명 · ${months[ti].getFullYear()}년 ${ml(months[ti])}</small></b></div>`:'')+`<div>이번 달<b>${mc[11]}<small>명</small></b></div>`;
     const BH=120, bh=v=>v/mx*(BH-18);
-    $('#h3-c1').innerHTML=`<div class="avg" style="bottom:${30+bh(avg)}px"><span>평균 ${avg.toFixed(1)}</span></div>`+months.map((d,i)=>{ const first=i===0||d.getMonth()===0;
+    $('#h3-c1').innerHTML=months.map((d,i)=>{ const first=i===0||d.getMonth()===0;
       return `<div class="c ${i===11?'cur':''} ${i<11&&mc[i]===top&&top>0?'top':''}" title="${d.getFullYear()}년 ${d.getMonth()+1}월 입사 ${mc[i]}명"><u class="${mc[i]?'':'z'}">${mc[i]}<small>명</small></u><i style="height:${bh(mc[i])}px"></i><em>${i===11?'이번 달':ml(d)}${first?`<s>${d.getFullYear()}</s>`:''}</em></div>`; }).join('');
     /* 근속 분포 — 병원별 */
     const tenH=hn.indexOf(h3TenH)>=0?h3TenH:'';
