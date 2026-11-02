@@ -4686,7 +4686,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   document.addEventListener('click', e=>{ if(!e.target.closest('#ntf3') && !e.target.closest('#cmd3-bell')) ntf3Toggle(false); });
   $('#cmd3-refresh').addEventListener('click', async ()=>{
     const b=$('#cmd3-refresh'); if(b.classList.contains('spin')) return; b.classList.add('spin');
-    try{ invalidate('dash'); await prefetchAll(true); const v=(location.hash||'#dash').slice(1)||'dash'; if(v==='dash') loadDashboard(); else if(window.V2_LOAD && V2_LOAD[v]) V2_LOAD[v](true); toast('최신 데이터로 새로 고쳤습니다.'); }
+    try{ try{ await call('rcFlush',TOKEN); }catch(_){ } invalidate('dash'); await prefetchAll(true); const v=(location.hash||'#dash').slice(1)||'dash'; if(v==='dash') loadDashboard(); else if(window.V2_LOAD && V2_LOAD[v]) V2_LOAD[v](true); toast('최신 데이터로 새로 고쳤습니다.'); }
     catch(_){ toast('새로 고치지 못했습니다. 잠시 후 다시 시도하세요.'); }
     finally{ b.classList.remove('spin'); h3Sig=''; renderHome3(true); }
   });
@@ -4968,6 +4968,16 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const r=await call('getSatisfaction', TOKEN, ''); DATA['sv']={ t:Date.now(), v:Array.isArray(r)?r:[] }; return DATA['sv'].v;
   }
   function svOfWorker(list, w){ const n=String(w.name||'').replace(/\s/g,''), h=String(w.hospital||'').replace(/\s/g,''); return list.filter(s=>String(s.name||'').replace(/\s/g,'')===n && String(s.hospital||'').replace(/\s/g,'')===h); }
+  /* 퇴사·재직 전환: 화면은 바로 바꾸고 서버 저장은 뒤에서 (실패하면 원래대로 되돌림) */
+  function wkOptimistic(w, status, req, okMsg){
+    const c=DATA['v2wk']; const x=c && c.v && c.v.list ? c.v.list.find(o=>String(o.id)===String(w.id)) : null;
+    const prev=x ? { status:x.status, left:x.left } : null;
+    const d=new Date(), today=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
+    if(x){ x.status=status; x.left=status==='퇴사'?today:''; renderWorkers(c.v); }
+    toast(okMsg);
+    req().then(()=>{ invalidate('v2rk','v2fc'); if(DATA['v2wk']) DATA['v2wk'].t=0; persistSave(); })
+      .catch(e=>{ if(x && prev){ x.status=prev.status; x.left=prev.left; const cc=DATA['v2wk']; if(cc) renderWorkers(cc.v); } xFail(e); toast('저장하지 못해 원래대로 되돌렸습니다: '+String((e&&e.message)||e)); });
+  }
   async function wkEdit(w, focusSurvey){
     if(!w) return;
     const months='<option value="">–</option>'+Array.from({length:12},(_,i)=>`<option value="${i+1}" ${Number(w.checkup)===i+1?'selected':''}>${i+1}월</option>`).join('');
@@ -4988,12 +4998,10 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         `<div class="b-head" style="margin-top:26px;border-bottom:1px solid var(--ink);padding-bottom:9px;display:flex;justify-content:space-between"><h3 style="margin:0;font-size:15px">만족도 응답</h3><span class="meta x-mut x-small">이름·병원이 같은 응답</span></div><div id="wf-sv"><div class="loading" style="padding:16px 2px">불러오는 중…</div></div>`,
       foot:[{label:'닫기', ghost:true}, ...(!w.contractId && w.status==='재직' ? [{label:'퇴사 처리', ghost:true, onClick: async(btn)=>{
               if(!await xAsk('퇴사 처리할까요?', w.name+' 님을 오늘 날짜로 퇴사 처리합니다. 잘못 처리해도 「재직으로 되돌리기」로 복구할 수 있습니다.', '퇴사 처리')) return true;
-              await xRun(btn,'처리 중…',()=>call('setWorkerLeft',TOKEN,w.id,''));
-              invalidate('v2wk'); V2_LOAD.workers(); toast(w.name+' 님을 퇴사 처리했습니다. 퇴사 탭에서 되돌릴 수 있습니다.'); }}] : []),
+              wkOptimistic(w, '퇴사', ()=>call('setWorkerLeft',TOKEN,w.id,''), w.name+' 님을 퇴사 처리했습니다. 퇴사 탭에서 되돌릴 수 있습니다.'); }}] : []),
             ...(!w.contractId && w.status!=='재직' ? [{label:'재직으로 되돌리기', ghost:true, onClick: async(btn)=>{
               if(!await xAsk('재직으로 되돌릴까요?', w.name+' 님의 퇴사 처리'+(w.left?'('+w.left+')':'')+'를 취소하고 재직 상태로 바꿉니다.', '재직으로 되돌리기', false)) return true;
-              await xRun(btn,'처리 중…',()=>call('setWorkerActive',TOKEN,w.id));
-              invalidate('v2wk','v2rk','v2fc'); V2_LOAD.workers(); toast(w.name+' 님을 재직으로 되돌렸습니다.'); }}] : []),
+              wkOptimistic(w, '재직', ()=>call('setWorkerActive',TOKEN,w.id), w.name+' 님을 재직으로 되돌렸습니다.'); }}] : []),
             {label:'저장', onClick: async(btn)=>{
               const att=$('#wf-att').value;
               const patch={ '고용형태':$('#wf-emp').value, '생년월일':$('#wf-birth').value, '연락처':$('#wf-tel').value.trim(), '검진월':$('#wf-chk').value?Number($('#wf-chk').value):'', '근태이상':att===''?'':Number(att), '비고':$('#wf-memo').value.trim(), '만료일직접':$('#wf-exp').value||'', '파견법해제':$('#wf-exm').value==='Y'?'Y':'' };
