@@ -316,6 +316,11 @@
   @keyframes bgspin{to{transform:rotate(360deg)}}
   .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);z-index:95;background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:11px 18px;border-radius:100px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast-act{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);z-index:97;display:flex;align-items:center;gap:14px;background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:8px 8px 8px 18px;border-radius:100px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 14px 34px -12px rgba(20,18,16,.5);max-width:92vw}
+  #toast-act.on{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+  #toast-act span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #toast-act button{border:0;background:var(--trace);color:var(--ink);font:700 12.5px inherit;padding:7px 13px;border-radius:99px;cursor:pointer;white-space:nowrap}
+  #toast-act button:hover{background:#FFD43B}
 
   /* 지원자 필터바 + 인라인 상태 셀렉트 */
   .filterbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap}
@@ -2492,7 +2497,15 @@
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
   function fmtDate(v){ if(!v) return '–'; const d=new Date(v); if(isNaN(d)) return '–';
     return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0'); }
-  function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),2400); }
+  function toastAct(msg, label, fn, ms){             // 버튼이 있는 알림 (예: 등록 취소)
+    let t=document.getElementById('toast-act');
+    if(!t){ t=document.createElement('div'); t.id='toast-act'; t.setAttribute('role','status'); t.innerHTML='<span></span><button type="button"></button>'; document.body.appendChild(t);
+      t.querySelector('button').addEventListener('click', ()=>{ const f=t._fn; t._fn=null; t.classList.remove('on'); if(f) f(); }); }
+    try{ $('#toast').classList.remove('on'); }catch(_){ }
+    t.querySelector('span').textContent=msg; t.querySelector('button').textContent=label; t._fn=fn; t.classList.add('on');
+    clearTimeout(t._t); t._t=setTimeout(()=>{ t.classList.remove('on'); t._fn=null; }, ms||8000);
+  }
+  function toast(msg){ try{ const ta=document.getElementById('toast-act'); if(ta && ta.classList.contains('on')) return setTimeout(()=>toast(msg), 2600); }catch(_){ } const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),2400); }
   /* ═══ 즉시 반영 엔진: 화면은 먼저 바꾸고 서버 저장은 뒤에서 ═══
      · 같은 대상(key)에 대한 저장은 순서대로 보냄 (빠르게 여러 번 바꿔도 마지막 값이 남음)
      · 실패하면 revert() 로 화면을 되돌리고 사유를 길게 보여 줌 (retry() 가 있으면 입력값으로 창을 다시 엶)
@@ -2505,7 +2518,7 @@
     if(BG.n>0){ b.className='on'; b.innerHTML='<i></i>저장 중 '+BG.n+'건'; }
     else if(b.classList.contains('on')){ b.className='on ok'; b.innerHTML='<s>✓</s>모두 저장됨'; BG.t=setTimeout(()=>{ b.className=''; }, 1400); }
   }
-  function toastLong(msg, ms){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'), ms||6000); }
+  function toastLong(msg, ms){ try{ const ta=document.getElementById('toast-act'); if(ta){ ta.classList.remove('on'); ta._fn=null; } }catch(_){ } const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'), ms||6000); }
   function bgSave(o){
     try{ if(o.apply) o.apply(); }catch(e){ console.warn('[bgSave apply]', e); }
     if(o.okMsg) toast(o.okMsg);
@@ -2863,7 +2876,7 @@
   let cfResolve=null;
   function confirmAction(title, msg, okLabel){
     const cw=$('#confirm'); if(cw.parentNode!==document.body || cw.nextElementSibling) document.body.appendChild(cw); cw.style.zIndex='1000';
-    $('#cf-title').textContent=title; $('#cf-msg').textContent=msg; $('#cf-ok').textContent=okLabel||(/삭제|뺄까요/.test(title)?'삭제':'확인'); $('#confirm').classList.add('on');
+    $('#cf-title').textContent=title; $('#cf-msg').textContent=msg; $('#cf-ok').textContent=okLabel||(/삭제|뺄까요/.test(title)?'삭제':'확인'); $('#confirm').classList.add('on'); setTimeout(()=>{ try{ $('#cf-ok').focus({ preventScroll:true }); }catch(_){ } }, 0);
     return new Promise(res=>{ cfResolve=res; });
   }
   function cfClose(v){ $('#confirm').classList.remove('on'); if(cfResolve){ cfResolve(v); cfResolve=null; } }
@@ -4011,10 +4024,10 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     $('#xm-sub').textContent=o.sub||''; $('#xm-sub').hidden=!o.sub;
     $('#xm-body').innerHTML=o.body||'';
     const m=$('#xmodal .modal'); m.classList.toggle('x-wide', !!o.wide); m.classList.toggle('x-mid', !o.wide);
-    const f=$('#xm-foot'); f.innerHTML='';
+    const f=$('#xm-foot'); f.innerHTML=''; f.dataset.noenter=o.enter===false?'1':'';
     (o.foot||[{label:'닫기', ghost:true}]).forEach(b=>{
       const el=document.createElement('button'); el.type='button';
-      el.className='btn-sm'+(b.ghost?' ghost':'')+(b.danger?' danger':''); el.textContent=b.label; if(b.id) el.id=b.id;
+      el.className='btn-sm'+(b.ghost?' ghost':'')+(b.danger?' danger':''); el.textContent=b.label; if(b.id) el.id=b.id; if(o.enter && o.enter===b.label) el.dataset.enter='1';
       el.addEventListener('click', async ()=>{
         if(b.onClick){ let keep=false; try{ keep=await b.onClick(el); }catch(e){ xFail(e); keep=true; } if(keep===true) return; }
         xClose();
@@ -4036,10 +4049,38 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     o.style.top=m.scrollTop+'px';
     const t0=Date.now();
     o.addEventListener('click', e=>{ e.stopPropagation(); const b=e.target.closest('[data-a]'); if(!b || Date.now()-t0<500) return; xAskEnd(b.dataset.a==='1'); });
-    m.appendChild(o); m.style.overflow='hidden'; setTimeout(()=>{ const c=o.querySelector('[data-a="0"]'); if(c) c.focus(); }, 0);
+    m.appendChild(o); m.style.overflow='hidden'; setTimeout(()=>{ const c=o.querySelector('[data-a="1"]'); if(c) c.focus({ preventScroll:true }); }, 0);
     return new Promise(res=>{ xAskRes=res; });
   }
   $$('#xmodal [data-xclose]').forEach(el=>el.addEventListener('click', xClose));
+  /* 엔터 · 스페이스 = 확인 (열린 창의 주 버튼). 입력칸에서는 스페이스는 글자, 엔터는 확인(여러 줄 칸은 줄바꿈) */
+  function kbTop(){
+    const ask=document.getElementById('xask'); if(ask) return { el:ask, btn:()=>ask.querySelector('[data-a="1"]') };
+    if($('#confirm').classList.contains('on')) return { el:$('#confirm'), btn:()=>$('#cf-ok') };
+    const ws=[...document.querySelectorAll('.modal-wrap.on')].filter(w=>w.id!=='confirm');
+    if(!ws.length) return null;
+    const w=ws.sort((a,b)=>(Number(getComputedStyle(b).zIndex)||0)-(Number(getComputedStyle(a).zIndex)||0))[0];
+    return { el:w, btn:()=>{ if(w.id==='xmodal' && $('#xm-foot').dataset.noenter==='1') return null;   // 결재처럼 여러 처리 버튼이 있는 창은 직접 눌러야 함
+      const bs=[...w.querySelectorAll('.m-foot button, #xm-foot button')].filter(b=>b.offsetParent!==null && !b.disabled);
+      return bs.find(b=>b.dataset.enter==='1') || bs.filter(b=>!b.classList.contains('ghost')).pop() || bs.pop() || null; } };
+  }
+  document.addEventListener('keydown', e=>{
+    if(e.key!=='Enter' && e.key!==' ' && e.key!=='Spacebar') return;
+    if(e.isComposing || e.keyCode===229 || e.ctrlKey || e.metaKey || e.altKey) return;   // 한글 조합 중 엔터는 건드리지 않음
+    const top=kbTop(); if(!top) return;
+    const f=document.activeElement, inside=f && top.el.contains(f);
+    const tag=f ? f.tagName : '', typing=tag==='TEXTAREA' || tag==='SELECT' || (f && f.isContentEditable) || (tag==='INPUT' && !/^(checkbox|radio|button|submit|range|color|file)$/i.test(f.type||''));
+    if(inside){
+      if(f.closest('button, a, [role="button"]') && !typing) return;          // 직접 고른 버튼은 그 버튼이 눌림
+      if(e.key!=='Enter') return;                                             // 입력칸 스페이스 = 글자
+      if(tag==='TEXTAREA' || tag==='SELECT' || (f && f.isContentEditable)) return;
+      if(e.shiftKey) return;
+    }
+    const b=top.btn(); if(!b) return;
+    e.preventDefault(); e.stopPropagation();
+    if(e.repeat) return;
+    b.click();
+  }, true);
   document.addEventListener('keydown', e=>{ if(e.key!=='Escape') return; if(document.getElementById('xask')){ xAskEnd(false); return; } if($('#confirm').classList.contains('on')){ cfClose(false); return; } if($('#xmodal').classList.contains('on')) xClose(); });
 
   /* ── 작은 차트 ── */
@@ -6450,13 +6491,39 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         let days=LV_KIND[kind];
         if(kind==='조정'){ days=Number($('#la-n').value); if(!isFinite(days)||!days){ toast('조정 일수를 입력하세요 (예: 1, -2).'); return true; } }
         const tmp={ id:'tmp_'+Date.now(), wid:String(w.id), hid:String(w.hospitalId||''), name:w.name, date, kind, days, memo, by:(ME&&ME.user&&ME.user.name)||'', at:lvToday() };
-        bgSave({ key:'lv:'+w.id, label:w.name+' 님 '+kind+' 등록', okMsg:w.name+' 님 '+kind+(kind==='조정'?' '+(days>0?'+':'')+lvNum(days)+'일':'')+' 등록했습니다.',
-          apply:()=>{ LV.items=(LV.items||[]).concat([tmp]); lvRender(); lvDetailRefresh(w.id); },
+        const okm=w.name+' 님 '+v3Dot(date).slice(5)+' '+kind+(kind==='조정'?' '+(days>0?'+':'')+lvNum(days)+'일':'')+' 등록했습니다.';
+        bgSave({ key:'lv:'+w.id, label:w.name+' 님 '+kind+' 등록',
+          apply:()=>{ LV.items=(LV.items||[]).concat([tmp]); lvRender(); lvDetailRefresh(w.id); toastAct(okm, '등록 취소', ()=>lvCancel(tmp)); },
           req:()=>call('addLeave',TOKEN,{ workerId:w.id, date, kind, days, memo }),
           done:r=>{ if(r && r.id) tmp.id=r.id; if(DATA['lv']) DATA['lv'].t=0; },
           revert:()=>{ LV.items=(LV.items||[]).filter(x=>x!==tmp); lvRender(); lvDetailRefresh(w.id); },
           retry:()=>lvAdd(w.id, { date, kind, days, memo }) });
       }}] });
+  }
+  /* 등록 취소: 저장 중이어도 됨 (같은 사람 저장 순서대로 처리 → 등록이 끝난 뒤 그 기록을 지움) */
+  function lvCancel(x, after){
+    const w=lvFind(x.wid)||{ id:x.wid, name:x.name };
+    bgSave({ key:'lv:'+x.wid, label:(w.name||'')+' 님 '+x.kind+' 취소', okMsg:(w.name||'')+' 님 '+v3Dot(x.date).slice(5)+' '+x.kind+' 등록을 취소했습니다.',
+      apply:()=>{ LV.items=(LV.items||[]).filter(i=>i!==x); lvRender(); lvDetailRefresh(x.wid); if(after) after(); },
+      req:()=> String(x.id).indexOf('tmp_')===0 ? Promise.resolve({ ok:true }) : call('deleteLeave',TOKEN,x.id),
+      done:()=>{ if(DATA['lv']) DATA['lv'].t=0; },
+      revert:()=>{ if((LV.items||[]).indexOf(x)<0) LV.items=(LV.items||[]).concat([x]); lvRender(); lvDetailRefresh(x.wid); if(after) after(); } });
+  }
+  function lvMonth(wid, mo, kind){                    // 월 칸: 그 달 기록 보기 · 취소 · 더 등록
+    const w=lvFind(wid); if(!w) return;
+    const y=lvYear(), mm=String(Number(mo)+1).padStart(2,'0'), pre=y+'-'+mm+'-', half=kind==='반차';
+    const list=(LV.items||[]).filter(x=>String(x.wid)===String(wid) && String(x.date).indexOf(pre)===0 && (half ? (x.kind==='반차'||x.kind==='반반차') : (x.kind==='연차')))
+      .sort((a,b)=>a.date<b.date?-1:1);
+    const t=v3Today(), date=(y===t.getFullYear() && Number(mo)===t.getMonth()) ? lvToday() : pre+'01';
+    if(!list.length){ lvAdd(wid, { date, kind }); return; }
+    const body=`<table class="htbl x-tbl lv-dt" style="min-width:0"><tbody>${list.map(x=>`<tr><td class="x-num">${esc(v3Dot(x.date))}</td><td>${esc(x.kind)}</td><td class="r x-num">${lvNum(x.days)}일</td><td>${esc(x.memo||'')}</td><td class="x-mut">${esc(x.by||'')}</td><td class="r"><button class="x-btn lv-cx" data-lvcx="${esc(x.id)}">등록 취소</button></td></tr>`).join('')}</tbody></table>`;
+    xOpen({ title:w.name+' · '+Number(mm)+'월 '+(half?'반차':'연차'), sub:(w.hospital||'')+(w.dept?' · '+w.dept:'')+' · '+list.length+'건 · 잘못 넣은 기록은 [등록 취소]', body,
+      onOpen:(el)=>{ el.querySelectorAll('[data-lvcx]').forEach(b=>b.addEventListener('click', async ev=>{ ev.stopPropagation();
+        const x=(LV.items||[]).find(i=>String(i.id)===String(b.dataset.lvcx)); if(!x) return;
+        if(!await xAsk('등록을 취소할까요?', v3Dot(x.date)+' '+x.kind+' '+lvNum(x.days)+'일 기록을 지웁니다.', '등록 취소')) return;
+        lvCancel(x, ()=>{ if($('#xmodal').classList.contains('on')){ const left=(LV.items||[]).some(i=>String(i.wid)===String(wid) && String(i.date).indexOf(pre)===0 && (half?(i.kind==='반차'||i.kind==='반반차'):i.kind==='연차')); if(left) lvMonth(wid, mo, kind); else xClose(); } });
+      })); },
+      enter:'＋ 추가 등록', foot:[{label:'닫기', ghost:true},{label:'＋ 추가 등록', onClick:()=>{ setTimeout(()=>lvAdd(wid, { date, kind }),0); }}] });
   }
   let lvDetailId=null;
   function lvDetailRefresh(wid){ if(lvDetailId && String(lvDetailId)===String(wid) && $('#xmodal').classList.contains('on') && $('#lvd')) lvDetail(wid, true); }
@@ -6464,7 +6531,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const w=lvFind(wid); if(!w) return;
     const r=lvCalc(w, LV.ref||lvToday(), LV.items||[]); lvDetailId=wid;
     const per=r.ps.slice().reverse().map(p=>`<tr><td class="x-num">${esc(v3Dot(p.a))} – ${esc(v3Dot(p.b))}${p===r.cur?' <span class="x-pill info">현재</span>':''}</td><td>${p.first?'1년 미만 (월 1일)':(p.n+1)+'년차'}</td><td class="r x-num">${lvNum(p.acc)}</td><td class="r x-num">${p.adj?(p.adj>0?'+':'')+lvNum(p.adj):'–'}</td><td class="r x-num">${lvNum(p.used)}</td><td class="r x-num"><b>${lvNum(p.left)}</b></td></tr>`).join('');
-    const hist=r.mine.slice().sort((a,b)=>a.date<b.date?1:-1).map(x=>`<tr><td class="x-num">${esc(v3Dot(x.date))}</td><td>${esc(x.kind)}</td><td class="r x-num">${x.kind==='조정'?(x.days>0?'+':'')+lvNum(x.days):lvNum(x.days)}</td><td>${esc(x.memo||'')}</td><td class="x-mut">${esc(x.by||'')}</td><td class="r">${String(x.id).indexOf('tmp_')===0?'<span class="x-mut x-small">저장 중</span>':`<button class="x-btn" data-lvdel="${esc(x.id)}">삭제</button>`}</td></tr>`).join('');
+    const hist=r.mine.slice().sort((a,b)=>a.date<b.date?1:-1).map(x=>`<tr><td class="x-num">${esc(v3Dot(x.date))}</td><td>${esc(x.kind)}</td><td class="r x-num">${x.kind==='조정'?(x.days>0?'+':'')+lvNum(x.days):lvNum(x.days)}</td><td>${esc(x.memo||'')}</td><td class="x-mut">${esc(x.by||'')}</td><td class="r"><button class="x-btn" data-lvdel="${esc(x.id)}">등록 취소</button></td></tr>`).join('');
     const c=r.cur;
     const body=`<div id="lvd"><div class="lv-dsum">${c?`<div><span>현재 기간</span><b>${esc(v3Dot(c.a))} – ${esc(v3Dot(c.b))}</b></div><div><span>발생</span><b>${lvNum(c.acc)}${c.adj?' '+(c.adj>0?'+':'')+lvNum(c.adj):''}</b></div><div><span>사용</span><b>${lvNum(c.used)}</b></div><div><span>잔여</span><b class="${c.left<0?'bad':''}">${lvNum(c.left)}</b></div>`:'<div><span>계산 불가</span><b>입사일 없음</b></div>'}</div>`+
       `<div class="b-head" style="margin-top:18px;border-bottom:1px solid var(--ink);padding-bottom:8px"><h3 style="margin:0;font-size:15px">기간별 내역</h3><span class="meta x-mut x-small">입사일 ${esc(v3Dot(w.join)||'–')} · 근속 ${esc(r.ten||'–')}</span></div>`+
@@ -6481,12 +6548,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const box=$('#lvd'); if(!box) return;
     box.addEventListener('click', async e=>{ const b=e.target.closest('[data-lvdel]'); if(!b) return; e.stopPropagation();
         const x=(LV.items||[]).find(i=>String(i.id)===String(b.dataset.lvdel)); if(!x) return;
-        if(!await xAsk('이 기록을 삭제할까요?', v3Dot(x.date)+' '+x.kind+' '+lvNum(x.days)+'일 기록을 지웁니다.', '삭제')) return;
-        bgSave({ key:'lv:'+w.id, label:'연차 기록 삭제', okMsg:'삭제했습니다.',
-          apply:()=>{ LV.items=(LV.items||[]).filter(i=>i!==x); lvRender(); lvDetail(w.id, true); },
-          req:()=>call('deleteLeave',TOKEN,x.id),
-          done:()=>{ if(DATA['lv']) DATA['lv'].t=0; },
-          revert:()=>{ LV.items=(LV.items||[]).concat([x]); lvRender(); lvDetailRefresh(w.id); } });
+        if(!await xAsk('등록을 취소할까요?', v3Dot(x.date)+' '+x.kind+' '+lvNum(x.days)+'일 기록을 지웁니다.', '등록 취소')) return;
+        lvCancel(x);
     });
   }
   async function lvExport(){
@@ -6570,9 +6633,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const qk=e.target.closest('[data-quick]'); if(qk){ const i=qk.dataset.quick.lastIndexOf('|'), t={ h:qk.dataset.quick.slice(0,i), e:qk.dataset.quick.slice(i+1) }; lvSetTabs((LV.tabs||[]).concat([t]), lvTabKey(t)); return; }
     const n=e.target.closest('[data-lvw]'); if(n){ lvDetail(n.dataset.lvw); return; }
     const c=e.target.closest('[data-lvc]'); if(!c) return;
-    const [wid,mo,kind]=c.dataset.lvc.split('|'), y=lvYear(), t=v3Today();
-    const date=(y===t.getFullYear() && Number(mo)===t.getMonth()) ? lvToday() : y+'-'+String(Number(mo)+1).padStart(2,'0')+'-01';
-    lvAdd(wid, { date, kind });
+    const [wid,mo,kind]=c.dataset.lvc.split('|');
+    lvMonth(wid, mo, kind);
   });
   views.leave=$('#view-leave');
   V2_LOAD.leave=async(force)=>{ if(force){ invalidate('lv'); } await lvLoad(force); };
@@ -6665,7 +6727,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         box.querySelectorAll('[data-i="amount"]').forEach(a=>{ const r=a.closest('.ex-ir'), q=Number(r.querySelector('[data-i="qty"]').value)||0, p=Number(r.querySelector('[data-i="price"]').value)||0; if(a.value && Math.round(q*p)!==Number(a.value)) a.dataset.auto='0'; });
         recalc();
       },
-      foot:[{label:'취소', ghost:true},{label:'임시저장', ghost:true, onClick:()=>exSave(e, false)},{label:'결재 요청', onClick:()=>exSave(e, true)}] });
+      enter:'임시저장', foot:[{label:'취소', ghost:true},{label:'임시저장', ghost:true, onClick:()=>exSave(e, false)},{label:'결재 요청', onClick:()=>exSave(e, true)}] });
   }
   function exSave(e, submit){
     const hid=$('#ef-h').value, h=(hospitalCache||[]).find(x=>String(x['병원ID'])===String(hid));
@@ -6751,7 +6813,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       if(x.status==='승인' && adm) foot.push({label:'지급완료', onClick:()=>exStatus(x,'지급완료')});
     }
     const trail=[['작성', x.created||x.date, x.author], ['결재요청', x.reqAt, ''], [x.status==='반려'?'반려':'승인', x.apAt, x.approver], ['지급완료', x.paidAt, '']].filter(t=>t[1]);
-    xOpen({ title:(x.no||'저장 중')+' · '+x.title, sub:x.hospital+' · '+x.cat+' · ₩ '+exWon(x.amount), wide:true,
+    xOpen({ title:(x.no||'저장 중')+' · '+x.title, sub:x.hospital+' · '+x.cat+' · ₩ '+exWon(x.amount), wide:true, enter:false,
       body:`<div class="ex-trail">${trail.map(t=>`<span><b>${esc(t[0])}</b> ${esc(v3Dot(t[1]))}${t[2]?' · '+esc(t[2]):''}</span>`).join('<i>›</i>')}<span class="x-pill ${EX_STC[x.status]||'ghost'}" style="margin-left:auto">${esc(x.status)}</span></div>`+
         `<style>${EXD_CSS.replace(/\.exd/g,'#xm-body .exd')}</style>${exDocHtml(x,false)}`+
         `<div id="exd-rj" class="ex-rjbox" hidden><label class="x-lab" for="exd-rjt">반려 사유</label><input id="exd-rjt" class="x-input" maxlength="200" placeholder="예: 증빙 누락 — 카드전표를 첨부해 다시 요청하세요"></div>`,
