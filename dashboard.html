@@ -717,6 +717,10 @@
   .kp-fr{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
   .kp-fr label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-3);font-weight:600;flex:1 1 200px;min-width:150px;max-width:340px}
   .kp-fr .x-search,.kp-fr .filter-sel{width:100%;box-sizing:border-box}
+  .kp-wk{display:flex;align-items:center;gap:8px;height:38px;border:1px solid var(--line);border-radius:10px;padding:0 6px;background:#fff}
+  .kp-wk .kd-nb{width:28px;height:28px;border:0;font-size:18px;flex:none}
+  .kp-wk b{flex:1;text-align:center;font-size:13.5px;color:var(--ink);font-weight:600;white-space:nowrap}
+  .kp-fr label:first-child{max-width:380px;flex-basis:300px}
   
   .kp-rh{font-size:11.5px;font-weight:600;color:var(--ink-3);padding:0 2px 6px;border-bottom:1px solid var(--ink)}
   .kp-row{padding:8px 2px;border-bottom:1px solid var(--line-2)}
@@ -1830,14 +1834,14 @@
         <div><div class="eyebrow">Recruiting KPI</div><h1>채용 KPI</h1></div>
         <div class="actions"><span class="muted" id="kp-who" style="font-size:13px"></span>
           <span id="kp-all" class="kd-row" style="gap:6px"><button type="button" class="kd-tg" data-all="1" style="border-color:var(--line)">모두 펼치기</button><button type="button" class="kd-tg" data-all="0" style="border-color:var(--line)">모두 접기</button></span>
-          <div class="kd-tabs" id="kp-tabs"><button type="button" class="kd-tab" data-p="daily">일간</button><button type="button" class="kd-tab on" data-p="weekly">주간</button><button type="button" class="kd-tab" data-p="monthly">월간</button></div>
+          <div class="kd-tabs" id="kp-tabs"><button type="button" class="kd-tab on" data-p="weekly">주간</button><button type="button" class="kd-tab" data-p="monthly">월간</button></div>
         </div>
       </div>
       <div class="kp-form" id="kp-form">
-        <div class="kp-ft"><b>데일리 KPI 입력</b><span style="display:flex;gap:8px;align-items:center"><span id="kp-state" class="kp-pill">새로 입력</span><button type="button" class="kd-tg" id="kp-fold">－ 접기</button></span></div>
+        <div class="kp-ft"><b>주간 KPI 입력 <span class="muted" style="font-weight:500;font-size:13px">월~금 한 주 실적을 한 번에</span></b><span style="display:flex;gap:8px;align-items:center"><span id="kp-state" class="kp-pill">새로 입력</span><button type="button" class="kd-tg" id="kp-fold">－ 접기</button></span></div>
         <div id="kp-formbody">
         <div class="kp-fr">
-          <label>날짜<input type="date" id="kpf-date" class="x-search"></label>
+          <label>주<span class="kp-wk"><button type="button" class="kd-nb" id="kpf-wprev" aria-label="이전 주">‹</button><b id="kpf-wlab">–</b><button type="button" class="kd-nb" id="kpf-wnext" aria-label="다음 주">›</button></span><input type="hidden" id="kpf-date"></label>
           <label>병원<select id="kpf-h" class="filter-sel"></select></label>
         </div>
         <div class="tbl-scroll"><div class="kp-grid">
@@ -1855,7 +1859,7 @@
           <div id="kpf-chips" class="kp-chips"></div>
           <div class="kp-nd"><input id="kpf-nd" class="x-search" maxlength="30" placeholder="새 부서 이름 (예: 원무, 약제)"><button type="button" class="x-btn" id="kpf-nd-add">목록에 추가</button></div>
         </div>
-        <div class="kp-fa"><span class="muted" id="kp-hint" style="font-size:12.5px">필요 인원 = 그 부서 채용 건의 필요 인원. 한 번 적으면 건이 끝날 때까지 이어지고, 누적 합격이 필요 인원에 닿으면 건이 자동 완료돼 다음 입력부터 새 건이 됩니다. 타사는 접수 ≥ 참석 ≥ 합격. 같은 날짜·병원으로 다시 저장하면 덮어씁니다.</span><button class="btn-sm" id="kpf-save">저장</button></div>
+        <div class="kp-fa"><span class="muted" id="kp-hint" style="font-size:12.5px">필요 인원 = 그 부서 채용 건의 필요 인원. 한 번 적으면 건이 끝날 때까지 이어지고, 누적 합격이 필요 인원에 닿으면 건이 자동 완료돼 다음 입력부터 새 건이 됩니다. 타사는 접수 ≥ 참석 ≥ 합격. <b>한 주(월~금) 실적은 한 건으로 저장</b>됩니다. 주 중에 숫자가 늘면 같은 주를 열어 바뀐 누적 숫자로 고쳐 저장하세요. 덮어쓰기라 중복으로 더해지지 않습니다.</span><button class="btn-sm" id="kpf-save">저장</button></div>
         </div>
       </div>
       <div id="kp-out" style="margin-top:26px"><div class="loading">불러오는 중…</div></div>
@@ -3961,6 +3965,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       const j=v3Date(w.join);
       w.expiryAuto = (w.emp==='파견' && j) ? v3Dot(v3Key(v3Two(j))) : '';   // 만료 기준 = 파견 최대 2년
       w.expiry = w.expiryManual ? v3Dot(w.expiryManual) : w.expiryAuto;      // 담당자가 직접 정한 만료일이 있으면 우선
+      if(w.exempt) w.expiry = '';                                         // 파견법 해제(고령자 등) → 2년 만료 관리 대상 아님
     });
     v._n=2; return v;
   }
@@ -4075,7 +4080,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       const cls = (on && n!=null && n<=V3_EXP_POP ? 'v3-row-r' : (on && n!=null && n<=V3_EXP_TOP ? 'v3-row-a' : ''))+(sel?' wk-sel':'');
       return `<tr class="${cls}"><td class="wk-ck"><input type="checkbox" data-wkchk="${esc(id)}" ${sel?'checked':''} ${w.contractId?'disabled title="계약에서 온 근무자는 여기서 삭제할 수 없습니다"':''} aria-label="${esc(w.name)} 선택"></td><td><div class="x-who"><b>${esc(w.name)}${lv?` <span class="x-pill warn" title="휴먼관리시스템 퇴사대기자${lv.reason?' · '+esc(lv.reason):''}">퇴사대기${lv.leave?' '+esc(v3Dot(lv.leave)):''}</span>`:''}</b><small>${esc(w.hospital||'병원 미지정')}${w.dept?' · '+esc(w.dept):''}${!on?' · 퇴사 '+esc(w.left||''):''}</small></div></td>`+
         `<td>${esc(w.emp||'')}</td><td class="x-num">${esc(v3Dot(w.join)||'–')}</td>`+
-        `<td class="r x-num">${w.expiryManual?'<span class="v3-man" title="담당자가 직접 지정한 만료일">직접</span>':''}${w.expiry?esc(v3Dot(w.expiry)):'<span class="muted">–</span>'} ${on?v3DdPill(n):''}</td>`+
+        `<td class="r x-num">${w.exempt?'<span class="x-pill ghost" title="파견법 해제 — 파견 2년 만료 관리 제외">파견법 해제</span>':''}${w.expiryManual&&!w.exempt?'<span class="v3-man" title="담당자가 직접 지정한 만료일">직접</span>':''}${w.expiry?esc(v3Dot(w.expiry)):(w.exempt?'':'<span class="muted">–</span>')} ${on?v3DdPill(n):''}</td>`+
         `<td class="x-num">${w.birth?esc(w.birth.replace(/-/g,'.')):'<span class="x-pill warn">미입력</span>'}</td>`+
         `<td class="x-num">${w.tel?esc(w.tel):'<span class="muted">–</span>'}</td><td class="r">${w.checkup?w.checkup+'월':'–'}</td>`+
         `<td class="r"><button class="x-btn" data-wkedit="${esc(w.id)}">수정</button></td></tr>`;
@@ -4440,7 +4445,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const over=act.filter(w=>{ const n=dd(w); return n!=null && n<0; });
     /* 파견 2년: 입사일 + 2년 */
     const two=w=>{ const j=v3Date(w.join); return j ? new Date(j.getFullYear()+2, j.getMonth(), j.getDate()-1) : null; };
-    const disp=act.filter(w=>w.emp==='파견' && v3Date(w.join));
+    const disp=act.filter(w=>w.emp==='파견' && !w.exempt && v3Date(w.join));   // 파견법 해제 인원은 2년 관리 제외
     const two90=disp.filter(w=>{ const n=h3Diff(two(w)); return n>30 && n<=90; }).sort((a,b)=>two(a)-two(b));
     const twoOver=disp.filter(w=>h3Diff(two(w))<0);
     /* 지원자 */
@@ -4759,7 +4764,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       const span=Math.max(1,end-j), pos=d=>Math.max(0,Math.min(100,(d-j)/span*100));
       const mk=(d,l,c)=>d?`<div class="tl-mk ${pos(d)>85?'r':(pos(d)<12?'l':'')}" style="left:${pos(d)}%"><i style="background:${c}"></i><span>${l}<br><b>${esc(v3Dot(v3Key(d)))}</b></span></div>`:'';
       const n=e?h3Diff(e):null;
-      return `<div class="tl3"><div class="tl-top"><div><small>근속</small><b>${yrs?yrs+'년 ':''}${mon}개월</b><em>${days}일</em></div><div><small>${w.expiryManual?'파견 만료 (직접 지정)':'파견 만료 (입사+2년)'}</small><b>${e?esc(v3Dot(w.expiry)):'해당 없음 · '+esc(w.emp||'')}</b>${n!=null?v3DdPill(n):''}</div>${w.contractEnd?`<div><small>휴먼관리시스템 계약종료일</small><b style="font-weight:500;color:var(--ink-3)">${esc(v3Dot(w.contractEnd))}</b></div>`:''}${two?`<div><small>파견 2년 시점</small><b>${esc(v3Dot(v3Key(two)))}</b>${v3DdPill(h3Diff(two))}</div>`:''}</div>`+
+      return `<div class="tl3"><div class="tl-top"><div><small>근속</small><b>${yrs?yrs+'년 ':''}${mon}개월</b><em>${days}일</em></div><div><small>${w.exempt?'파견 만료':w.expiryManual?'파견 만료 (직접 지정)':'파견 만료 (입사+2년)'}</small><b>${w.exempt?'파견법 해제 · 2년 제한 없음':e?esc(v3Dot(w.expiry)):'해당 없음 · '+esc(w.emp||'')}</b>${n!=null?v3DdPill(n):''}</div>${w.contractEnd?`<div><small>휴먼관리시스템 계약종료일</small><b style="font-weight:500;color:var(--ink-3)">${esc(v3Dot(w.contractEnd))}</b></div>`:''}${two?`<div><small>파견 2년 시점</small><b>${esc(v3Dot(v3Key(two)))}</b>${v3DdPill(h3Diff(two))}</div>`:''}</div>`+
         `<div class="tl-bar"><p><i style="width:${pos(T)}%"></i></p>${mk(j,'입사','#171614')}${mk(e,'파견 만료','#D92D20')}${two?mk(two,'2년','#DC6803'):''}<div class="tl-now" style="left:${pos(T)}%"><span>오늘</span></div></div></div>`;
     }catch(_){ return ''; }
   }
@@ -4939,6 +4944,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
           `<div><label class="x-lab" for="wf-att">근태 이상 (최근 한 달 · 지각·결근 횟수)</label><input id="wf-att" type="number" min="0" class="x-input" value="${w.attend===''||w.attend==null?'':esc(w.attend)}"></div>`+
           `<div><label class="x-lab" for="wf-memo">비고</label><input id="wf-memo" class="x-input" value="${esc(w.memo||'')}"></div>`+
           `<div><label class="x-lab" for="wf-exp">파견 만료일 직접 지정 <span class="x-mut">(비우면 자동: ${w.expiryAuto?esc(w.expiryAuto):'해당 없음'})</span></label><div style="display:flex;gap:6px"><input id="wf-exp" type="date" class="x-input" value="${esc(w.expiryManual?v3Key(v3Date(w.expiryManual)):'')}"><button type="button" class="x-btn" id="wf-exp-x">자동으로</button></div></div>`+
+          `<div><label class="x-lab" for="wf-exm">파견법 해제</label><select id="wf-exm" class="x-select"><option value=""${w.exempt?'':' selected'}>해당 없음 (파견 2년 만료 관리)</option><option value="Y"${w.exempt?' selected':''}>해제 — 파견 2년 제한 적용 안 함 (예: 55세 이상 고령자)</option></select></div>`+
         `</div>`+
         `<div class="b-head" style="margin-top:26px;border-bottom:1px solid var(--ink);padding-bottom:9px;display:flex;justify-content:space-between"><h3 style="margin:0;font-size:15px">만족도 응답</h3><span class="meta x-mut x-small">이름·병원이 같은 응답</span></div><div id="wf-sv"><div class="loading" style="padding:16px 2px">불러오는 중…</div></div>`,
       foot:[{label:'닫기', ghost:true}, ...(!w.contractId && w.status==='재직' ? [{label:'퇴사 처리', ghost:true, onClick: async(btn)=>{
@@ -4947,7 +4953,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
               invalidate('v2wk'); V2_LOAD.workers(); toast('퇴사 처리했습니다.'); }}] : []),
             {label:'저장', onClick: async(btn)=>{
               const att=$('#wf-att').value;
-              const patch={ '고용형태':$('#wf-emp').value, '생년월일':$('#wf-birth').value, '연락처':$('#wf-tel').value.trim(), '검진월':$('#wf-chk').value?Number($('#wf-chk').value):'', '근태이상':att===''?'':Number(att), '비고':$('#wf-memo').value.trim(), '만료일직접':$('#wf-exp').value||'' };
+              const patch={ '고용형태':$('#wf-emp').value, '생년월일':$('#wf-birth').value, '연락처':$('#wf-tel').value.trim(), '검진월':$('#wf-chk').value?Number($('#wf-chk').value):'', '근태이상':att===''?'':Number(att), '비고':$('#wf-memo').value.trim(), '만료일직접':$('#wf-exp').value||'', '파견법해제':$('#wf-exm').value==='Y'?'Y':'' };
               await xRun(btn,'저장 중…',()=>call('updateWorker',TOKEN,w.id,patch));
               invalidate('v2wk','v2rk','v2fc'); V2_LOAD.workers(); toast('저장했습니다.'); }}],
       onOpen: async()=>{
@@ -5973,7 +5979,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   const kpOTag=(o,now)=>o.status==='진행'?`${o.no}번째 건 · ${kpODays(o,now)}일째 · 합격 ${o.pa}/${o.need||'?'}`:o.status==='완료'?`${o.no}번째 건 완료 · ${kpODays(o,now)}일 소요`:`${o.no}번째 건 종료 · ${o.reason||''}`;
   const kpHosps=()=>(KP.info.hospitals||[]).filter(h=>!xHospOut(h.name));
 
-  /* ── 입력 폼 (하루 · 한 병원 · 여러 부서) ── */
+  /* ── 입력 폼 (한 주 · 한 병원 · 여러 부서) — 월요일 날짜로 주 단위 한 건 저장 (같은 주 다시 저장 = 덮어쓰기) ── */
+  const kpWLab=m=>{ const f=kpAdd(m,4); return kpLab(m)+' – '+kpLab(f)+(m===kpMon(kpTodayS())?' · 이번 주':''); };
+  function kpSetWeek(m){ const cur=kpMon(kpTodayS()); if(m>cur) m=cur; $('#kpf-date').value=m; $('#kpf-wlab').textContent=kpWLab(m); $('#kpf-wnext').disabled=m>=cur; }
   const kpDepts=hid=>((KP.info.depts||{})[hid]||(KP.info.depts||{}).__default||[]);
   const kpNeed=(hid,d)=>{ const o=kpOrderAt(hid,d,$('#kpf-date').value||kpTodayS()); return o&&o.need?o.need:undefined; };
   function kpFillHosp(){
@@ -6015,10 +6023,12 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   }
   async function kpPrefill(){
     const date=$('#kpf-date').value, hid=$('#kpf-h').value;
-    const set=rs=>{ kpSetRows(rs); $('#kp-state').textContent=rs.length?'입력됨 · 수정 중':'새로 입력'; $('#kp-state').classList.toggle('edit',!!rs.length); };
+    const set=rs=>{ kpSetRows(rs); $('#kp-state').textContent=rs.length?'이 주 입력됨 · 수정하면 덮어씀':'이 주 새로 입력'; $('#kp-state').classList.toggle('edit',!!rs.length); };
     if(!date||!hid){ set([]); return; }
     try{
-      const rs=await kpFetch(date,date,true), mine=rs.filter(x=>x.uid===KP.info.me.id && x.hid===hid).sort((a,b)=>a.dept.localeCompare(b.dept,'ko'));
+      const rs=await kpFetch(date,kpAdd(date,6),true), by={};
+      rs.filter(x=>x.uid===KP.info.me.id && x.hid===hid).sort((a,b)=>a.date<b.date?-1:1).forEach(x=>{ const t=by[x.dept]||(by[x.dept]={ dept:x.dept, memo:'' }); [...KP_F,...KP_T].forEach(([k])=>{ t[k]=(t[k]||0)+(+x[k]||0); }); if(x.memo) t.memo=x.memo; });
+      const mine=Object.values(by).sort((a,b)=>a.dept.localeCompare(b.dept,'ko'));
       if($('#kpf-date').value===date && $('#kpf-h').value===hid) set(mine);
     }catch(_){ }
   }
@@ -6046,14 +6056,15 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       pLong=d.getFullYear()+'년 '+(d.getMonth()+1)+'월'; canNext=ld<today;
       for(let a=fd;a<=ld;){ const b=kpMin(ld,kpAdd(a,6-((kpDate(a).getDay()+6)%7))); cols.push({a,b}); a=kpAdd(b,1); }
     } else {
-      const w0=kpMon(A); for(let i=0;i<7;i++){ const x=kpAdd(w0,i); cols.push({a:x,b:x}); }
+      const w0=kpMon(A); for(let i=7;i>=0;i--){ const x=kpAdd(w0,-7*i); cols.push({a:x,b:kpAdd(x,6)}); }   // 주간: 최근 8주 (한 주 = 월요일 날짜의 한 건)
       if(D.period==='weekly'){
-        P0=w0; P1=kpMin(kpAdd(w0,6),today); const len=kpDays(P0,P1); Q0=kpAdd(w0,-7); Q1=kpAdd(Q0,len-1);
-        status=len===7?'마감 · 7일':'진행 중 · 7일 중 '+len+'일'; cmpName=len===7?'직전 주':'직전 주 같은 요일까지'; pLong=kpRngL(w0,kpAdd(w0,6)); canNext=kpAdd(w0,7)<=today;
+        P0=w0; P1=kpAdd(w0,6); Q0=kpAdd(w0,-7); Q1=kpAdd(w0,-1);
+        status=w0===kpMon(kpTodayS())?'이번 주 · 입력 중':'마감'; cmpName='직전 주'; pLong=kpRngL(w0,kpAdd(w0,4)); canNext=kpAdd(w0,7)<=kpTodayS();
       } else { P0=P1=A; Q0=Q1=kpAdd(A,-7); cmpName='1주 전 같은 요일'; pLong=kpDate(A).getFullYear()+'.'+kpLab(A); canNext=A<today; status=''; }
     }
     let M0=P1.slice(0,8)+'01';
-    return { A, today, P0, P1, Q0, Q1, pLong, status, cmpName, cols, M0, canPrev, canNext, pS:kpRng(P0,P1), qS:kpRng(Q0,Q1), qLong:kpRngL(Q0,Q1), mtdS:(+P1.slice(5,7))+'월 누적 '+kpRng(M0,P1) };
+    const wk=D.period==='weekly', p1=wk?kpAdd(P0,4):P1, q1=wk?kpAdd(Q0,4):Q1;   // 주간 표시는 월~금
+    return { A, today, P0, P1, Q0, Q1, pLong, status, cmpName, cols, M0, canPrev, canNext, pS:kpRng(P0,p1), qS:kpRng(Q0,q1), qLong:kpRngL(Q0,q1), mtdS:(+P1.slice(5,7))+'월 누적 '+kpRng(M0,P1) };
   }
   const kdTg=(n,label)=>`<button type="button" class="kd-tg" data-kd="tog" data-n="${n}" aria-expanded="${KP.d.open[n]?'true':'false'}">${KP.d.open[n]?'－ 접기':'＋ 펼치기'}</button>`;
   const kdSec=(n,title,desc,right,body)=>`<section class="kd-sec"><div class="kd-sh"><div><div class="eyebrow">${kpPad(n)}</div><h2>${title}</h2><div class="kd-sd">${desc}</div></div><div class="kd-shr">${right||''}${kdTg(n)}</div></div>${KP.d.open[n]?body:''}</section>`;
@@ -6062,7 +6073,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const from=[R0.Q0,R0.M0,kpAdd(R0.cols[0].a,-7),kpAdd(R0.P0,-14),kpAdd(now,-45)].sort()[0];
     let all;
     try{ all=await kpFetch(from,now,force); }catch(e){ out.innerHTML='<div class="empty-row">불러오지 못했습니다.</div>'; xFail(e); return; }
-    const last=all.some(r=>r.date===now)?now:kpAdd(now,-1), R=kdPeriod(last), today=last;
+    const last=D.period==='weekly'||all.some(r=>r.date===now)?now:kpAdd(now,-1), R=kdPeriod(last), today=last;   // 주간: 이번 주를 바로 보여 줌
     const HS=kpHosps(), hIds=new Set(HS.map(h=>h.id)), hName=id=>(HS.find(h=>h.id===id)||{}).name||'';
     const one=!!D.hosp && hIds.has(D.hosp);
     const rows=all.filter(r=>hIds.has(r.hid) && (!one || r.hid===D.hosp));
@@ -6082,17 +6093,18 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       hospIds.map(id=>({ id, name:hName(id), rs:rows.filter(r=>r.hid===id), need:needOf(id,deptsOf(id)), isH:true }));
     const needSum=units.reduce((a,u)=>a+u.need,0);
     // 입력 누락: 팀 입력이 있었던 평일에, 최근 2주 안에 입력한 적 있는 담당자·부서의 기록이 없는 건
-    const workDays=[]; for(let d=R.P0; d<=R.P1; d=kpAdd(d,1)){ const w=kpDate(d).getDay(); if(w>=1&&w<=5 && d<now && rows.some(r=>r.date===d)) workDays.push(d); }   // 오늘은 아직 하루가 끝나지 않아 누락에서 뺀다
-    const missOf=rs=>{ const asg={}; kdIn(rs,kpAdd(R.P0,-14),R.P1).forEach(r=>{ const k=r.uid+'|'+r.hid+'|'+r.dept; if(!asg[k]||r.date<asg[k].first) asg[k]={ first:r.date, dept:r.dept }; });
-      const have=new Set(rs.map(r=>r.uid+'|'+r.hid+'|'+r.dept+'|'+r.date)), out=[];
-      workDays.forEach(d=>Object.keys(asg).forEach(k=>{ if(asg[k].first<=d && !have.has(k+'|'+d)) out.push(kpMD(d)+' '+(asg[k].dept||'부서 구분 없음')); })); return out; };
+    // 주 단위: 금요일이 지난 주 중 팀 입력이 있었던 주 (한 주 = 월요일 키 · 예전 일별 입력은 그 주로 묶음)
+    const workDays=[]; for(let d=kpMon(R.P0); d<=R.P1; d=kpAdd(d,7)){ if(d>=R.P0 && kpAdd(d,4)<now && rows.some(r=>kpMon(r.date)===d)) workDays.push(d); }
+    const missOf=rs=>{ const asg={}; kdIn(rs,kpAdd(R.P0,-14),R.P1).forEach(r=>{ const k=r.uid+'|'+r.hid+'|'+r.dept, w=kpMon(r.date); if(!asg[k]||w<asg[k].first) asg[k]={ first:w, dept:r.dept }; });
+      const have=new Set(rs.map(r=>r.uid+'|'+r.hid+'|'+r.dept+'|'+kpMon(r.date))), out=[];
+      workDays.forEach(d=>Object.keys(asg).forEach(k=>{ if(asg[k].first<=d && !have.has(k+'|'+d)) out.push(kpMD(d)+' 주 '+(asg[k].dept||'부서 구분 없음')); })); return out; };
     const missAll=missOf(rows);
     const pc=kdChg(T.p,Q.p);
     // 머리
-    let h=`<div class="kd-bar"><div class="kd-fl">기간<div class="kd-nav"><button type="button" class="kd-nb" data-kd="prev" aria-label="이전 기간">‹</button><div style="min-width:210px"><b>${R.pLong}</b><div class="kd-sd">${R.status||(T.n?'입력 '+T.n+'건':'입력 없음')}</div></div><button type="button" class="kd-nb" data-kd="next" aria-label="다음 기간"${R.canNext?'':' disabled'}>›</button><button type="button" class="kd-tg" data-kd="today" style="border-color:var(--line)">오늘</button></div></div>`+
+    let h=`<div class="kd-bar"><div class="kd-fl">기간<div class="kd-nav"><button type="button" class="kd-nb" data-kd="prev" aria-label="이전 기간">‹</button><div style="min-width:210px"><b>${R.pLong}</b><div class="kd-sd">${R.status||(T.n?'입력 '+T.n+'건':'입력 없음')}</div></div><button type="button" class="kd-nb" data-kd="next" aria-label="다음 기간"${R.canNext?'':' disabled'}>›</button><button type="button" class="kd-tg" data-kd="today" style="border-color:var(--line)">${D.period==='weekly'?'이번 주':'이번 달'}</button></div></div>`+
       `<div class="kd-fl">사업장<div class="kd-tabs">`+[{id:'',name:'전체 사업장'}].concat(HS.filter(x=>x.id===D.hosp||all.some(r=>r.hid===x.id)||(KP.orders||[]).some(o=>o.hid===x.id))).map(x=>`<button type="button" class="kd-tab${(x.id===''?!one:D.hosp===x.id)?' on':''}" data-kd="hosp" data-v="${esc(x.id)}">${esc(x.name)}</button>`).join('')+`</div></div></div>`;
     const scopeTxt=(one?hName(D.hosp)+' · 부서 '+units.length+'개 · 담당 '+(mgrOf(rows).join(', ')||'–'):'사업장 '+units.length+'곳 · 부서 '+units.reduce((a,u)=>a+deptsOf(u.id).length,0)+'개')+' · '+R.pLong;
-    h+=`<div class="kd-scope"><b>${esc(scopeTxt)}</b><span>데이터 기준 ${kpLab(last)} 입력분까지${last<now?' (오늘 입력이 들어오면 자동 포함)':''}</span><span>모든 숫자 = 이 범위에서 담당자들이 입력한 일일 KPI ${kpN(T.n)}건의 합</span><span>비교 · ${R.cmpName} ${R.qLong} (같은 사업장, 같은 일수)</span><span class="kd-chip ${missAll.length?'warn':'flat'}">${missAll.length?'입력 누락 '+missAll.length+'건':'입력 누락 없음'}</span></div>`;
+    h+=`<div class="kd-scope"><b>${esc(scopeTxt)}</b><span>한 주 = 월~금 실적 한 건 (같은 주 다시 저장 = 덮어쓰기)</span><span>모든 숫자 = 이 범위에서 담당자들이 입력한 주간 KPI ${kpN(T.n)}건의 합</span><span>비교 · ${R.cmpName} ${R.qLong} (같은 사업장${D.period==='weekly'?'':', 같은 일수'})</span><span class="kd-chip ${missAll.length?'warn':'flat'}">${missAll.length?'입력 누락 '+missAll.length+'건':'입력 누락 없음'}</span></div>`;
     if(!units.length){ out.innerHTML=h+`<div class="empty-row" style="padding:30px 2px">${esc(R.pLong)}에 입력된 KPI가 없습니다. 위 입력 칸에서 실적을 저장하면 여기에 바로 집계됩니다.</div>`; return; }
     // 한 줄 요약 + 눈여겨볼 것
     const ins=[];
@@ -6119,21 +6131,21 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         `<div class="kd-mini">${fr.map(([l,v,cv])=>`<div><div class="kd-mu">${l}</div><b class="kd-num">${kpN(v)}</b> <span class="kd-mu">${cv}</span></div>`).join('')}</div>`+
         `<div><div class="kd-ct kd-sd"><span>진행 중 채용 건 ${uOpen.length}건</span><span class="kd-num">합격 <b>${uP}</b> / 필요 ${uN||'?'}명</span></div><div class="kd-trk" style="height:10px"><div style="width:${Math.min(100,uN?uP/uN*100:0).toFixed(0)}%"></div></div><div class="kd-mu" style="margin-top:4px">이 기간 완료 ${uDone.length}건${uDone.length?' · 평균 '+avgDays(uDone)+'일 소요':''}</div></div>`+
         `<div class="kd-dl">${depts}</div>`+
-        `<div class="kd-foot"><span>타사 합격 <b>${t.tc}</b>명 · 합격 중 당사 비중 <b>${kdShare(t.p,t.tc)}</b></span><span><b style="font-weight:${ms.length?700:500}">${ms.length?'입력 누락 '+ms.length+'건':'입력 누락 없음'}</b> <span class="kd-mu">${ms.length?esc(ms.slice(0,3).join(', '))+(ms.length>3?' 외 '+(ms.length-3)+'건':''):'평일 '+workDays.length+'일 모두 입력'}</span></span></div></div>`;
+        `<div class="kd-foot"><span>타사 합격 <b>${t.tc}</b>명 · 합격 중 당사 비중 <b>${kdShare(t.p,t.tc)}</b></span><span><b style="font-weight:${ms.length?700:500}">${ms.length?'입력 누락 '+ms.length+'건':'입력 누락 없음'}</b> <span class="kd-mu">${ms.length?esc(ms.slice(0,3).join(', '))+(ms.length>3?' 외 '+(ms.length-3)+'건':''):(workDays.length?workDays.length+'주 모두 입력':'마감된 주 없음')}</span></span></div></div>`;
     }).join('');
     h+=kdSec(2,one?esc(hName(D.hosp))+' · 부서별 현황':'사업장별 현황',(one?'담당 '+esc(mgrOf(rows).join(', ')||'–')+' · ':'‘부서별 보기’를 누르면 그 사업장의 부서 카드로 바뀝니다 · ')+R.pS+' · 증감 = '+esc(R.cmpName)+' '+R.qS+' 대비',one?'<button type="button" class="kd-tg" data-kd="hosp" data-v="" style="border-color:var(--line)">‹ 전체 사업장</button>':'',`<div class="kd-cards">${cards}</div>`);
     // 03 채용 건: 이 기간에 열려 있던 건 (진행 → 완료·종료 순)
     const ol=OR.filter(inPer).sort((a,b)=>(a.status==='진행')!==(b.status==='진행')?(a.status==='진행'?-1:1):a.status==='진행'?(a.start<b.start?-1:1):(a.end<b.end?1:-1));
-    const oTable=ol.length?`<div class="kd-card" style="padding:4px 0"><div class="tbl-scroll"><table class="kd-dt kd-ot"><thead><tr><th>사업장 · 부서</th><th>건</th><th>상태</th><th>시작</th><th>완료 · 경과</th><th>필요</th><th>합격</th><th>서치+온라인</th><th>이력서</th><th>면접</th><th>면접→합격</th><th>입력일</th><th></th></tr></thead><tbody>`+
-      ol.map(o=>`<tr><td>${esc(hName(o.hid))} · ${esc(o.dept||'부서 구분 없음')}</td><td>${o.no}번째</td><td><span class="kd-chip ${o.status==='진행'?'warn':'flat'}">${o.status}</span></td><td>${kpLab(o.start)}</td><td>${o.status==='진행'?kpODays(o,now)+'일째':(o.end?kpLab(o.end):'')+' · '+kpODays(o,now)+'일'+(o.status==='종료'&&o.reason?' · '+esc(o.reason):'')}</td><td><b>${o.need||'미정'}</b></td><td><b>${o.pa}</b></td><td>${o.s+o.o}</td><td>${o.r}</td><td>${o.i}</td><td>${o.i?Math.round(o.p/o.i*100)+'%':'–'}</td><td>${o.inputDays}일</td><td>${o.status==='진행'?`<button type="button" class="kd-x" data-kd="close" data-v="${esc(o.id)}">종료</button>`:''}</td></tr>`).join('')+
+    const oTable=ol.length?`<div class="kd-card" style="padding:4px 0"><div class="tbl-scroll"><table class="kd-dt kd-ot"><thead><tr><th>사업장 · 부서</th><th>건</th><th>상태</th><th>시작</th><th>완료 · 경과</th><th>필요</th><th>합격</th><th>서치+온라인</th><th>이력서</th><th>면접</th><th>면접→합격</th><th>입력</th><th></th></tr></thead><tbody>`+
+      ol.map(o=>`<tr><td>${esc(hName(o.hid))} · ${esc(o.dept||'부서 구분 없음')}</td><td>${o.no}번째</td><td><span class="kd-chip ${o.status==='진행'?'warn':'flat'}">${o.status}</span></td><td>${kpLab(o.start)}</td><td>${o.status==='진행'?kpODays(o,now)+'일째':(o.end?kpLab(o.end):'')+' · '+kpODays(o,now)+'일'+(o.status==='종료'&&o.reason?' · '+esc(o.reason):'')}</td><td><b>${o.need||'미정'}</b></td><td><b>${o.pa}</b></td><td>${o.s+o.o}</td><td>${o.r}</td><td>${o.i}</td><td>${o.i?Math.round(o.p/o.i*100)+'%':'–'}</td><td>${o.inputDays}회</td><td>${o.status==='진행'?`<button type="button" class="kd-x" data-kd="close" data-v="${esc(o.id)}">종료</button>`:''}</td></tr>`).join('')+
       `</tbody></table></div></div>`:'<div class="empty-row" style="padding:18px 2px">이 기간에 열려 있던 채용 건이 없습니다.</div>';
     h+=kdSec(3,'채용 건',`${R.pS}에 열려 있던 건 · 한 건 = 한 부서가 필요 인원을 채울 때까지 · 숫자는 건 전체 누적`,'',`<div class="kd-row" style="gap:6px 22px"><span class="kd-sd">진행 <b>${ol.filter(o=>o.status==='진행').length}</b>건</span><span class="kd-sd">완료 <b>${ol.filter(o=>o.status==='완료').length}</b>건${doneIn.length?' (이 기간 완료 '+doneIn.length+'건 · 평균 '+avgDays(doneIn)+'일)':''}</span><span class="kd-sd">종료 <b>${ol.filter(o=>o.status==='종료').length}</b>건</span></div>`+oTable);
     // 04 흐름: 합계 + 단위별 작은 차트 (단위끼리 같은 눈금)
     const m=D.metric, mk={s:'search',o:'online',r:'resume',i:'interview',p:'pass'}[m];
     const sumM=(rs,a,b)=>kdIn(rs,a,b).reduce((x,r)=>x+r[mk],0);
     const wkLab=(cc,n)=>(n+1)+'주'+(cc.b>today?' · 진행 중':kpDays(cc.a,cc.b)<7?' · '+kpDays(cc.a,cc.b)+'일':'');
-    const colLab=(cc,n)=>D.period==='monthly'?[wkLab(cc,n),kpRng(cc.a,kpMin(cc.b,cc.a>today?cc.a:today))]:[KP_WD[kpDate(cc.a).getDay()],kpMD(cc.a)];
-    const panel=(name,rs,isTot)=>({ name, isTot, t:sumM(rs,R.P0,R.P1), q:sumM(rs,R.Q0,R.Q1), vals:R.cols.map(cc=>{ const fut=cc.a>today, any=kdIn(rs,cc.a,cc.b).length>0; return { cc, fut, any, v:sumM(rs,cc.a,cc.b), prev:D.period==='monthly'||fut?null:sumM(rs,kpAdd(cc.a,-7),kpAdd(cc.b,-7)) }; }) });
+    const colLab=(cc,n)=>D.period==='monthly'?[wkLab(cc,n),kpRng(cc.a,kpMin(cc.b,cc.a>today?cc.a:today))]:[cc.a===kpMon(now)?'이번 주':cc.a===R.P0?'선택 주':kpMD(cc.a)+' 주',kpRng(cc.a,kpAdd(cc.a,4))];
+    const panel=(name,rs,isTot)=>({ name, isTot, t:sumM(rs,R.P0,R.P1), q:sumM(rs,R.Q0,R.Q1), vals:R.cols.map(cc=>{ const fut=cc.a>today, any=kdIn(rs,cc.a,cc.b).length>0; return { cc, fut, any, v:sumM(rs,cc.a,cc.b), prev:null }; }) });
     const pr=(units.length>1?[panel((one?hName(D.hosp):'사업장 '+units.length+'곳')+' 합계',rows,true)]:[]).concat(units.map(u=>panel(u.name,u.rs,false)));
     const pmax=p=>Math.max(1,...p.vals.map(x=>Math.max(x.v,x.prev||0))), shared=Math.max(1,...pr.filter(p=>!p.isTot).map(pmax));
     const panels=pr.map(p=>{ const mx=(p.isTot?pmax(p):shared)*1.25, c=kdChg(p.t,p.q), nc=R.cols.length;
@@ -6142,8 +6154,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
           return `<div class="kd-pc" title="${tip}">${x.v>0?`<div class="kd-bb" style="height:${hh};background:${D.period==='daily'&&x.cc.a!==R.A?'#D9D6CE':'var(--ink)'}"></div>`:''}${x.prev!=null?`<div class="kd-pv" style="bottom:${(x.prev/mx*100).toFixed(1)}%"></div>`:''}<div class="kd-tv" style="bottom:${hh}">${x.fut||!x.any?'':x.v}</div><div class="kd-nt">${x.fut?(x.cc.a===now?'입력 전':'예정'):x.any?'':'입력 없음'}</div></div>`; }).join('')}</div>`+
         `<div class="kd-xl" style="grid-template-columns:repeat(${nc},minmax(0,1fr))">${R.cols.map((cc,n)=>{ const [a,b]=colLab(cc,n); return `<div><b>${a}</b><span>${b}</span></div>`; }).join('')}</div></div>`; }).join('');
     const pills=KD_K.map(([k,l])=>`<button type="button" class="kd-pill${m===k?' on':''}" data-kd="metric" data-v="${k}">${l}</button>`).join('');
-    const s3=`<div class="kd-row" style="gap:6px 20px"><span class="kd-lgd"><i style="background:var(--ink)"></i>막대 = 입력 합계</span>${D.period==='monthly'?'':'<span class="kd-lgd"><i style="height:0;border-top:2px solid #9A958B;border-radius:0;width:16px"></i>회색 선 = 1주 전 같은 요일</span>'}<span class="kd-lgd"><span class="kd-chip up">▲ 상승</span><span class="kd-chip dn">▼ 하락</span>비교 기간 대비</span></div><div class="kd-panels">${panels}</div>`;
-    h+=kdSec(4,D.period==='monthly'?'주별 흐름':'요일별 흐름',(D.period==='monthly'?R.pLong+' ('+R.pS+')를 월–일 단위 주로 나눔':kpRngL(R.cols[0].a,R.cols[6].a)+(D.period==='daily'?' · '+kpLab(R.A)+' 진하게':''))+' · 지표 ‘'+KD_MN[m]+'’ · '+(one?'부서':'사업장')+' 차트끼리 같은 눈금',`<span class="kd-pills">${pills}</span>`,s3);
+    const s3=`<div class="kd-row" style="gap:6px 20px"><span class="kd-lgd"><i style="background:var(--ink)"></i>막대 = 입력 합계</span><span class="kd-lgd"><span class="kd-chip up">▲ 상승</span><span class="kd-chip dn">▼ 하락</span>비교 기간 대비</span></div><div class="kd-panels">${panels}</div>`;
+    h+=kdSec(4,D.period==='monthly'?'주별 흐름':'최근 8주 흐름',(D.period==='monthly'?R.pLong+' ('+R.pS+')를 월–일 단위 주로 나눔':kpRng(R.cols[0].a,kpAdd(R.cols[R.cols.length-1].a,4))+' · 한 칸 = 한 주(월~금)')+' · 지표 ‘'+KD_MN[m]+'’ · '+(one?'부서':'사업장')+' 차트끼리 같은 눈금',`<span class="kd-pills">${pills}</span>`,s3);
     // 04 상세 숫자
     const groups=[]; (one?[D.hosp]:hospIds).forEach(id=>{ const gr=rows.filter(r=>r.hid===id); groups.push({ t:'g', label:hName(id), sub:'담당 '+(mgrOf(gr).join(', ')||'–'), rs:gr, id }); deptsOf(id).forEach(d=>groups.push({ t:'l', label:d||'부서 구분 없음', sub:'필요 '+((needs[id]||{})[d]||'–')+'명', rs:gr.filter(r=>r.dept===d), id, d })); });
     if(groups.filter(g=>g.t==='g').length>1) groups.push({ t:'x', label:'전체 합계', sub:'사업장 합계 행의 합', rs:rows });
@@ -6156,12 +6168,12 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         `<div class="kd-tc"><b>${t}</b></div><div class="kd-tc kd-mu">${q}</div><div class="kd-tc">${kdChip(c)}</div></div>`; }).join('');
     const dt=groups.map(g=>{ const t=kdAgg(kdIn(g.rs,R.P0,R.P1)), q=kdAgg(kdIn(g.rs,R.Q0,R.Q1)), c=kdChg(t.p,q.p), nd=g.t==='l'?((needs[g.id]||{})[g.d]||0):g.t==='g'?needOf(g.id,deptsOf(g.id)):needSum;
       return `<tr class="kd-${g.t}"><td>${esc(g.label)}</td><td class="kd-mu">${g.t==='g'?esc(mgrOf(g.rs).join(', ')):''}</td><td><b>${nd||'–'}</b></td><td>${t.s}</td><td>${t.o}</td><td>${t.r}</td><td>${t.i}</td><td><b>${t.p}</b></td><td class="kd-mu">${t.ta}</td><td class="kd-mu">${t.tb}</td><td class="kd-mu">${t.tc}</td><td class="kd-mu">${q.p}</td><td>${kdChip(c)}</td></tr>`; }).join('');
-    const s4=`<div class="kd-card" style="padding:16px 0 8px"><div style="padding:0 20px 12px"><b>${D.period==='monthly'?'주별':'요일별'} ‘${KD_MN[m]}’ · 사업장 → 부서</b><div class="kd-sd">칸 = 그 부서에 ${D.period==='monthly'?'그 주(월–일)':'그날'} 입력된 ‘${KD_MN[m]}’ 합계 (담당자 입력 합산)</div></div>`+
+    const s4=`<div class="kd-card" style="padding:16px 0 8px"><div style="padding:0 20px 12px"><b>주별 ‘${KD_MN[m]}’ · 사업장 → 부서</b><div class="kd-sd">칸 = 그 부서에 그 주(월–${D.period==='monthly'?'일':'금'}) 입력된 ‘${KD_MN[m]}’ 합계 (담당자 입력 합산)</div></div>`+
       `<div class="tbl-scroll"><div style="min-width:900px"><div class="kd-mx kd-mh" style="grid-template-columns:${gcols}"><span style="text-align:left">사업장 · 부서</span>${R.cols.map((cc,n)=>{ const [a,b]=colLab(cc,n); return `<span><b>${a}</b><i>${b}</i></span>`; }).join('')}<span style="text-align:right"><b>${D.period==='daily'?'선택일':'합계'}</b><i>${R.pS}</i></span><span style="text-align:right"><b>비교</b><i>${R.qS}</i></span><span style="text-align:right"><b>증감</b><i>&nbsp;</i></span></div>${mxRows}</div></div>`+
-      `<div class="kd-note"><span class="kd-lgd">적음${RAMP.map(c=>`<i style="background:${c}"></i>`).join('')}많음</span><span>${D.period==='daily'?'합계 칸 = 굵은 테두리 '+kpLab(R.A)+' 값':'합계 = 왼쪽 칸의 합 ('+R.pS+')'} · 비교 = ${esc(R.cmpName)} ${R.qS} · – 입력 없음 · 빈칸 아직 오지 않은 날</span></div><div class="kd-note" style="padding-top:0"><b>검산 · 표 합계 ${sumM(rows,R.P0,R.P1)}${KD_UN[m]} = 위 퍼널의 ‘${KD_MN[m]}’ ${({s:T.s,o:T.o,r:T.r,i:T.i,p:T.p})[m]}${KD_UN[m]}</b></div></div>`+
+      `<div class="kd-note"><span class="kd-lgd">적음${RAMP.map(c=>`<i style="background:${c}"></i>`).join('')}많음</span><span>${D.period==='monthly'?'합계 = 왼쪽 칸의 합 ('+R.pS+')':'합계 = 선택한 주 ('+R.pS+')'} · 비교 = ${esc(R.cmpName)} ${R.qS} · – 입력 없음 · 빈칸 아직 오지 않은 주</span></div><div class="kd-note" style="padding-top:0"><b>검산 · 표 합계 ${sumM(rows,R.P0,R.P1)}${KD_UN[m]} = 위 퍼널의 ‘${KD_MN[m]}’ ${({s:T.s,o:T.o,r:T.r,i:T.i,p:T.p})[m]}${KD_UN[m]}</b></div></div>`+
       `<div class="kd-card" style="padding:4px 0"><div class="tbl-scroll"><table class="kd-dt"><thead><tr><th>사업장 / 부서</th><th>담당</th><th>진행 건 필요</th><th>서치</th><th>온라인 지원</th><th>이력서</th><th>면접</th><th>합격</th><th>타사 접수</th><th>타사 참석</th><th>타사 합격</th><th>비교 합격</th><th>합격 증감</th></tr></thead><tbody>${dt}</tbody></table></div></div>`;
-    h+=kdSec(5,'상세 숫자',`날짜별 표(사업장 → 부서)와 전체 항목 표 · ${R.pS}`,'',s4);
-    const defs=[['원천 데이터','담당자가 매일 사업장·부서별로 입력한 KPI 한 건. 주간은 일간의 합, 월간은 그 달 일간의 합입니다.'],['인재 서치 · 온라인 지원 · 이력서 취합 · 면접 진행 · 합격','같은 이름의 입력 항목을 기간 동안 더한 값'],['전환율','이력서 ÷ (서치 + 온라인 지원), 면접 ÷ 이력서, 합격 ÷ 면접'],['비교 기간','같은 일수의 직전 기간 — 주간: 직전 주 같은 요일까지, 월간: 전월 같은 날짜까지, 일간: 1주 전 같은 요일'],['증감 %','비교 값이 5 미만이면 %가 과장되므로 숨기고 증감 수(▲ / ▼)만 표시'],['채용 건','한 부서가 필요 인원을 채울 때까지를 한 건으로 묶습니다. 입력하면 그 날짜에 열려 있던 건에 자동으로 붙고, 없으면 새 건이 열립니다. 누적 합격이 필요 인원에 닿는 날 자동 완료되고, 다음 날부터 같은 부서 입력은 다음 건이 됩니다. 병원 철회 등은 ‘종료’로 닫습니다.'],['소요일 · 경과일','시작일부터 완료일(진행 중이면 오늘)까지의 달력 일수'],['합격 중 당사 비중','당사 합격 ÷ (당사 합격 + 타사 합격). 타사 = 같은 사업장·부서에 인력을 보내는 다른 업체'],['입력 누락','팀 입력이 있었던 평일에, 최근 2주 안에 입력한 적 있는 담당자·부서의 기록이 비어 있는 건 (주말·휴무일·오늘 제외)'],['색','빨강 ▲ = 상승, 파랑 ▼ = 하락. 그 밖에는 색을 쓰지 않습니다']];
+    h+=kdSec(5,'상세 숫자',`주별 표(사업장 → 부서)와 전체 항목 표 · ${R.pS}`,'',s4);
+    const defs=[['원천 데이터','담당자가 한 주(월~금) 실적을 사업장·부서별로 입력한 KPI 한 건 (월요일 날짜로 저장). 같은 주를 다시 저장하면 덮어써서 중복으로 더해지지 않습니다. 월간은 그 달에 시작한 주들의 합입니다. (11월 이전 일별 입력도 그대로 합산)'],['인재 서치 · 온라인 지원 · 이력서 취합 · 면접 진행 · 합격','같은 이름의 입력 항목을 기간 동안 더한 값'],['전환율','이력서 ÷ (서치 + 온라인 지원), 면접 ÷ 이력서, 합격 ÷ 면접'],['비교 기간','주간: 직전 주 전체, 월간: 전월 같은 날짜까지'],['증감 %','비교 값이 5 미만이면 %가 과장되므로 숨기고 증감 수(▲ / ▼)만 표시'],['채용 건','한 부서가 필요 인원을 채울 때까지를 한 건으로 묶습니다. 입력하면 그 날짜에 열려 있던 건에 자동으로 붙고, 없으면 새 건이 열립니다. 누적 합격이 필요 인원에 닿는 주에 자동 완료되고, 다음 주부터 같은 부서 입력은 다음 건이 됩니다. 병원 철회 등은 ‘종료’로 닫습니다.'],['소요일 · 경과일','시작일부터 완료일(진행 중이면 오늘)까지의 달력 일수'],['합격 중 당사 비중','당사 합격 ÷ (당사 합격 + 타사 합격). 타사 = 같은 사업장·부서에 인력을 보내는 다른 업체'],['입력 누락','팀 입력이 있었던 주에, 최근 2주 안에 입력한 적 있는 담당자·부서의 그 주 기록이 비어 있는 건 (금요일이 지나지 않은 이번 주는 제외)'],['색','빨강 ▲ = 상승, 파랑 ▼ = 하락. 그 밖에는 색을 쓰지 않습니다']];
     h+=kdSec(6,'지표 정의','이 화면의 모든 숫자가 어떻게 계산되는지','',`<div class="kd-card kd-def">${defs.map(([a,b])=>`<b>${a}</b><span>${b}</span>`).join('')}</div>`);
     KP.lastA=R.A;
     out.innerHTML=h;
@@ -6170,13 +6182,13 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     try{
       await kpInfo(force);
       $('#kp-who').textContent=KP.info.me.name+' 님';
-      if(!$('#kpf-date').value) $('#kpf-date').value=kpTodayS();
-      $('#kpf-date').max=kpTodayS();
+      kpSetWeek($('#kpf-date').value||kpMon(kpTodayS()));
       await kpOrders(force); kpFillHosp(); kpChips(); await kpPrefill(); await kpRender(force);
     }catch(e){ xFail(e); $('#kp-out').innerHTML='<div class="empty-row">불러오지 못했습니다.</div>'; }
   };
   $('#kpf-h').addEventListener('change', ()=>{ kpChips(); kpPrefill(); });
-  $('#kpf-date').addEventListener('change', kpPrefill);
+  $('#kpf-wprev').addEventListener('click', ()=>{ kpSetWeek(kpAdd($('#kpf-date').value||kpMon(kpTodayS()),-7)); kpPrefill(); });
+  $('#kpf-wnext').addEventListener('click', ()=>{ kpSetWeek(kpAdd($('#kpf-date').value||kpMon(kpTodayS()),7)); kpPrefill(); });
   const kpRowsEl=$('#kpf-rows');
   kpRowsEl.addEventListener('change', e=>{ const sel=e.target.closest('.kd'); if(sel){ sel.dataset.v=sel.value; kpSyncSel(); } });
   kpRowsEl.addEventListener('input', e=>{ const i=e.target.closest('.kn'); if(!i) return; if(i.dataset.k==='need') i.dataset.touched='1'; kpSum2(); });
@@ -6213,15 +6225,15 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const rows=kpAll('#kpf-rows .kp-row').map(r=>({ dept:r.querySelector('.kd').dataset.v, memo:r.querySelector('.km').value.trim(), need:v(r,'need'),
       search:v(r,'search'), online:v(r,'online'), resume:v(r,'resume'), interview:v(r,'interview'), pass:v(r,'pass'), ta:v(r,'ta'), tb:v(r,'tb'), tc:v(r,'tc') }));
     const date=$('#kpf-date').value, hid=$('#kpf-h').value;
-    if(!date){ toast('날짜를 선택하세요.'); return; }
+    if(!date){ toast('주를 선택하세요.'); return; }
     if(!hid){ toast('병원을 선택하세요.'); return; }
     if(rows.some(r=>r.dept==='__')){ toast('부서를 선택하지 않은 줄이 있습니다.'); return; }
     const bad=rows.find(r=>Number(r.tb||0)>Number(r.ta||0)||Number(r.tc||0)>Number(r.tb||0));
     if(bad){ toast((bad.dept||'부서 구분 없음')+': 타사는 접수 ≥ 참석 ≥ 합격이어야 합니다.'); return; }
     try{
-      const r=await xRun(e.currentTarget,'저장 중…',()=>call('saveKpiBatch', TOKEN, { date, hospitalId:hid, rows }));
+      const r=await xRun(e.currentTarget,'저장 중…',()=>call('saveKpiBatch', TOKEN, { date, hospitalId:hid, rows, week:true }));
       await kpOrders(true);
-      KP.cache={}; toast(r.saved+'개 부서를 저장했습니다.'+(r.removed?' ('+r.removed+'개 정리)':''));
+      KP.cache={}; toast(kpWLab(date).replace(' · 이번 주','')+' · '+r.saved+'개 부서를 저장했습니다.'+(r.removed?' (정리 '+r.removed+'건)':''));
       await kpPrefill(); await kpRender(true);
     }catch(err){ xFail(err); }
   });
