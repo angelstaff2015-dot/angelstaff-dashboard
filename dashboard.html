@@ -6434,6 +6434,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     if(bad){ toast((bad.dept||'부서 구분 없음')+': 타사는 접수 ≥ 참석 ≥ 합격이어야 합니다.'); return; }
     /* 즉시 반영: 이 주(월~일) 내 입력을 화면 캐시에서 바로 바꿔 대시보드에 반영 → 서버 저장은 뒤에서 */
     const me=KP.info.me, end=kpAdd(date,6), snap={}; Object.keys(KP.cache).forEach(k=>{ snap[k]=KP.cache[k]; });
+    const st0=$('#kp-state').textContent, st0e=$('#kp-state').classList.contains('edit');
     const recs=rows.map(r=>{ const o={ uid:me.id, uname:me.name, hid, date, dept:r.dept, memo:r.memo, need:r.need }; [...KP_F,...KP_T].forEach(([k])=>{ o[k]=+r[k]||0; }); return o; });
     bgSave({ key:'kpi:'+hid+':'+date, label:'KPI 저장', okMsg:kpWLab(date).replace(' · 이번 주','')+' · '+rows.length+'개 부서를 저장했습니다.',
       apply:()=>{
@@ -6444,7 +6445,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       },
       req:()=>call('saveKpiBatch', TOKEN, { date, hospitalId:hid, rows, week:true }),
       done:async r=>{ if(r && r.removed) toast('같은 주 일별 기록 '+r.removed+'건을 한 건으로 정리했습니다.'); try{ await kpOrders(true); }catch(_){ } KP.cache={}; kpRender(true); },
-      revert:()=>{ KP.cache=snap; kpRender(); } });
+      revert:()=>{ KP.cache=snap; $('#kp-state').textContent=st0; $('#kp-state').classList.toggle('edit', st0e); kpRender(); } });
   });
   $('#kp-fold').addEventListener('click', ()=>{ KP.formOpen=!KP.formOpen; $('#kp-formbody').hidden=!KP.formOpen; $('#kp-fold').textContent=KP.formOpen?'－ 접기':'＋ 펼치기'; });
   $('#kp-out').addEventListener('click', e=>{
