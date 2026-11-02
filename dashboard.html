@@ -525,6 +525,12 @@
   .x-dots i.on{background:var(--ink)}
   .x-more{display:block;margin:12px auto 0}
   .modal.x-wide{width:min(720px,94vw);max-height:88vh;overflow:auto}
+  #xmodal .modal{position:relative}
+  .xask{position:absolute;left:0;right:0;height:100%;min-height:100%;z-index:5;display:grid;place-items:center;background:rgba(255,255,255,.72);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);border-radius:inherit;padding:20px}
+  .xask-card{width:min(360px,100%);background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 60px -18px rgba(20,18,16,.38);padding:20px 20px 16px}
+  .xask-card h4{margin:0 0 6px;font-size:16px;font-weight:700;letter-spacing:-.01em}
+  .xask-card p{margin:0 0 16px;font-size:13px;color:var(--ink-3);line-height:1.55}
+  .xask-f{display:flex;justify-content:flex-end;gap:8px}
   .modal.x-mid{width:min(560px,94vw);max-height:88vh;overflow:auto}
 
   @media (max-width:1180px){
@@ -3799,9 +3805,23 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     $('#xmodal').classList.add('on');
     if(o.onOpen) o.onOpen($('#xm-body'));
   }
-  function xClose(){ $('#xmodal').classList.remove('on'); }
+  function xClose(){ xAskEnd(false); $('#xmodal').classList.remove('on'); }
+  /* 근무자 정보 창 안에 뜨는 확인창 — 반드시 [확인] 버튼을 눌러야 진행 (열린 직후 0.5초 클릭은 무시) */
+  let xAskRes=null;
+  function xAskEnd(v){ const o=document.getElementById('xask'); if(o){ if(o.parentNode) o.parentNode.style.overflow=''; o.remove(); } if(xAskRes){ const r=xAskRes; xAskRes=null; r(v); } }
+  function xAsk(title, msg, okLabel, danger){
+    xAskEnd(false);
+    const m=$('#xmodal .modal'), o=document.createElement('div'); o.id='xask'; o.className='xask';
+    o.innerHTML=`<div class="xask-card" role="alertdialog" aria-modal="true"><h4></h4><p></p><div class="xask-f"><button type="button" class="btn-sm ghost" data-a="0">취소</button><button type="button" class="btn-sm ${danger===false?'':'danger'}" data-a="1"></button></div></div>`;
+    o.querySelector('h4').textContent=title; o.querySelector('p').textContent=msg; o.querySelector('[data-a="1"]').textContent=okLabel||'확인';
+    o.style.top=m.scrollTop+'px';
+    const t0=Date.now();
+    o.addEventListener('click', e=>{ e.stopPropagation(); const b=e.target.closest('[data-a]'); if(!b || Date.now()-t0<500) return; xAskEnd(b.dataset.a==='1'); });
+    m.appendChild(o); m.style.overflow='hidden'; setTimeout(()=>{ const c=o.querySelector('[data-a="0"]'); if(c) c.focus(); }, 0);
+    return new Promise(res=>{ xAskRes=res; });
+  }
   $$('#xmodal [data-xclose]').forEach(el=>el.addEventListener('click', xClose));
-  document.addEventListener('keydown', e=>{ if(e.key!=='Escape') return; if($('#confirm').classList.contains('on')){ cfClose(false); return; } if($('#xmodal').classList.contains('on')) xClose(); });
+  document.addEventListener('keydown', e=>{ if(e.key!=='Escape') return; if(document.getElementById('xask')){ xAskEnd(false); return; } if($('#confirm').classList.contains('on')){ cfClose(false); return; } if($('#xmodal').classList.contains('on')) xClose(); });
 
   /* ── 작은 차트 ── */
   function xSpark(vals){
@@ -3939,6 +3959,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   function wkFind(id){ const c=DATA['v2wk']; return c ? c.v.list.find(w=>String(w.id)===String(id)) : null; }
   $('#view-workers').addEventListener('click', e=>{
     const ed=e.target.closest('[data-wkedit]'), sv=e.target.closest('[data-wksv]'), out=e.target.closest('[data-wkout]');
+    const bk=e.target.closest('[data-wkback]');
+    if(bk){ const w=wkFind(bk.dataset.wkback); if(w){ wkEdit(w); setTimeout(()=>{ const b=[...document.querySelectorAll('#xm-foot button')].find(x=>x.textContent==='재직으로 되돌리기'); if(b) b.click(); }, 50); } return; }
     if(ed) wkEdit(wkFind(ed.dataset.wkedit));
     else if(sv) wkEdit(wkFind(sv.dataset.wksv), true);
     else if(out) wkOutput(out.dataset.wkout);
@@ -4095,7 +4117,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         `<td class="r x-num">${w.exempt?'<span class="x-pill ghost" title="파견법 해제 — 파견 2년 만료 관리 제외">파견법 해제</span>':''}${w.expiryManual&&!w.exempt?'<span class="v3-man" title="담당자가 직접 지정한 만료일">직접</span>':''}${w.expiry?esc(v3Dot(w.expiry)):(w.exempt?'':'<span class="muted">–</span>')} ${on?v3DdPill(n):''}</td>`+
         `<td class="x-num">${w.birth?esc(w.birth.replace(/-/g,'.')):'<span class="x-pill warn">미입력</span>'}</td>`+
         `<td class="x-num">${w.tel?esc(w.tel):'<span class="muted">–</span>'}</td><td class="r">${w.checkup?w.checkup+'월':'–'}</td>`+
-        `<td class="r"><button class="x-btn" data-wkedit="${esc(w.id)}">수정</button></td></tr>`;
+        `<td class="r">${!on&&!w.contractId?`<button class="x-btn" data-wkback="${esc(w.id)}" title="퇴사 처리를 취소하고 재직으로">재직으로</button> `:''}<button class="x-btn" data-wkedit="${esc(w.id)}">수정</button></td></tr>`;
     }).join('') + pend.map(wkPendRow).join('');
     wkBar();
   }
@@ -4965,9 +4987,13 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         `</div>`+
         `<div class="b-head" style="margin-top:26px;border-bottom:1px solid var(--ink);padding-bottom:9px;display:flex;justify-content:space-between"><h3 style="margin:0;font-size:15px">만족도 응답</h3><span class="meta x-mut x-small">이름·병원이 같은 응답</span></div><div id="wf-sv"><div class="loading" style="padding:16px 2px">불러오는 중…</div></div>`,
       foot:[{label:'닫기', ghost:true}, ...(!w.contractId && w.status==='재직' ? [{label:'퇴사 처리', ghost:true, onClick: async(btn)=>{
-              if(!await confirmAction('퇴사 처리할까요?', w.name+' 님을 오늘 날짜로 퇴사 처리합니다.', '퇴사 처리')) return true;
+              if(!await xAsk('퇴사 처리할까요?', w.name+' 님을 오늘 날짜로 퇴사 처리합니다. 잘못 처리해도 「재직으로 되돌리기」로 복구할 수 있습니다.', '퇴사 처리')) return true;
               await xRun(btn,'처리 중…',()=>call('setWorkerLeft',TOKEN,w.id,''));
-              invalidate('v2wk'); V2_LOAD.workers(); toast('퇴사 처리했습니다.'); }}] : []),
+              invalidate('v2wk'); V2_LOAD.workers(); toast(w.name+' 님을 퇴사 처리했습니다. 퇴사 탭에서 되돌릴 수 있습니다.'); }}] : []),
+            ...(!w.contractId && w.status!=='재직' ? [{label:'재직으로 되돌리기', ghost:true, onClick: async(btn)=>{
+              if(!await xAsk('재직으로 되돌릴까요?', w.name+' 님의 퇴사 처리'+(w.left?'('+w.left+')':'')+'를 취소하고 재직 상태로 바꿉니다.', '재직으로 되돌리기', false)) return true;
+              await xRun(btn,'처리 중…',()=>call('setWorkerActive',TOKEN,w.id));
+              invalidate('v2wk','v2rk','v2fc'); V2_LOAD.workers(); toast(w.name+' 님을 재직으로 되돌렸습니다.'); }}] : []),
             {label:'저장', onClick: async(btn)=>{
               const att=$('#wf-att').value;
               const patch={ '고용형태':$('#wf-emp').value, '생년월일':$('#wf-birth').value, '연락처':$('#wf-tel').value.trim(), '검진월':$('#wf-chk').value?Number($('#wf-chk').value):'', '근태이상':att===''?'':Number(att), '비고':$('#wf-memo').value.trim(), '만료일직접':$('#wf-exp').value||'', '파견법해제':$('#wf-exm').value==='Y'?'Y':'' };
