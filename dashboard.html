@@ -211,13 +211,14 @@
 
   /* 모달 / 확인 / 토스트 */
   .modal-wrap{display:none;position:fixed;inset:0;z-index:60;place-items:center;padding:20px}
+  #confirm.modal-wrap{z-index:90}
   .modal-wrap.on{display:grid}
   .modal-bg{position:absolute;inset:0;background:rgba(20,18,16,.34)}
   .modal{position:relative;background:#fff;border:1px solid var(--line);border-radius:6px;width:min(460px,94vw);padding:26px;box-shadow:0 24px 60px -20px rgba(20,18,16,.3)}
   .modal h3{font-weight:700;font-size:19px;letter-spacing:-0.02em;margin:0 0 4px}
   .modal .m-sub{color:var(--ink-3);font-size:12.5px;margin:0 0 20px}
   .modal .m-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
-  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);z-index:70;background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:11px 18px;border-radius:100px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);z-index:95;background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:11px 18px;border-radius:100px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
   /* 지원자 필터바 + 인라인 상태 셀렉트 */
@@ -3789,7 +3790,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   }
   function xClose(){ $('#xmodal').classList.remove('on'); }
   $$('#xmodal [data-xclose]').forEach(el=>el.addEventListener('click', xClose));
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#xmodal').classList.contains('on')) xClose(); });
+  document.addEventListener('keydown', e=>{ if(e.key!=='Escape') return; if($('#confirm').classList.contains('on')){ cfClose(false); return; } if($('#xmodal').classList.contains('on')) xClose(); });
 
   /* ── 작은 차트 ── */
   function xSpark(vals){
