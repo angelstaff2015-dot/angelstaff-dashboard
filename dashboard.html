@@ -6702,7 +6702,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   }
   function exItemRow(i){ i=i||{}; return `<div class="ex-ir"><input class="x-input" data-i="name" maxlength="60" placeholder="품명" value="${esc(i.name||'')}"><input class="x-input x-num" data-i="qty" type="number" min="0" step="1" placeholder="수량" value="${i.qty!=null&&i.qty!==''?esc(i.qty):''}"><input class="x-input x-num" data-i="price" type="number" min="0" step="10" placeholder="단가" value="${i.price!=null&&i.price!==''?esc(i.price):''}"><input class="x-input x-num" data-i="amount" type="number" min="0" step="10" placeholder="금액" value="${i.amount!=null&&i.amount!==''?esc(i.amount):''}"><input class="x-input" data-i="memo" maxlength="60" placeholder="비고" value="${esc(i.memo||'')}"><button type="button" class="x-btn ex-irx" aria-label="이 줄 삭제">✕</button></div>`; }
   /* 회사 지출결의서 양식(엑셀) 항목: 일자 · 일련No · 증명No · 부서명 · 내역 · 청구인 · 세부내역 · 청구내역(일금 ○○원정) · 증빙 · 비고 · 결재란 6칸 */
-  const EX_SIGN=['대표이사','전무','이사\n(경영)','이사\n(의료)','팀장','담당'];
+  const EX_SIGN=['대\n표\n이\n사','전\n\n무','이\n사\n(경영)','이\n사\n(의료)','팀\n\n장','담\n\n당'];
   const exLs=k=>'hr_ex_'+k+'_'+((ME&&ME.user&&ME.user.id)||'anon');
   const exLsGet=(k,d)=>{ try{ return localStorage.getItem(exLs(k))||d; }catch(_){ return d; } };
   const exLsSet=(k,v)=>{ try{ localStorage.setItem(exLs(k), v); }catch(_){ } };
@@ -6785,7 +6785,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const proof=[x.proof, x.pay, x.payee?'지급처 '+x.payee:''].filter(Boolean).map(esc).join(' · ');
     const memo=[x.hospital?'사업장 : '+x.hospital:'', x.memo||''].filter(Boolean).map(esc).join('<br>');
     const ok=x.status==='승인'||x.status==='지급완료';
-    const R=[]; const sg=i=>`<td class="sl" rowspan="4">${esc(EX_SIGN[i]).replace(/\n/g,'<br>')}</td><td class="sb" rowspan="4">${i===5?`<span>${esc(x.claimant||x.author||'')}</span>`:''}</td>`;
+    const R=[]; const sg=i=>`<td class="sl" rowspan="4">${esc(EX_SIGN[i]).replace(/\n/g,'<br>')}</td><td class="sb" rowspan="4"></td>`;
     R.push(`<tr><td class="lb" rowspan="2">내&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;역</td><td class="v c" colspan="2" rowspan="2">${esc(exCatLab(x.cat||''))}</td><td class="lb" rowspan="2">청구인</td><td class="v c rb" rowspan="2">${esc(x.claimant||x.author||'')}</td>${sg(0)}</tr>`);
     R.push(`<tr></tr>`);
     R.push(`<tr><td class="lb" rowspan="11">세부내역</td><td class="v det rb" colspan="4" rowspan="11">${lines}</td></tr>`);
@@ -6806,14 +6806,15 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const sys = x.status==='작성' ? '' : `<div class="exf-sys">HR 시스템 · ${esc(x.status)}${x.reqAt?' · 결재요청 '+esc(v3Dot(x.reqAt)):''}${(ok||x.status==='반려')&&x.approver?' · '+(x.status==='반려'?'반려':'승인')+' '+esc(x.approver)+' '+esc(v3Dot(x.apAt)):''}${x.paidAt?' · 지급 '+esc(v3Dot(x.paidAt)):''}${x.status==='반려'&&x.reject?' — '+esc(x.reject):''}</div>`;
     return `<div class="exf"><div class="exf-top"><div class="exf-tc"><div class="exf-t">지&nbsp;&nbsp;&nbsp;&nbsp;출&nbsp;&nbsp;&nbsp;&nbsp;결&nbsp;&nbsp;&nbsp;&nbsp;의&nbsp;&nbsp;&nbsp;&nbsp;서</div><div class="exf-d">${esc(exDateLab(x.date))}</div></div>`+
       `<div class="exf-no"><div><b>일련No</b><span>${esc(x.no||'')}</span></div><div><b>증명No</b><span>${esc(x.proofNo||'')}</span></div><div><b>부서명 : ${esc(x.deptName||'의료사업본부')}</b></div></div></div>`+
-      `<table class="exf-tb"><colgroup><col style="width:11.9%"><col style="width:10.6%"><col style="width:31.2%"><col style="width:10.6%"><col style="width:21.2%"><col style="width:6.5%"><col style="width:8%"></colgroup><tbody>${R.join('')}`+
+      `<table class="exf-tb"><colgroup><col style="width:11.6%"><col style="width:10.4%"><col style="width:30.4%"><col style="width:10.4%"><col style="width:20.6%"><col style="width:6.4%"><col style="width:10.2%"></colgroup><tbody>${R.join('')}`+
       `<tr><td class="band" colspan="7">위의 금액을 정히 (청구)하오니 지급하여 주십시오.</td></tr></tbody></table>`+
       `<div class="exf-co">㈜엔젤스태프</div>${sys}</div>`;
   }
   const EXD_CSS=`.exf{font-family:'Malgun Gothic','맑은 고딕','Pretendard',sans-serif;color:#000;font-size:13px;max-width:760px;margin:0 auto}
-    .exf-top{display:grid;grid-template-columns:1fr 200px;align-items:end;gap:12px;margin-bottom:14px}
-    .exf-tc{text-align:center;padding-left:200px}
-    .exf-t{display:inline-block;font-family:'Batang','바탕','Nanum Myeongjo',serif;font-size:25px;font-weight:700;padding:0 24px 6px;border-bottom:3px double #000;letter-spacing:.02em}
+    .exf-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:12px;margin-bottom:14px}
+    .exf-tc{grid-column:2;text-align:center}
+    .exf-no{grid-column:3;justify-self:end;width:min(190px,100%)}
+    .exf-t{display:inline-block;font-family:'Batang','바탕','Nanum Myeongjo',serif;font-size:24px;font-weight:700;padding:0 18px 6px;border-bottom:3px double #000;white-space:nowrap}
     .exf-d{margin-top:9px;font-size:13px}
     .exf-no{font-size:12.5px}.exf-no div{display:flex;gap:6px;border-bottom:1px solid #000;padding:3px 0;font-weight:700}.exf-no span{font-weight:500;margin-left:auto}
     .exf-tb{width:100%;border-collapse:collapse;table-layout:fixed;border:2px solid #000}
@@ -6823,7 +6824,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     .exf-tb td.c{text-align:center}.exf-tb td.rb{border-right:2px solid #000}
     .exf-tb td.det{vertical-align:top;padding:8px 10px;line-height:1.8}
     .exf-tb td.han{font-weight:700;font-size:14.5px;padding-left:12px}.exf-tb td.amt{font-size:14px;padding-left:12px}
-    .exf-tb td.sl{background:#D9D9D9;text-align:center;font-size:12.5px;line-height:1.5;border-left:2px solid #000;padding:2px}
+    .exf-tb td.sl{background:#D9D9D9;text-align:center;font-size:12px;line-height:1.35;border-left:2px solid #000;padding:2px 0;white-space:normal}
     .exf-tb td.sb{text-align:center;vertical-align:bottom;border-right:2px solid #000;font-size:11.5px;padding-bottom:6px}
     .exf-tb td.band{background:#D9D9D9;text-align:center;height:58px;border:2px solid #000;font-size:13.5px}
     .exf-co{text-align:right;margin-top:8px;font-size:13px}
@@ -6853,8 +6854,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       ws.mergeCells('B21:B23'); put('B21','청구내역'); ws.mergeCells('C21:D23'); put('C21','일금 '+exHan(x.amount)+'원정',{ h:'left', b:true }); ws.mergeCells('E21:F23'); put('E21','(₩'+exWon(x.amount)+')',{ h:'left' });
       ws.mergeCells('B24:B25'); put('B24','증      빙'); ws.mergeCells('C24:F25'); put('C24', [x.proof, x.pay, x.payee?'지급처 '+x.payee:''].filter(Boolean).join(' · '),{ h:'left' });
       ws.mergeCells('B26:B31'); put('B26','비      고'); ws.mergeCells('C26:F31'); put('C26', [x.hospital?'사업장 : '+x.hospital:'', x.memo||''].filter(Boolean).join('\n'),{ h:'left', v:'top' });
-      const S=[['G8:G11','H8:H11','대표이사'],['G12:G15','H12:H15','전 무'],['G16:G19','H16:H19','이\n사\n(경영)'],['G20:G23','H20:H23','이\n사\n(의료)'],['G24:G27','H24:H27','팀 장'],['G28:G31','H28:H31','담 당']];
-      S.forEach(([g,h,t],i)=>{ ws.mergeCells(g); put(g.split(':')[0], t,{ sz:11, fill:true }); ws.mergeCells(h); put(h.split(':')[0], i===5?(x.claimant||x.author||''):'',{ sz:10, v:'bottom' }); });
+      const S=[['G8:G11','H8:H11','대\n표\n이\n사'],['G12:G15','H12:H15','전\n\n무'],['G16:G19','H16:H19','이\n\n사\n(경영)'],['G20:G23','H20:H23','이\n사\n(의료)'],['G24:G27','H24:H27','팀\n\n장'],['G28:G31','H28:H31','담\n\n당']];
+      S.forEach(([g,h,t])=>{ ws.mergeCells(g); put(g.split(':')[0], t,{ sz:11, fill:true }); ws.mergeCells(h); put(h.split(':')[0], '',{ sz:10 }); });
       ws.mergeCells('B32:H34'); put('B32','위의 금액을 정히 (청구)하오니 지급하여 주십시오.',{ sz:11, fill:true });
       put('H35','㈜엔젤스태프',{ sz:11, h:'right' });
       // 테두리: 표 전체 굵게, 칸마다 가늘게
