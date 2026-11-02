@@ -219,6 +219,38 @@
   .modal .m-sub{color:var(--ink-3);font-size:12.5px;margin:0 0 20px}
   .modal .m-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
   /* ── 운영: 연차관리대장 · 지출 결의서 ── */
+  .lv-top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:0 0 16px}
+  .lv-htabs{display:flex;gap:6px;flex-wrap:wrap}
+  .lv-ht{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 13px;font:600 13px inherit;color:var(--ink-2);cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+  .lv-ht span{font:600 11.5px var(--gr);color:var(--ink-3)}
+  .lv-ht:hover{border-color:var(--ink)}.lv-ht.on{background:var(--ink);border-color:var(--ink);color:#fff}.lv-ht.on span{color:#D9D4C9}
+  .lv-led{margin:0 0 30px}
+  .lv-lh{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:0 0 10px}
+  .lv-lh h2{margin:0 0 4px;font-size:18px;letter-spacing:-.01em}.lv-lh span{font-size:12.5px;color:var(--ink-3)}.lv-lh b{color:var(--ink)}
+  .lv-ls{display:flex;gap:14px}.lv-ls span{font-size:12.5px}.lv-ls b{font:700 15px var(--gr);margin-left:3px}
+  .lv-sheet{border-collapse:separate;border-spacing:0;width:100%;min-width:1180px;font-size:12.5px}
+  .lv-sheet th,.lv-sheet td{border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);padding:7px 6px;text-align:center;white-space:nowrap}
+  .lv-sheet thead th{background:#EEF2F9;color:var(--ink);font-weight:600;font-size:12px;border-bottom:1px solid #C9D3E6;position:sticky;top:0}
+  .lv-sheet thead tr:first-child th{border-top:1px solid #C9D3E6}
+  .lv-sheet thead th.yr{font:700 13px var(--gr)}
+  .lv-sheet thead th.auto{background:#1E2761;color:#fff;border-color:#1E2761}
+  .lv-sheet thead th.z{background:#FFF4CC;border-bottom-color:#EBD58A}
+  .lv-sheet thead th.m.cur,.lv-sheet td.m.cur{background:var(--trace-wash)}
+  .lv-sheet td.nm{font-weight:600}.lv-sheet td.nm .x-link{font-size:13px;text-decoration:none}
+  .lv-sheet td.nm .x-link:hover{text-decoration:underline}
+  .lv-sheet td.k{color:var(--ink-3);font-size:11.5px}
+  .lv-sheet tr.a td{border-top:1px solid var(--line)}
+  .lv-sheet td.m{min-width:38px;cursor:pointer;font-family:var(--gr);font-weight:600;color:var(--ink)}
+  .lv-sheet td.m:hover{background:#F5F3EE;box-shadow:inset 0 0 0 1px var(--ink)}
+  .lv-sheet td.m.v{background:#F6F8FC}
+  .lv-sheet td.m.cur.v{background:#FBEFC0}
+  .lv-sheet td.s{font-weight:700;background:var(--panel)}
+  .lv-sheet td.note{white-space:normal;min-width:110px;max-width:180px;text-align:left;color:var(--ink-3);font-size:11.5px}
+  .lv-sheet td.z{background:#FFFDF4;font-weight:600}.lv-sheet td.z small{display:block;font-size:10.5px;color:var(--trace-ink)}
+  .lv-sheet td.left{font-size:14px;font-weight:800}
+  .lv-sheet td.left.warn{color:var(--trace-ink);background:#FFF4CC}.lv-sheet td.left.bad{color:var(--danger);background:var(--danger-bg)}
+  .lv-sheet tr.quit td{color:var(--ink-3)}.lv-sheet tr.quit td.nm .x-link{color:var(--ink-3)}
+  .lv-sheet td:first-child,.lv-sheet th:first-child{border-left:1px solid var(--line-2)}
   .lv-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:4px 0 20px}
   .lv-card{border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px 13px}
   .lv-card .t{font-size:12.5px;color:var(--ink-2);font-weight:600}
@@ -1936,15 +1968,15 @@
     <section class="page" id="view-leave" style="display:none">
       <div class="head">
         <div><div class="eyebrow">Annual leave</div><h1>연차관리대장</h1></div>
-        <div class="actions"><button class="btn-sm ghost" id="lv-export">대장 받기 (xlsx)</button><button class="btn-sm" id="lv-add">＋ 사용 등록</button></div>
+        <div class="actions"><button class="btn-sm ghost" id="lv-export">엑셀 대장 받기</button><button class="btn-sm" id="lv-add">＋ 사용 등록</button></div>
       </div>
-      <p class="x-lead">근무자 마스터의 <b>재직자(일용 제외)</b>를 입사일 기준으로 자동 계산합니다. <b>근로기준법 제60조</b> — 1년 미만은 1개월 개근마다 1일(최대 11일), 1년 이상은 15일, 3년차부터 2년마다 1일씩 늘어 최대 25일. 출근율은 확인할 수 없어 개근·80% 이상 출근으로 가정하니, 다르면 <b>조정</b>으로 맞추세요. 회계연도 기준으로 운영하는 사업장도 조정으로 맞출 수 있습니다.</p>
-      <div class="lv-cards" id="lv-cards"></div>
+      <p class="x-lead">병원별로 한 해 대장을 엑셀과 같은 형태로 보여 줍니다. 근무자 마스터의 재직자(일용 제외)와 그 해 퇴사자가 자동으로 들어오고, <b>월 칸을 누르면 그 달 연차·반차를 바로 등록</b>합니다. 발생 연차는 기준일까지의 근속으로 계산합니다 — 1년 미만은 개근한 달마다 1일(최대 11일), 1년 이상은 15일, 3년차부터 2년마다 1일씩 늘어 최대 25일(근로기준법 제60조). 출근율·회계연도 차이는 <b>조정</b>으로 맞추세요.</p>
+      <div class="lv-top"><div class="ex-mon" style="margin:0"><button type="button" class="kd-nb" id="lv-yprev" aria-label="이전 해">‹</button><b id="lv-ylab">–</b><button type="button" class="kd-nb" id="lv-ynext" aria-label="다음 해">›</button></div><div class="lv-htabs" id="lv-htabs"></div></div>
       <div class="filterbar">
-        <div class="segs" id="lv-seg"><button class="seg active" data-f="all">전체 <span></span></button><button class="seg" data-f="soon">기간 종료 60일 이내 <span></span></button><button class="seg" data-f="low">잔여 3일 이하 <span></span></button><button class="seg" data-f="over">초과 사용 <span></span></button><button class="seg" data-f="first">1년 미만 <span></span></button></div>
-        <div class="x-filter"><span class="muted" id="lv-count" style="font-size:13px;margin-right:6px"></span><label class="lv-ref">기준일<input type="date" id="lv-ref" class="x-search" style="width:150px"></label><select id="lv-hosp" class="filter-sel"><option value="">전체 병원</option></select><input id="lv-q" class="x-search" placeholder="이름·부서 검색" aria-label="이름·부서 검색"></div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap"><div class="segs" id="lv-emp" role="group" aria-label="고용형태"></div><div class="segs" id="lv-seg"><button class="seg active" data-f="all">전체</button><button class="seg" data-f="low">잔여 3일 이하</button><button class="seg" data-f="over">초과 사용</button></div></div>
+        <div class="x-filter"><input id="lv-q" class="x-search" placeholder="이름·부서 검색" aria-label="이름·부서 검색"></div>
       </div>
-      <div class="tbl-scroll"><table class="htbl x-tbl lv-tbl"><thead><tr><th>근무자</th><th>입사일</th><th>근속</th><th>현재 연차 기간</th><th class="r">발생</th><th class="r">조정</th><th class="r">사용</th><th class="r">잔여</th><th>마지막 사용</th><th></th></tr></thead><tbody id="lv-rows"><tr><td colspan="10" class="loading">불러오는 중…</td></tr></tbody></table></div>
+      <div id="lv-book"><div class="loading">불러오는 중…</div></div>
     </section>
     <section class="page" id="view-expense" style="display:none">
       <div class="head">
@@ -6220,7 +6252,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
        · 1년 이상: 15일, 최초 1년을 넘는 계속근로 2년마다 1일 가산 (최대 25일)
      출근율은 알 수 없어 개근 · 80% 이상 출근으로 가정 → 다르면 '조정' 기록으로 맞춘다
      사용 = 연차 1 · 반차 0.5 · 반반차 0.25, 그 근무자의 '현재 연차 기간' 안에 쓴 것만 합산 */
-  const LV={ items:null, seg:'all', hosp:'', q:'', ref:'', open:{} };
+  const LV={ items:null, seg:'all', hosp:'', emp:'', q:'', ref:'', year:0, open:{} };
   const LV_KIND={ '연차':1, '반차':0.5, '반반차':0.25 };
   const lvToday=()=>v3Key(v3Today());
   const lvAddM=(d,m)=>{ const y=d.getFullYear(), mo=d.getMonth()+m, last=new Date(y, mo+1, 0).getDate(); return new Date(y, mo, Math.min(d.getDate(), last)); };
@@ -6248,74 +6280,104 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const last=mine.filter(x=>x.kind!=='조정').sort((p,q)=>p.date<q.date?1:-1)[0]||null;
     return { J, cur, ps, ten, endIn, last, mine };
   }
+  /* 대장(엑셀과 같은 형태): 병원별 · 연도별 · 한 사람 두 줄(연차/반차) · 1~12월 · 자동계산(근속·발생·사용·잔여) */
+  const lvYear=()=>LV.year||new Date().getFullYear();
+  function lvRefFor(y){ const t=v3Today(); return y===t.getFullYear() ? lvToday() : (y<t.getFullYear() ? y+'-12-31' : y+'-01-01'); }
   function lvWorkers(){
     const c=DATA['v2wk']; if(!c || !c.v || !Array.isArray(c.v.list)) return [];
     return c.v.list.filter(w=>w.status==='재직' && (w.emp||'')!=='일용');
   }
-  function lvRows(){
-    const ref=LV.ref||lvToday(), items=LV.items||[];
-    return lvWorkers().map(w=>({ w, r:lvCalc(w, ref, items) }));
+  function lvLedgerWorkers(y){                       // 그 해 대장에 올릴 사람: 재직 + 그 해에 퇴사한 사람 (일용 제외, 그 해 이후 입사자 제외)
+    const c=DATA['v2wk']; if(!c || !c.v || !Array.isArray(c.v.list)) return [];
+    return c.v.list.filter(w=>{
+      if((w.emp||'')==='일용') return false;
+      const J=v3Date(w.join); if(J && J.getFullYear()>y) return false;
+      if(w.status==='재직') return true;
+      const L=v3Date(w.left); return !!(L && L.getFullYear()===y);
+    });
   }
+  function lvYearCalc(w, y, items){                  // 기존 엑셀 대장과 같은 계산: 기준일까지 근속으로 발생 → 그 해 사용을 뺀다
+    const ref=v3Date(lvRefFor(y)), J=v3Date(w.join), L=v3Date(w.left);
+    const at=(L && w.status!=='재직' && L<ref) ? L : ref;
+    const mine=(items||[]).filter(x=>String(x.wid)===String(w.id) && String(x.date).slice(0,4)===String(y));
+    const m={ a:Array(12).fill(0), h:Array(12).fill(0), ad:Array(12).fill([]), hd:Array(12).fill([]) };
+    m.ad=m.ad.map(()=>[]); m.hd=m.hd.map(()=>[]);
+    let adj=0, q=0;
+    mine.forEach(x=>{ const mo=Number(String(x.date).slice(5,7))-1, d=Number(String(x.date).slice(8,10));
+      if(x.kind==='반차'){ m.h[mo]+=1; m.hd[mo].push(d); }
+      else if(x.kind==='반반차'){ q+=+x.days||0; m.h[mo]+=0.5; m.hd[mo].push(d+'¼'); }
+      else if(x.kind==='조정') adj+=+x.days||0;
+      else { m.a[mo]+=+x.days||0; m.ad[mo].push(d); } });
+    let acc=null, ten=null;
+    if(J && at>=J){
+      let yy=0; while(lvAddY(J,yy+1)<=at) yy++;
+      let mm=0; while(lvAddM(J,mm+1)<=at) mm++;
+      acc = yy<1 ? Math.min(11, mm) : Math.min(25, 15+Math.floor((yy-1)/2));
+      ten = Math.round((at-J)/864e5/365.25*10)/10;
+    }
+    const ua=m.a.reduce((s,v)=>s+v,0), uh=m.h.reduce((s,v)=>s+v,0), tot=ua+uh*0.5;
+    return { m, acc, adj, ten, ua, uh, tot, left:acc==null?null:acc+adj-tot, mine };
+  }
+  function lvRows(){ const y=lvYear(); return lvLedgerWorkers(y).map(w=>({ w, r:lvYearCalc(w, y, LV.items||[]) })); }
   async function lvLoad(force){
-    $('#lv-ref').value=LV.ref||lvToday();
-    if(!DATA['v2wk']) $('#lv-rows').innerHTML='<tr><td colspan="10" class="loading">불러오는 중…</td></tr>';
+    if(!DATA['v2wk']) $('#lv-book').innerHTML='<div class="loading">불러오는 중…</div>';
     const wk=DATA['v2wk'] ? Promise.resolve() : call('getWorkers',TOKEN).then(v=>{ DATA['v2wk']={ t:Date.now(), v }; });
     try{
       await Promise.all([wk, swr('lv', ()=>call('listLeave',TOKEN), v=>{ LV.items=Array.isArray(v)?v:[]; lvRender(); })]);
       lvRender();
-    }catch(e){ xFail(e); $('#lv-rows').innerHTML='<tr><td colspan="10" class="empty-row">불러오지 못했습니다.</td></tr>'; }
+    }catch(e){ xFail(e); $('#lv-book').innerHTML='<div class="empty-row">불러오지 못했습니다.</div>'; }
   }
+  const lvCell=v=>v?lvNum(v):'';
   function lvRender(){
     if(!$('#view-leave')) return;
-    if(!DATA['v2wk']){ $('#lv-rows').innerHTML='<tr><td colspan="10" class="loading">불러오는 중…</td></tr>'; return; }
-    const all=lvRows(), hs=[...new Set(all.map(x=>x.w.hospital||'병원 미지정'))].sort((a,b)=>a.localeCompare(b,'ko'));
-    const hsel=$('#lv-hosp'); const hv=LV.hosp; hsel.innerHTML='<option value="">전체 병원</option>'+hs.map(h=>`<option ${h===hv?'selected':''}>${esc(h)}</option>`).join('');
-    let L=all.filter(x=>!LV.hosp || (x.w.hospital||'병원 미지정')===LV.hosp);
+    if(!DATA['v2wk']){ $('#lv-book').innerHTML='<div class="loading">불러오는 중…</div>'; return; }
+    const y=lvYear(), ref=lvRefFor(y), now=v3Today(), curMo=y===now.getFullYear()?now.getMonth():-1;
+    $('#lv-ylab').textContent=y+'년'; $('#lv-ynext').disabled=y>=now.getFullYear()+1;
+    const all=lvRows();
+    const hs={}; all.forEach(x=>{ const h=x.w.hospital||'병원 미지정'; hs[h]=(hs[h]||0)+1; });
+    const hn=Object.keys(hs).sort((a,b)=>a.localeCompare(b,'ko'));
+    if(!LV.hosp || (LV.hosp!=='*' && !hs[LV.hosp])) LV.hosp=hn[0]||'*';
+    $('#lv-htabs').innerHTML=hn.map(h=>`<button type="button" class="lv-ht ${h===LV.hosp?'on':''}" data-lvh="${esc(h)}">${esc(h)}<span>${hs[h]}</span></button>`).join('')+(hn.length>1?`<button type="button" class="lv-ht ${LV.hosp==='*'?'on':''}" data-lvh="*">전체 병원<span>${all.length}</span></button>`:'');
+    let L=all.filter(x=>LV.hosp==='*' || (x.w.hospital||'병원 미지정')===LV.hosp);
+    const emps=[...new Set(L.map(x=>x.w.emp||'기타'))];
+    $('#lv-emp').innerHTML=['', ...emps].map(k=>`<button class="seg ${LV.emp===k?'active':''}" data-e="${esc(k)}">${k||'전체'} <span>${k?L.filter(x=>(x.w.emp||'기타')===k).length:L.length}</span></button>`).join('');
+    if(LV.emp && emps.indexOf(LV.emp)<0) LV.emp='';
+    if(LV.emp) L=L.filter(x=>(x.w.emp||'기타')===LV.emp);
     const q=LV.q.replace(/\s/g,''); if(q) L=L.filter(x=>(String(x.w.name)+String(x.w.dept||'')).replace(/\s/g,'').indexOf(q)>=0);
-    const base=L;
-    const low=x=>x.r.cur && x.r.cur.left<=3 && x.r.cur.left>=0, over=x=>x.r.cur && x.r.cur.left<0, first=x=>x.r.cur && x.r.cur.first;
-    const soon=x=>x.r.cur && x.r.endIn!=null && x.r.endIn<=60 && x.r.cur.left>0;
-    const cnt={ all:base.length, low:base.filter(low).length, over:base.filter(over).length, first:base.filter(first).length, soon:base.filter(soon).length };
-    $$('#lv-seg .seg').forEach(b=>{ b.classList.toggle('active', b.dataset.f===LV.seg); const s=b.querySelector('span'); if(s) s.textContent=cnt[b.dataset.f]; });
-    if(LV.seg==='low') L=L.filter(low); else if(LV.seg==='over') L=L.filter(over); else if(LV.seg==='first') L=L.filter(first); else if(LV.seg==='soon') L=L.filter(soon);
-    const sum=k=>base.reduce((t,x)=>t+(x.r.cur?x.r.cur[k]:0),0);
-    const acc=sum('acc')+sum('adj'), used=sum('used');
-    $('#lv-cards').innerHTML=[
-      ['대상 인원', base.length, '명', '재직 · 일용 제외'],
-      ['발생 합계', lvNum(acc), '일', '현재 연차 기간 기준'],
-      ['사용 합계', lvNum(used), '일', acc?Math.round(used/acc*100)+'% 사용':'–'],
-      ['잔여 합계', lvNum(acc-used), '일', '1인 평균 '+(base.length?lvNum((acc-used)/base.length):'0')+'일'],
-      ['기간 종료 60일 이내', cnt.soon, '명', '잔여가 남은 사람 · 사용 촉진 대상', cnt.soon?'warn':''],
-      ['초과 사용', cnt.over, '명', '잔여가 0 미만', cnt.over?'bad':'']
-    ].map(([t,n,u,s,cls])=>`<div class="lv-card ${cls||''}"><div class="t">${t}</div><div class="n">${n}<small>${u}</small></div><div class="s">${s}</div></div>`).join('');
-    $('#lv-count').textContent=L.length+'명';
-    L.sort((a,b)=>String(a.w.hospital||'').localeCompare(String(b.w.hospital||''),'ko') || String(a.w.name).localeCompare(String(b.w.name),'ko'));
-    const tb=$('#lv-rows');
-    if(!L.length){ tb.innerHTML=`<tr><td colspan="10" class="empty-row">${base.length?'조건에 맞는 근무자가 없습니다.':'재직 중인 근무자가 없습니다. 근무자 마스터 명단이 들어오면 자동으로 채워집니다.'}</td></tr>`; return; }
-    tb.innerHTML=L.map(({w,r})=>{
-      const c=r.cur;
-      if(!c) return `<tr class="x-click" data-lvw="${esc(w.id)}"><td><div class="x-who"><b>${esc(w.name)}</b><small>${esc(w.hospital||'')}${w.dept?' · '+esc(w.dept):''}</small></div></td><td class="x-num">${esc(v3Dot(w.join)||'–')}</td><td colspan="7" class="x-mut">${w.join?'입사 전':'입사일이 없어 계산할 수 없습니다 (근무자 마스터에서 확인)'}</td><td></td></tr>`;
-      const tot=c.acc+c.adj, pct=tot>0?Math.max(0,Math.min(100,c.used/tot*100)):0, lc=c.left<0?'bad':(c.left<=3?'warn':'');
-      const endP=(r.endIn!=null && r.endIn<=60 && c.left>0)?` <span class="x-pill warn" title="기간이 끝나면 남은 연차는 소멸되거나 수당으로 정산됩니다">종료 D-${r.endIn}</span>`:'';
-      return `<tr class="x-click" data-lvw="${esc(w.id)}">`+
-        `<td><div class="x-who"><b>${esc(w.name)}</b><small>${esc(w.hospital||'')}${w.dept?' · '+esc(w.dept):''}${w.emp?' · '+esc(w.emp):''}</small></div></td>`+
-        `<td class="x-num">${esc(v3Dot(w.join))}</td><td class="x-num">${esc(r.ten)}</td>`+
-        `<td class="x-num lv-per">${esc(v3Dot(c.a))} – ${esc(v3Dot(c.b))}${c.first?' <span class="x-pill ghost">1년 미만</span>':''}${endP}</td>`+
-        `<td class="r x-num">${lvNum(c.acc)}</td><td class="r x-num ${c.adj?'':'x-mut'}">${c.adj?(c.adj>0?'+':'')+lvNum(c.adj):'–'}</td><td class="r x-num">${lvNum(c.used)}</td>`+
-        `<td class="r"><div class="lv-left ${lc}"><b class="x-num">${lvNum(c.left)}</b><i><u style="width:${pct}%"></u></i></div></td>`+
-        `<td class="x-num x-mut">${r.last?esc(v3Dot(r.last.date))+' · '+esc(r.last.kind):'–'}</td>`+
-        `<td class="r"><button class="x-btn" data-lvadd="${esc(w.id)}">사용 등록</button></td></tr>`;
+    if(LV.seg==='low') L=L.filter(x=>x.r.left!=null && x.r.left<=3 && x.r.left>=0); else if(LV.seg==='over') L=L.filter(x=>x.r.left!=null && x.r.left<0);
+    $$('#lv-seg .seg').forEach(b=>b.classList.toggle('active', b.dataset.f===LV.seg));
+    const groups={}; L.forEach(x=>{ const h=x.w.hospital||'병원 미지정'; (groups[h]=groups[h]||[]).push(x); });
+    const gk=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'ko'));
+    if(!gk.length){ $('#lv-book').innerHTML=`<div class="x-empty">${all.length?'조건에 맞는 근무자가 없습니다.':'근무자 마스터에 재직자가 들어오면 병원별 대장이 자동으로 만들어집니다.'}</div>`; return; }
+    const M=[...Array(12)].map((_,i)=>i);
+    $('#lv-book').innerHTML=gk.map(h=>{
+      const rows=groups[h].sort((a,b)=>String(a.w.dept||'').localeCompare(String(b.w.dept||''),'ko') || String(a.w.join||'').localeCompare(String(b.w.join||'')) || String(a.w.name).localeCompare(String(b.w.name),'ko'));
+      const empLab=LV.emp?' '+LV.emp:'';
+      const sum={ acc:0, tot:0, left:0 }; rows.forEach(({r})=>{ if(r.acc!=null){ sum.acc+=r.acc+r.adj; sum.tot+=r.tot; sum.left+=r.left; } });
+      const body=rows.map(({w,r},i)=>{
+        const quit=w.status!=='재직', lc=r.left==null?'':(r.left<0?'bad':(r.left<=3?'warn':''));
+        const note=[r.adj?'조정 '+(r.adj>0?'+':'')+lvNum(r.adj)+'일':'', ...r.mine.filter(x=>x.memo).slice(-1).map(x=>x.memo)].filter(Boolean).join(' · ');
+        const mc=(k,arr,days)=>M.map(i=>`<td class="m ${i===curMo?'cur':''} ${arr[i]?'v':''}" data-lvc="${esc(w.id)}|${i}|${k}" title="${arr[i]?esc((days[i]||[]).join(', ')+'일'):''}">${lvCell(arr[i])}</td>`).join('');
+        return `<tr class="a ${quit?'quit':''}"><td rowspan="2" class="c x-num">${i+1}</td><td rowspan="2" class="nm"><button type="button" class="x-link" data-lvw="${esc(w.id)}">${esc(w.name)}</button></td><td rowspan="2">${esc(w.dept||'')}</td><td rowspan="2" class="x-num">${esc(v3Dot(w.join)||'')}</td><td rowspan="2" class="x-num">${quit?esc(v3Dot(w.left)||'퇴사'):''}</td>`+
+          `<td class="k">연차</td>${mc('연차',r.m.a,r.m.ad)}<td class="s x-num">${lvCell(r.ua)}</td><td rowspan="2" class="note">${esc(note)}</td>`+
+          `<td rowspan="2" class="z x-num">${r.ten==null?'–':r.ten.toFixed(1)}</td><td rowspan="2" class="z x-num">${r.acc==null?'–':lvNum(r.acc)+(r.adj?`<small>${r.adj>0?'+':''}${lvNum(r.adj)}</small>`:'')}</td><td rowspan="2" class="z x-num">${lvNum(r.ua)}</td><td rowspan="2" class="z x-num">${lvNum(r.uh)}</td><td rowspan="2" class="z x-num">${lvNum(r.tot)}</td><td rowspan="2" class="z x-num left ${lc}">${r.left==null?'–':lvNum(r.left)}</td></tr>`+
+          `<tr class="b ${quit?'quit':''}"><td class="k">반차</td>${mc('반차',r.m.h,r.m.hd)}<td class="s x-num">${lvCell(r.uh)}</td></tr>`;
+      }).join('');
+      return `<section class="lv-led"><div class="lv-lh"><div><h2>${y}년 ${esc(h)}${esc(empLab)} 연차관리대장</h2><span>총원 <b>${rows.length}</b>명 · 기준일 ${esc(v3Dot(ref))}${y===now.getFullYear()?' (오늘)':''}</span></div>`+
+        `<div class="lv-ls"><span>발생 <b>${lvNum(sum.acc)}</b></span><span>사용 <b>${lvNum(sum.tot)}</b></span><span>잔여 <b>${lvNum(sum.left)}</b></span></div></div>`+
+        `<div class="tbl-scroll"><table class="lv-sheet"><thead><tr><th rowspan="2" class="c">순번</th><th rowspan="2">성명</th><th rowspan="2">부서</th><th rowspan="2">입사일자</th><th rowspan="2">퇴사일자</th><th rowspan="2">구분</th><th colspan="12" class="yr">${y}</th><th rowspan="2">사용<br>일수</th><th rowspan="2">비고</th><th colspan="6" class="auto">연차 발생 / 사용 현황 (자동계산)</th></tr>`+
+        `<tr>${M.map(i=>`<th class="m ${i===curMo?'cur':''}">${i+1}월</th>`).join('')}<th class="z">근속연수</th><th class="z">발생 연차</th><th class="z">사용 연차</th><th class="z">사용 반차</th><th class="z">총 사용</th><th class="z">잔여 연차</th></tr></thead><tbody>${body}</tbody></table></div></section>`;
     }).join('');
   }
   function lvFind(id){ return lvWorkers().find(w=>String(w.id)===String(id)) || ((DATA['v2wk']&&DATA['v2wk'].v.list)||[]).find(w=>String(w.id)===String(id)); }
   function lvAdd(wid, preset){
-    const ws=lvWorkers().slice().sort((a,b)=>String(a.hospital||'').localeCompare(String(b.hospital||''),'ko')||String(a.name).localeCompare(String(b.name),'ko'));
+    const ws=lvLedgerWorkers(lvYear()).slice().sort((a,b)=>String(a.hospital||'').localeCompare(String(b.hospital||''),'ko')||String(a.name).localeCompare(String(b.name),'ko'));
     const p=preset||{};
-    xOpen({ title:'연차 사용 등록', sub:'연차 1일 · 반차 0.5일 · 반반차 0.25일. 발생 일수를 바로잡을 때는 \'조정\'으로 ±일수를 넣으세요.',
+    xOpen({ title:'연차 사용 등록', sub:'연차 1일 · 반차 0.5일. 발생 일수를 바로잡을 때는 \'조정\'으로 ±일수를 넣으세요.',
       body:`<div class="x-form2">`+
         `<div style="grid-column:1/-1"><label class="x-lab" for="la-w">근무자</label><select id="la-w" class="x-select"><option value="">선택하세요</option>${ws.map(w=>`<option value="${esc(w.id)}" ${String(w.id)===String(wid)?'selected':''}>${esc(w.name)} · ${esc(w.hospital||'')}${w.dept?' · '+esc(w.dept):''}</option>`).join('')}</select></div>`+
         `<div><label class="x-lab" for="la-d">날짜</label><input id="la-d" type="date" class="x-input" value="${esc(p.date||lvToday())}"></div>`+
-        `<div><label class="x-lab" for="la-k">종류</label><select id="la-k" class="x-select">${['연차','반차','반반차','조정'].map(k=>`<option ${k===(p.kind||'연차')?'selected':''}>${k}</option>`).join('')}</select></div>`+
+        `<div><label class="x-lab" for="la-k">종류</label><select id="la-k" class="x-select">${['연차','반차','조정'].map(k=>`<option ${k===(p.kind||'연차')?'selected':''}>${k}</option>`).join('')}</select></div>`+
         `<div id="la-dw" ${p.kind==='조정'?'':'hidden'}><label class="x-lab" for="la-n">조정 일수 <span class="x-mut">(+ 늘림 · − 줄임)</span></label><input id="la-n" type="number" step="0.25" class="x-input" value="${esc(p.days!=null&&p.kind==='조정'?p.days:'')}" placeholder="예: -2"></div>`+
         `<div style="grid-column:1/-1"><label class="x-lab" for="la-m">사유 <span class="x-mut">(선택)</span></label><input id="la-m" class="x-input" maxlength="200" value="${esc(p.memo||'')}" placeholder="예: 개인 사유 · 병원 승인"></div>`+
         `</div><div id="la-prev" class="lv-prev"></div>`,
@@ -6323,12 +6385,12 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         const upd=()=>{ const k=el.querySelector('#la-k').value; el.querySelector('#la-dw').hidden=k!=='조정';
           const w=lvFind(el.querySelector('#la-w').value), box=el.querySelector('#la-prev');
           if(!w){ box.innerHTML=''; return; }
-          const r=lvCalc(w, el.querySelector('#la-d').value||lvToday(), LV.items||[]), c=r.cur;
-          if(!c){ box.innerHTML='<span class="x-mut">입사일 기준으로 계산할 수 없습니다.</span>'; return; }
-          const add=k==='조정'?0:(LV_KIND[k]||0), after=c.left-add;
-          box.innerHTML=`<b>${esc(w.name)}</b> · ${esc(v3Dot(c.a))} – ${esc(v3Dot(c.b))} 기간 · 발생 ${lvNum(c.acc+c.adj)}일 · 사용 ${lvNum(c.used)}일 · 잔여 <b>${lvNum(c.left)}</b>일`+(add?` → 등록 후 <b class="${after<0?'bad':''}">${lvNum(after)}</b>일${after<0?' (초과 사용)':''}`:'');
+          const dv=el.querySelector('#la-d').value||lvToday(), yy=Number(dv.slice(0,4)), r=lvYearCalc(w, yy, LV.items||[]);
+          if(r.acc==null){ box.innerHTML='<span class="x-mut">입사일 기준으로 계산할 수 없습니다.</span>'; return; }
+          const add=k==='조정'?0:(LV_KIND[k]||0), after=r.left-add+(k==='조정'?(Number(el.querySelector('#la-n').value)||0):0);
+          box.innerHTML=`<b>${esc(w.name)}</b> · ${yy}년 대장 · 발생 ${lvNum(r.acc+r.adj)}일 · 사용 ${lvNum(r.tot)}일 · 잔여 <b>${lvNum(r.left)}</b>일`+(after!==r.left?` → 등록 후 <b class="${after<0?'bad':''}">${lvNum(after)}</b>일${after<0?' (초과 사용)':''}`:'');
         };
-        ['#la-w','#la-k','#la-d'].forEach(s=>el.querySelector(s).addEventListener('change', upd)); upd();
+        ['#la-w','#la-k','#la-d'].forEach(s=>el.querySelector(s).addEventListener('change', upd)); el.querySelector('#la-n').addEventListener('input', upd); upd();
       },
       foot:[{label:'취소', ghost:true},{label:'등록', onClick:()=>{
         const w=lvFind($('#la-w').value), date=$('#la-d').value, kind=$('#la-k').value, memo=$('#la-m').value.trim();
@@ -6378,24 +6440,85 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   }
   async function lvExport(){
     try{
-      const X=await loadLib('xlsx'), ref=LV.ref||lvToday();
-      const rows=lvRows().filter(x=>!LV.hosp || (x.w.hospital||'병원 미지정')===LV.hosp).sort((a,b)=>String(a.w.hospital||'').localeCompare(String(b.w.hospital||''),'ko')||String(a.w.name).localeCompare(String(b.w.name),'ko'));
-      const t1=rows.map(({w,r})=>{ const c=r.cur||{}; return { '병원':w.hospital||'', '부서':w.dept||'', '이름':w.name, '고용형태':w.emp||'', '입사일':v3Dot(w.join), '근속':r.ten, '연차 기간 시작':c.a?v3Dot(c.a):'', '연차 기간 종료':c.b?v3Dot(c.b):'', '발생':c.acc!=null?c.acc:'', '조정':c.adj||0, '사용':c.used||0, '잔여':c.left!=null?c.left:'', '마지막 사용':r.last?v3Dot(r.last.date)+' '+r.last.kind:'' }; });
-      const ids=new Set(rows.map(x=>String(x.w.id)));
-      const t2=(LV.items||[]).filter(x=>ids.has(String(x.wid))).sort((a,b)=>a.date<b.date?1:-1).map(x=>{ const w=lvFind(x.wid)||{}; return { '날짜':v3Dot(x.date), '병원':w.hospital||'', '이름':x.name, '종류':x.kind, '일수':x.days, '사유':x.memo||'', '등록자':x.by||'', '등록일':v3Dot(x.at) }; });
-      const wb=X.utils.book_new();
-      const s1=X.utils.json_to_sheet(t1); s1['!cols']=[14,10,8,8,11,10,12,12,6,6,6,6,16].map(w=>({wch:w})); X.utils.book_append_sheet(wb, s1, '연차관리대장');
-      const s2=X.utils.json_to_sheet(t2.length?t2:[{ '날짜':'', '병원':'', '이름':'', '종류':'', '일수':'', '사유':'', '등록자':'', '등록일':'' }]); X.utils.book_append_sheet(wb, s2, '사용내역');
-      X.writeFile(wb, '연차관리대장_'+ref+(LV.hosp?'_'+LV.hosp:'')+'.xlsx'); toast(t1.length+'명 연차관리대장을 받았습니다.');
+      const EJ=await loadLib('exceljs'), y=lvYear(), ref=lvRefFor(y), isNow=y===new Date().getFullYear();
+      let L=lvRows().filter(x=>LV.hosp==='*' || (x.w.hospital||'병원 미지정')===LV.hosp);
+      if(LV.emp) L=L.filter(x=>(x.w.emp||'기타')===LV.emp);
+      const groups={}; L.forEach(x=>{ const h=x.w.hospital||'병원 미지정'; (groups[h]=groups[h]||[]).push(x); });
+      const gk=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'ko'));
+      if(!gk.length){ toast('받을 근무자가 없습니다.'); return; }
+      const wb=new EJ.Workbook(); wb.creator='엔젤스태프 통합 HR';
+      const F='맑은 고딕', thin={style:'thin',color:{argb:'FF8C887F'}}, med={style:'medium',color:{argb:'FF171614'}};
+      const fill=c=>({ type:'pattern', pattern:'solid', fgColor:{argb:c} });
+      const used=new Set();
+      gk.forEach(h=>{
+        let nm=(y+'년도 '+h).replace(/[\\\/\?\*\[\]:]/g,'').slice(0,31), k=2; while(used.has(nm)){ nm=nm.slice(0,28)+' '+k++; } used.add(nm);
+        const ws=wb.addWorksheet(nm, { views:[{ state:'frozen', xSplit:3, ySplit:4 }], pageSetup:{ orientation:'landscape', paperSize:9, fitToPage:true, fitToWidth:1, fitToHeight:0 } });
+        const W={A:6.4,B:9.4,C:11.4,D:12.1,E:11,F:6.4,S:8,T:20,U:2,V:10,W:10,X:10,Y:10,Z:10,AA:11}; 'GHIJKLMNOPQR'.split('').forEach(c=>W[c]=5.6);
+        Object.keys(W).forEach(c=>ws.getColumn(c).width=W[c]);
+        const st=(cell,o)=>{ const c=ws.getCell(cell); Object.assign(c, o.v!==undefined?{value:o.v}:{}); c.font={ name:F, size:o.sz||10, bold:!!o.b, color:o.fc?{argb:o.fc}:undefined }; c.alignment={ horizontal:o.h||'center', vertical:'middle', wrapText:!!o.wrap }; if(o.fill) c.fill=fill(o.fill); if(o.nf) c.numFmt=o.nf; c.border={ top:thin, left:thin, bottom:thin, right:thin }; return c; };
+        const rows=groups[h].sort((a,b)=>String(a.w.dept||'').localeCompare(String(b.w.dept||''),'ko') || String(a.w.join||'').localeCompare(String(b.w.join||'')) || String(a.w.name).localeCompare(String(b.w.name),'ko'));
+        const last=4+rows.length*2;
+        ws.mergeCells('A1:T1'); st('A1',{ v:h+(LV.emp?' '+LV.emp:'')+' 연차관리대장', b:true, sz:16, fill:'FFFFF200' }); ws.getRow(1).height=30;
+        st('A2',{ v:'총원', b:true, fill:'FFF4F2EC' }); ws.mergeCells('B2:G2'); st('B2',{ v:'' });
+        ws.mergeCells('V2:AA2'); st('V2',{ v:'연차 발생 / 사용 현황 (자동계산)', b:true, sz:12, fill:'FF1E2761', fc:'FFFFFFFF' });
+        st('A3',{ v:{ formula:'COUNT(A5:A'+last+')' }, b:true }); ws.mergeCells('G3:R3'); st('G3',{ v:y, b:true, sz:11 });
+        st('V3',{ v:'기준', b:true, fill:'FFF4F2EC' }); ws.mergeCells('W3:X3');
+        st('W3', isNow ? { v:{ formula:'TODAY()' }, nf:'yyyy-mm-dd', b:true } : { v:new Date(ref+'T00:00:00'), nf:'yyyy-mm-dd', b:true });
+        ws.getRow(2).height=19.5; ws.getRow(3).height=19.5;
+        const hd=['순번','성명','부서','입사일자','퇴사일자','구분',...[...Array(12)].map((_,i)=>(i+1)+'월'),'사용\n일수','비고'];
+        hd.forEach((t,i)=>st(ws.getRow(4).getCell(i+1).address,{ v:t, b:true, fill:'FFB4C6E7', wrap:true }));
+        ['근속연수','발생 연차','사용 연차','사용 반차','총 사용','잔여 연차'].forEach((t,i)=>st(ws.getRow(4).getCell(22+i).address,{ v:t, b:true, fill:'FFFFD400' }));
+        ws.getRow(4).height=30;
+        rows.forEach(({w,r},i)=>{
+          const a=5+i*2, b=a+1;
+          ['A','B','C','D','E','T','V','W','X','Y','Z','AA'].forEach(c=>ws.mergeCells(c+a+':'+c+b));
+          st('A'+a,{ v:{ formula:'MAX($A$4:A'+(a-1)+')+1', result:i+1 } });
+          st('B'+a,{ v:w.name, b:true }); st('C'+a,{ v:w.dept||'' });
+          const J=v3Date(w.join), Lv=w.status!=='재직'?v3Date(w.left):null;
+          st('D'+a,{ v:J?new Date(Date.UTC(J.getFullYear(),J.getMonth(),J.getDate())):'', nf:'yyyy-mm-dd' });
+          st('E'+a,{ v:Lv?new Date(Date.UTC(Lv.getFullYear(),Lv.getMonth(),Lv.getDate())):'', nf:'yyyy-mm-dd' });
+          st('F'+a,{ v:'연차' }); st('F'+b,{ v:'반차' });
+          'GHIJKLMNOPQR'.split('').forEach((c,mi)=>{ st(c+a,{ v:r.m.a[mi]||null, nf:'0.##' }); st(c+b,{ v:r.m.h[mi]||null, nf:'0.##' }); });
+          st('S'+a,{ v:{ formula:'SUM(G'+a+':R'+a+')', result:r.ua }, b:true }); st('S'+b,{ v:{ formula:'SUM(G'+b+':R'+b+')', result:r.uh }, b:true });
+          const note=[r.adj?'조정 '+(r.adj>0?'+':'')+lvNum(r.adj)+'일':'', ...r.mine.filter(x=>x.memo).slice(-1).map(x=>x.memo)].filter(Boolean).join(' · ');
+          st('T'+a,{ v:note, h:'left', wrap:true });
+          const adj=r.adj?(r.adj>0?'+':'')+r.adj:'';
+          st('V'+a,{ v:{ formula:'IF($B'+a+'="","",ROUND(YEARFRAC($D'+a+',$W$3,1),1))' }, nf:'0.0' });
+          st('W'+a,{ v:{ formula:'IF($B'+a+'="","",IF(DATEDIF($D'+a+',$W$3,"y")<1,MIN(11,DATEDIF($D'+a+',$W$3,"m")),MIN(25,15+INT((DATEDIF($D'+a+',$W$3,"y")-1)/2)))'+adj+')' }, nf:'0.##' });
+          st('X'+a,{ v:{ formula:'IF($B'+a+'="","",SUM($G'+a+':$R'+a+'))' }, nf:'0.##' });
+          st('Y'+a,{ v:{ formula:'IF($B'+a+'="","",SUM($G'+b+':$R'+b+'))' }, nf:'0.##' });
+          st('Z'+a,{ v:{ formula:'IF($B'+a+'="","",$X'+a+'+$Y'+a+'*0.5)' }, nf:'0.0' });
+          st('AA'+a,{ v:{ formula:'IF($B'+a+'="","",$W'+a+'-$Z'+a+')' }, nf:'0.0', b:true });
+          ws.getRow(a).height=19.5; ws.getRow(b).height=19.5;
+        });
+        ws.addConditionalFormatting({ ref:'AA5:AA'+Math.max(5,last), rules:[
+          { type:'cellIs', operator:'lessThan', formulae:['0'], style:{ font:{ color:{argb:'FFB42318'}, bold:true }, fill:{ type:'pattern', pattern:'solid', bgColor:{argb:'FFFDECEB'} } } },
+          { type:'cellIs', operator:'between', formulae:['0','3'], style:{ fill:{ type:'pattern', pattern:'solid', bgColor:{argb:'FFFFF4CC'} } } } ] });
+        for(let r=4;r<=last;r++){ ['A','T'].forEach(c=>{ const x=ws.getCell(c+r); x.border=Object.assign({}, x.border, c==='A'?{left:med}:{right:med}); }); ['V','AA'].forEach(c=>{ const x=ws.getCell(c+r); x.border=Object.assign({}, x.border, c==='V'?{left:med}:{right:med}); }); }
+        ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T'].forEach(c=>{ const x=ws.getCell(c+last); x.border=Object.assign({}, x.border, { bottom:med }); const t=ws.getCell(c+'4'); t.border=Object.assign({}, t.border, { top:med, bottom:med }); });
+        ['V','W','X','Y','Z','AA'].forEach(c=>{ const x=ws.getCell(c+last); x.border=Object.assign({}, x.border, { bottom:med }); const t=ws.getCell(c+'4'); t.border=Object.assign({}, t.border, { top:med, bottom:med }); });
+      });
+      const buf=await wb.xlsx.writeBuffer();
+      const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([buf],{ type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+      a.download=y+'년_연차관리대장_'+(LV.hosp==='*'?'전체병원':LV.hosp)+(LV.emp?'_'+LV.emp:'')+'.xlsx'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+      toast(gk.length+'개 병원 · '+L.length+'명 대장을 받았습니다.');
     }catch(e){ toast('엑셀을 만들지 못했습니다: '+String((e&&e.message)||e)); }
   }
   $('#lv-seg').addEventListener('click', e=>{ const b=e.target.closest('.seg'); if(!b) return; LV.seg=b.dataset.f; lvRender(); });
-  $('#lv-hosp').addEventListener('change', e=>{ LV.hosp=e.target.value; lvRender(); });
+  $('#lv-emp').addEventListener('click', e=>{ const b=e.target.closest('.seg'); if(!b) return; LV.emp=b.dataset.e; lvRender(); });
+  $('#lv-htabs').addEventListener('click', e=>{ const b=e.target.closest('[data-lvh]'); if(!b) return; LV.hosp=b.dataset.lvh; LV.emp=''; lvRender(); });
   $('#lv-q').addEventListener('input', e=>{ LV.q=e.target.value; lvRender(); });
-  $('#lv-ref').addEventListener('change', e=>{ LV.ref=e.target.value||''; lvRender(); });
+  $('#lv-yprev').addEventListener('click', ()=>{ LV.year=lvYear()-1; lvRender(); });
+  $('#lv-ynext').addEventListener('click', ()=>{ LV.year=lvYear()+1; lvRender(); });
   $('#lv-add').addEventListener('click', ()=>lvAdd(''));
   $('#lv-export').addEventListener('click', lvExport);
-  $('#lv-rows').addEventListener('click', e=>{ const a=e.target.closest('[data-lvadd]'); if(a){ e.stopPropagation(); lvAdd(a.dataset.lvadd); return; } const r=e.target.closest('[data-lvw]'); if(r) lvDetail(r.dataset.lvw); });
+  $('#lv-book').addEventListener('click', e=>{
+    const n=e.target.closest('[data-lvw]'); if(n){ lvDetail(n.dataset.lvw); return; }
+    const c=e.target.closest('[data-lvc]'); if(!c) return;
+    const [wid,mo,kind]=c.dataset.lvc.split('|'), y=lvYear(), t=v3Today();
+    const date=(y===t.getFullYear() && Number(mo)===t.getMonth()) ? lvToday() : y+'-'+String(Number(mo)+1).padStart(2,'0')+'-01';
+    lvAdd(wid, { date, kind });
+  });
   views.leave=$('#view-leave');
   V2_LOAD.leave=async(force)=>{ if(force){ invalidate('lv'); } await lvLoad(force); };
 
