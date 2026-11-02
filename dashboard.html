@@ -6361,13 +6361,14 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       (out[h]=out[h]||{ n:0, e:{} }).n++; out[h].e[e]=(out[h].e[e]||0)+1; });
     return out;
   }
+  let lvPickSeq=0;
   function lvPick(){
     const C=lvCombos(), hs=Object.keys(C).sort((a,b)=>a.localeCompare(b,'ko'));
     const on=new Set((LV.tabs||[]).map(lvTabKey));
     const chip=(h,e,n)=>`<button type="button" class="lv-pk ${on.has(h+'|'+e)?'on':''}" data-pk="${esc(h)}|${esc(e)}">${e||'전체'}<span>${n}</span></button>`;
     xOpen({ title:'보고 싶은 대장 고르기', sub:'병원별로 근무형태를 눌러 켜고 끄세요. 켠 순서대로 탭이 생기고, 어느 PC에서 열어도 같게 보입니다.', wide:true,
       body:`<div class="lv-pkl">${hs.map(h=>`<div class="lv-pkr"><b>${esc(h)}</b><div>${chip(h,'',C[h].n)}${Object.keys(C[h].e).sort((a,b)=>C[h].e[b]-C[h].e[a]).map(e=>chip(h,e,C[h].e[e])).join('')}</div></div>`).join('')||'<div class="x-empty">근무자가 아직 없습니다.</div>'}</div>`,
-      onOpen:(el)=>{ el.querySelector('.lv-pkl') && el.querySelector('.lv-pkl').addEventListener('click', e=>{ const b=e.target.closest('[data-pk]'); if(!b) return; b.classList.toggle('on'); b.dataset.t=String(Date.now()); }); },
+      onOpen:(el)=>{ el.querySelector('.lv-pkl') && el.querySelector('.lv-pkl').addEventListener('click', e=>{ const b=e.target.closest('[data-pk]'); if(!b) return; b.classList.toggle('on'); b.dataset.t=String(++lvPickSeq); }); },
       foot:[{label:'취소', ghost:true},{label:'적용', onClick:()=>{
         const keep=(LV.tabs||[]).filter(t=>{ const b=document.querySelector(`#xm-body [data-pk="${CSS.escape(t.h+'|'+(t.e||''))}"]`); return b ? b.classList.contains('on') : true; });
         const have=new Set(keep.map(lvTabKey));
