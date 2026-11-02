@@ -6843,12 +6843,12 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       for(let r=1;r<=35;r++) ws.getRow(r).height=16.5;
       [6,7].forEach(r=>ws.getRow(r).height=17.25);
       const F='맑은 고딕', th={style:'thin'}, md={style:'medium'}, grey={ type:'pattern', pattern:'solid', fgColor:{argb:'FFD9D9D9'} };
-      const put=(a,v,o)=>{ const c=ws.getCell(a); c.value=v; c.font={ name:(o&&o.font)||F, size:(o&&o.sz)||12, bold:!!(o&&o.b), underline:!!(o&&o.u) }; c.alignment={ horizontal:(o&&o.h)||'center', vertical:(o&&o.v)||'middle', wrapText:true }; if(o&&o.fill) c.fill=grey; return c; };
+      const put=(a,v,o)=>{ const c=ws.getCell(a); c.value=v; c.font={ name:(o&&o.font)||F, size:(o&&o.sz)||12, bold:!!(o&&o.b), underline:!!(o&&o.u) }; c.alignment={ horizontal:(o&&o.h)||'center', vertical:(o&&o.v)||'middle', wrapText:!(o&&o.nowrap), indent:(o&&o.h==='left')?1:0 }; if(o&&o.fill) c.fill=grey; return c; };
       const box=(r1,c1,r2,c2,o)=>{ for(let r=r1;r<=r2;r++) for(let c=c1;c<=c2;c++){ const cell=ws.getRow(r).getCell(c); const b={}; b.top=r===r1?(o.t||th):undefined; b.bottom=r===r2?(o.b||th):undefined; b.left=c===c1?(o.l||th):undefined; b.right=c===c2?(o.r||th):undefined; cell.border=Object.assign({}, cell.border||{}, Object.fromEntries(Object.entries(b).filter(([,v])=>v))); if(o.fill) cell.fill=grey; } };
       ws.mergeCells('D3:E4'); put('D3','지    출    결    의    서',{ font:'바탕', sz:20, b:true }); box(3,4,4,5,{ b:{style:'double'}, t:{style:'none'}, l:{style:'none'}, r:{style:'none'} });
       ['D3','E3','D4','E4'].forEach(a=>{ const c=ws.getCell(a); c.border={ bottom:{style:'double'} }; });
-      put('H4','일련No  '+(x.no||''),{ sz:11, b:true, u:true, h:'right' }); put('H5','증명No  '+(x.proofNo||''),{ sz:11, b:true, u:true, h:'right' });
-      ws.mergeCells('D6:E6'); put('D6', exDateLab(x.date),{ sz:11 }); put('H6','부서명 : '+(x.deptName||'의료사업본부'),{ sz:11, b:true, u:true, h:'right' });
+      put('H4','일련No  '+(x.no||''),{ sz:11, b:true, u:true, h:'right', nowrap:true }); put('H5','증명No  '+(x.proofNo||''),{ sz:11, b:true, u:true, h:'right', nowrap:true });
+      ws.mergeCells('D6:E6'); put('D6', exDateLab(x.date),{ sz:11 }); put('H6','부서명 : '+(x.deptName||'의료사업본부'),{ sz:11, b:true, u:true, h:'right', nowrap:true });
       ws.mergeCells('B8:B9'); put('B8','내      역'); ws.mergeCells('C8:D9'); put('C8', exCatLab(x.cat||'')); ws.mergeCells('E8:E9'); put('E8','청구인'); ws.mergeCells('F8:F9'); put('F8', x.claimant||x.author||'');
       ws.mergeCells('B10:B20'); put('B10','세부내역'); ws.mergeCells('C10:F20'); put('C10', exDetailLines(x).join('\n'),{ h:'left', v:'top' });
       ws.mergeCells('B21:B23'); put('B21','청구내역'); ws.mergeCells('C21:D23'); put('C21','일금 '+exHan(x.amount)+'원정',{ h:'left', b:true }); ws.mergeCells('E21:F23'); put('E21','(₩'+exWon(x.amount)+')',{ h:'left' });
@@ -6857,7 +6857,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       const S=[['G8:G11','H8:H11','대\n표\n이\n사'],['G12:G15','H12:H15','전\n\n무'],['G16:G19','H16:H19','이\n\n사\n(경영)'],['G20:G23','H20:H23','이\n사\n(의료)'],['G24:G27','H24:H27','팀\n\n장'],['G28:G31','H28:H31','담\n\n당']];
       S.forEach(([g,h,t])=>{ ws.mergeCells(g); put(g.split(':')[0], t,{ sz:11, fill:true }); ws.mergeCells(h); put(h.split(':')[0], '',{ sz:10 }); });
       ws.mergeCells('B32:H34'); put('B32','위의 금액을 정히 (청구)하오니 지급하여 주십시오.',{ sz:11, fill:true });
-      put('H35','㈜엔젤스태프',{ sz:11, h:'right' });
+      put('H35','㈜엔젤스태프',{ sz:11, h:'right', nowrap:true });
       // 테두리: 표 전체 굵게, 칸마다 가늘게
       [[8,2,9,2],[8,3,9,4],[8,5,9,5],[8,6,9,6],[10,2,20,2],[10,3,20,6],[21,2,23,2],[21,3,23,4],[21,5,23,6],[24,2,25,2],[24,3,25,6],[26,2,31,2],[26,3,31,6]].forEach(([a,b,c,e])=>box(a,b,c,e,{}));
       S.forEach(([g,h])=>{ const [g1,g2]=g.split(':'), r1=+g1.slice(1), r2=+g2.slice(1); box(r1,7,r2,7,{ fill:true }); box(r1,8,r2,8,{}); });
