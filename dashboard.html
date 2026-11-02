@@ -2503,7 +2503,7 @@
       t.querySelector('button').addEventListener('click', ()=>{ const f=t._fn; t._fn=null; t.classList.remove('on'); if(f) f(); }); }
     try{ $('#toast').classList.remove('on'); }catch(_){ }
     t.querySelector('span').textContent=msg; t.querySelector('button').textContent=label; t._fn=fn; t.classList.add('on');
-    clearTimeout(t._t); t._t=setTimeout(()=>{ t.classList.remove('on'); t._fn=null; }, ms||8000);
+    clearTimeout(t._t); t._t=setTimeout(()=>{ t.classList.remove('on'); t._fn=null; }, ms||12000);
   }
   function toast(msg){ try{ const ta=document.getElementById('toast-act'); if(ta && ta.classList.contains('on')) return setTimeout(()=>toast(msg), 2600); }catch(_){ } const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),2400); }
   /* ═══ 즉시 반영 엔진: 화면은 먼저 바꾸고 서버 저장은 뒤에서 ═══
