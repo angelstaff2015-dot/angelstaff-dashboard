@@ -2685,6 +2685,7 @@
   /* 확인 모달 */
   let cfResolve=null;
   function confirmAction(title, msg, okLabel){
+    const cw=$('#confirm'); if(cw.parentNode!==document.body || cw.nextElementSibling) document.body.appendChild(cw); cw.style.zIndex='1000';
     $('#cf-title').textContent=title; $('#cf-msg').textContent=msg; $('#cf-ok').textContent=okLabel||(/삭제|뺄까요/.test(title)?'삭제':'확인'); $('#confirm').classList.add('on');
     return new Promise(res=>{ cfResolve=res; });
   }
