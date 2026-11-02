@@ -218,6 +218,51 @@
   .modal h3{font-weight:700;font-size:19px;letter-spacing:-0.02em;margin:0 0 4px}
   .modal .m-sub{color:var(--ink-3);font-size:12.5px;margin:0 0 20px}
   .modal .m-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+  /* ── 운영: 연차관리대장 · 지출 결의서 ── */
+  .lv-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:4px 0 20px}
+  .lv-card{border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px 13px}
+  .lv-card .t{font-size:12.5px;color:var(--ink-2);font-weight:600}
+  .lv-card .n{font:700 26px/1.15 var(--gr);margin:7px 0 3px;letter-spacing:-.02em;color:var(--ink)}
+  .lv-card .n small{font:600 13px var(--kr,inherit);color:var(--ink-3);margin-left:3px}
+  .lv-card .s{font-size:12px;color:var(--ink-3)}
+  .lv-card.warn{border-color:#EBD58A;background:#FFFCF0}.lv-card.bad{border-color:#F3C3BE;background:#FFF8F7}.lv-card.bad .n{color:var(--danger)}
+  .lv-ref{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-3)}
+  .lv-tbl td.lv-per{white-space:nowrap}
+  .lv-left{display:inline-flex;align-items:center;gap:9px;justify-content:flex-end}
+  .lv-left b{font-size:15px;min-width:28px;text-align:right}
+  .lv-left i{display:block;width:64px;height:6px;border-radius:9px;background:var(--line-2);overflow:hidden}
+  .lv-left i u{display:block;height:100%;background:var(--ink);border-radius:9px}
+  .lv-left.warn b{color:var(--trace-ink)}.lv-left.warn i u{background:var(--trace)}
+  .lv-left.bad b{color:var(--danger)}.lv-left.bad i u{background:var(--danger)}
+  .lv-prev{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--panel);font-size:13px;color:var(--ink-2);line-height:1.6}
+  .lv-prev:empty{display:none}.lv-prev .bad{color:var(--danger)}
+  .lv-dsum{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px}
+  .lv-dsum div{border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+  .lv-dsum span{display:block;font-size:11.5px;color:var(--ink-3)}
+  .lv-dsum b{display:block;font:700 17px var(--gr);margin-top:3px}.lv-dsum b.bad{color:var(--danger)}
+  .lv-dt td{font-size:13px}
+  .ex-mon{display:flex;align-items:center;gap:12px;margin:0 0 14px}
+  .ex-mon b{font:700 18px var(--gr);min-width:120px;text-align:center}
+  .ex-break{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:-6px 0 22px}
+  .ex-bk{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:#fff}
+  .ex-bk .h{font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:10px}
+  .ex-bar{display:grid;grid-template-columns:110px 1fr 112px;align-items:center;gap:10px;font-size:12.5px;margin:6px 0}
+  .ex-bar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+  .ex-bar i{display:block;height:8px;border-radius:9px;background:var(--line-2);overflow:hidden}
+  .ex-bar i u{display:block;height:100%;background:var(--ink);border-radius:9px}
+  .ex-bar b{text-align:right;font-size:12.5px}
+  .ex-tbl .x-who b{font-weight:600}
+  .ex-items{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:12px}
+  .ex-ih,.ex-ir{display:grid;grid-template-columns:minmax(0,2.2fr) 70px 100px 110px minmax(0,1.3fr) 34px;gap:6px;align-items:center}
+  .ex-ih{font-size:11.5px;color:var(--ink-3);font-weight:600;padding:0 2px 6px}
+  .ex-ir{margin-bottom:6px}.ex-ir .x-input{padding:8px 9px;font-size:13px}.ex-ir .x-btn{padding:6px 0;width:34px}
+  .ex-if{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px;font-size:13px;color:var(--ink-2)}
+  .ex-if b{font:700 17px var(--gr);color:var(--ink);margin-left:6px}.ex-if small{display:block;text-align:right;color:var(--ink-3);font-size:11.5px}
+  .ex-rej,.ex-rjbox{margin-top:14px;padding:11px 13px;border-radius:10px;background:var(--danger-bg);color:var(--danger);font-size:13px}
+  .ex-rjbox{background:#fff;border:1px solid #F3C3BE;color:var(--ink)}
+  .ex-trail{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3);margin-bottom:16px}
+  .ex-trail b{color:var(--ink);font-weight:600}.ex-trail i{font-style:normal;color:var(--line)}
+  @media (max-width:760px){ .ex-break{grid-template-columns:1fr} .lv-dsum{grid-template-columns:1fr 1fr} .ex-ih{display:none} .ex-ir{grid-template-columns:1fr 1fr;padding:8px;border:1px solid var(--line-2);border-radius:10px} .ex-ir input[data-i="name"],.ex-ir input[data-i="memo"]{grid-column:1/-1} }
   #bg-save{position:fixed;right:20px;bottom:22px;z-index:96;display:flex;align-items:center;gap:8px;background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:0 10px 30px -12px rgba(20,18,16,.35);font-size:12.5px;font-weight:600;padding:8px 14px 8px 12px;border-radius:100px;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .18s,transform .18s}
   #bg-save.on{opacity:1;transform:none}
   #bg-save i{width:12px;height:12px;border-radius:50%;border:2px solid #D9D4C9;border-top-color:var(--ink);animation:bgspin .7s linear infinite}
@@ -1437,6 +1482,8 @@
     <button class="nav-item" data-view="workers" data-title="근무자 마스터"><i class="dot"></i>근무자 마스터</button>
     <button class="nav-item" data-view="surveys" data-title="만족도 조사"><i class="dot"></i>만족도 조사</button>
     <button class="nav-item" data-view="kpi" data-title="KPI"><i class="dot"></i>KPI<span class="x-new">NEW</span></button>
+    <button class="nav-item" data-view="leave" data-title="연차관리대장"><i class="dot"></i>연차관리대장<span class="x-new">NEW</span></button>
+    <button class="nav-item" data-view="expense" data-title="사업장 지출 결의서"><i class="dot"></i>지출 결의서<span class="x-new">NEW</span></button>
     <button class="nav-item" data-view="risk" data-title="퇴사 위험"><i class="dot"></i>퇴사 위험<span class="x-new">NEW</span></button>
     <button class="nav-item" data-view="forecast" data-title="결원 예측·인재풀"><i class="dot"></i>결원 예측·인재풀<span class="x-new">NEW</span></button>
     <div class="nav-sec"><div class="eyebrow">학습</div></div>
@@ -1885,6 +1932,34 @@
         </div>
       </div>
       <div id="kp-out" style="margin-top:26px"><div class="loading">불러오는 중…</div></div>
+    </section>
+    <section class="page" id="view-leave" style="display:none">
+      <div class="head">
+        <div><div class="eyebrow">Annual leave</div><h1>연차관리대장</h1></div>
+        <div class="actions"><button class="btn-sm ghost" id="lv-export">대장 받기 (xlsx)</button><button class="btn-sm" id="lv-add">＋ 사용 등록</button></div>
+      </div>
+      <p class="x-lead">근무자 마스터의 <b>재직자(일용 제외)</b>를 입사일 기준으로 자동 계산합니다. <b>근로기준법 제60조</b> — 1년 미만은 1개월 개근마다 1일(최대 11일), 1년 이상은 15일, 3년차부터 2년마다 1일씩 늘어 최대 25일. 출근율은 확인할 수 없어 개근·80% 이상 출근으로 가정하니, 다르면 <b>조정</b>으로 맞추세요. 회계연도 기준으로 운영하는 사업장도 조정으로 맞출 수 있습니다.</p>
+      <div class="lv-cards" id="lv-cards"></div>
+      <div class="filterbar">
+        <div class="segs" id="lv-seg"><button class="seg active" data-f="all">전체 <span></span></button><button class="seg" data-f="soon">기간 종료 60일 이내 <span></span></button><button class="seg" data-f="low">잔여 3일 이하 <span></span></button><button class="seg" data-f="over">초과 사용 <span></span></button><button class="seg" data-f="first">1년 미만 <span></span></button></div>
+        <div class="x-filter"><span class="muted" id="lv-count" style="font-size:13px;margin-right:6px"></span><label class="lv-ref">기준일<input type="date" id="lv-ref" class="x-search" style="width:150px"></label><select id="lv-hosp" class="filter-sel"><option value="">전체 병원</option></select><input id="lv-q" class="x-search" placeholder="이름·부서 검색" aria-label="이름·부서 검색"></div>
+      </div>
+      <div class="tbl-scroll"><table class="htbl x-tbl lv-tbl"><thead><tr><th>근무자</th><th>입사일</th><th>근속</th><th>현재 연차 기간</th><th class="r">발생</th><th class="r">조정</th><th class="r">사용</th><th class="r">잔여</th><th>마지막 사용</th><th></th></tr></thead><tbody id="lv-rows"><tr><td colspan="10" class="loading">불러오는 중…</td></tr></tbody></table></div>
+    </section>
+    <section class="page" id="view-expense" style="display:none">
+      <div class="head">
+        <div><div class="eyebrow">Expense</div><h1>사업장 지출 결의서</h1></div>
+        <div class="actions"><button class="btn-sm ghost" id="ex-export">이 달 목록 받기 (xlsx)</button><button class="btn-sm" id="ex-add">＋ 결의서 작성</button></div>
+      </div>
+      <p class="x-lead">사업장(병원)별 지출을 결의서로 남깁니다. <b>작성 → 결재 요청 → 승인 / 반려 → 지급완료</b> 순서이며, 승인·반려·지급완료는 관리자가 합니다. 결의서를 열어 <b>인쇄 · PDF</b>를 누르면 결재란이 있는 A4 양식으로 나옵니다.</p>
+      <div class="ex-mon"><button type="button" class="kd-nb" id="ex-prev" aria-label="이전 달">‹</button><b id="ex-ym">–</b><button type="button" class="kd-nb" id="ex-next" aria-label="다음 달">›</button></div>
+      <div class="lv-cards" id="ex-cards"></div>
+      <div class="ex-break" id="ex-break"></div>
+      <div class="filterbar">
+        <div class="segs" id="ex-seg"><button class="seg active" data-f="">전체 <span></span></button><button class="seg" data-f="작성">작성 <span></span></button><button class="seg" data-f="결재요청">결재 대기 <span></span></button><button class="seg" data-f="승인">승인 <span></span></button><button class="seg" data-f="반려">반려 <span></span></button><button class="seg" data-f="지급완료">지급완료 <span></span></button></div>
+        <div class="x-filter"><span class="muted" id="ex-count" style="font-size:13px;margin-right:6px"></span><select id="ex-hosp" class="filter-sel"><option value="">전체 사업장</option></select><input id="ex-q" class="x-search" placeholder="적요·지급처·품명 검색" aria-label="적요·지급처·품명 검색"></div>
+      </div>
+      <div class="tbl-scroll"><table class="htbl x-tbl ex-tbl"><thead><tr><th>문서번호</th><th>결의일</th><th>사업장</th><th>구분</th><th>적요</th><th class="r">금액</th><th>결제</th><th>상태</th><th>작성자</th></tr></thead><tbody id="ex-rows"><tr><td colspan="9" class="loading">불러오는 중…</td></tr></tbody></table></div>
     </section>
     <section class="page" id="view-risk" style="display:none">
       <div class="head">
@@ -5624,7 +5699,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   /* V5:BEGIN ═══ 개인 계정 · 권한 · 팀 관제 · 활동 기록 (Auth.gs 와 짝) ═══ */
   let ME=null, v5PendingPw='';
   ['team','users','activity'].forEach(v=>{ views[v]=$('#view-'+v); });
-  function v5Allowed(v){ if(!ME || !ME.menus) return true; if(!v || v==='empty' || v==='contracts' || v==='kpi') return true; return ME.menus.indexOf(v)>=0; }
+  function v5Allowed(v){ if(!ME || !ME.menus) return true; if(!v || v==='empty' || v==='contracts' || v==='kpi' || v==='leave' || v==='expense') return true; return ME.menus.indexOf(v)>=0; }
   function v5Uid(){ return ME && ME.user ? ME.user.id : 'anon'; }
   function v5ScopeKey(){ return ME && ME.scope && !ME.scope.all ? (ME.scope.uid||'x') : 'all'; }
   function v5Key(k){ return 'hr5_'+k+'_'+v5Uid(); }
@@ -6138,6 +6213,395 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
 
 
   /* KPI:BEGIN ═══ 채용 KPI: 데일리 입력 + 사업장 대시보드 (Sync2.gs 의 kpiInfo / listKpi / saveKpiBatch 와 짝) ═══ */
+
+  /* ═══════════════════ 운영: 연차관리대장 ═══════════════════
+     발생 = 근로기준법 제60조, 입사일 기준
+       · 1년 미만: 1개월 개근마다 1일 (최대 11일)
+       · 1년 이상: 15일, 최초 1년을 넘는 계속근로 2년마다 1일 가산 (최대 25일)
+     출근율은 알 수 없어 개근 · 80% 이상 출근으로 가정 → 다르면 '조정' 기록으로 맞춘다
+     사용 = 연차 1 · 반차 0.5 · 반반차 0.25, 그 근무자의 '현재 연차 기간' 안에 쓴 것만 합산 */
+  const LV={ items:null, seg:'all', hosp:'', q:'', ref:'', open:{} };
+  const LV_KIND={ '연차':1, '반차':0.5, '반반차':0.25 };
+  const lvToday=()=>v3Key(v3Today());
+  const lvAddM=(d,m)=>{ const y=d.getFullYear(), mo=d.getMonth()+m, last=new Date(y, mo+1, 0).getDate(); return new Date(y, mo, Math.min(d.getDate(), last)); };
+  const lvAddY=(d,n)=>lvAddM(d, 12*n);
+  const lvPrev=d=>new Date(d.getFullYear(), d.getMonth(), d.getDate()-1);
+  const lvNum=n=>{ const r=Math.round(n*100)/100; return (Number.isInteger(r)?String(r):String(r).replace(/0+$/,'')); };
+  function lvPeriods(J, ref){                      // 입사일부터 기준일까지의 연차 기간 목록 (마지막 = 현재 기간)
+    const out=[]; if(!J || ref<J) return out;
+    const y1=lvAddY(J,1);
+    { let m=0; for(let k=1;k<=11;k++){ if(lvAddM(J,k)<=ref) m=k; } out.push({ s:J, e:lvPrev(y1), acc:Math.min(11, ref<y1?m:11), first:true, n:0 }); }
+    for(let n=1; lvAddY(J,n)<=ref; n++){ out.push({ s:lvAddY(J,n), e:lvPrev(lvAddY(J,n+1)), acc:Math.min(25, 15+Math.floor((n-1)/2)), first:false, n }); }
+    return out;
+  }
+  function lvCalc(w, refKey, items){
+    const J=v3Date(w.join), ref=v3Date(refKey)||v3Today();
+    const mine=(items||[]).filter(x=>String(x.wid)===String(w.id));
+    const ps=lvPeriods(J, ref).map(p=>{
+      const a=v3Key(p.s), b=v3Key(p.e), inP=mine.filter(x=>x.date>=a && x.date<=b);
+      const used=inP.filter(x=>x.kind!=='조정').reduce((t,x)=>t+(+x.days||0),0), adj=inP.filter(x=>x.kind==='조정').reduce((t,x)=>t+(+x.days||0),0);
+      return Object.assign({}, p, { a, b, used, adj, left:p.acc+adj-used, rows:inP });
+    });
+    const cur=ps[ps.length-1]||null;
+    let ten=''; if(J && ref>=J){ let y=0; while(lvAddY(J,y+1)<=ref) y++; let m=0; while(lvAddM(lvAddY(J,y),m+1)<=ref) m++; ten=(y?y+'년 ':'')+m+'개월'; }
+    const endIn=cur ? Math.round((cur.e - ref)/864e5) : null;
+    const last=mine.filter(x=>x.kind!=='조정').sort((p,q)=>p.date<q.date?1:-1)[0]||null;
+    return { J, cur, ps, ten, endIn, last, mine };
+  }
+  function lvWorkers(){
+    const c=DATA['v2wk']; if(!c || !c.v || !Array.isArray(c.v.list)) return [];
+    return c.v.list.filter(w=>w.status==='재직' && (w.emp||'')!=='일용');
+  }
+  function lvRows(){
+    const ref=LV.ref||lvToday(), items=LV.items||[];
+    return lvWorkers().map(w=>({ w, r:lvCalc(w, ref, items) }));
+  }
+  async function lvLoad(force){
+    $('#lv-ref').value=LV.ref||lvToday();
+    if(!DATA['v2wk']) $('#lv-rows').innerHTML='<tr><td colspan="10" class="loading">불러오는 중…</td></tr>';
+    const wk=DATA['v2wk'] ? Promise.resolve() : call('getWorkers',TOKEN).then(v=>{ DATA['v2wk']={ t:Date.now(), v }; });
+    try{
+      await Promise.all([wk, swr('lv', ()=>call('listLeave',TOKEN), v=>{ LV.items=Array.isArray(v)?v:[]; lvRender(); })]);
+      lvRender();
+    }catch(e){ xFail(e); $('#lv-rows').innerHTML='<tr><td colspan="10" class="empty-row">불러오지 못했습니다.</td></tr>'; }
+  }
+  function lvRender(){
+    if(!$('#view-leave')) return;
+    if(!DATA['v2wk']){ $('#lv-rows').innerHTML='<tr><td colspan="10" class="loading">불러오는 중…</td></tr>'; return; }
+    const all=lvRows(), hs=[...new Set(all.map(x=>x.w.hospital||'병원 미지정'))].sort((a,b)=>a.localeCompare(b,'ko'));
+    const hsel=$('#lv-hosp'); const hv=LV.hosp; hsel.innerHTML='<option value="">전체 병원</option>'+hs.map(h=>`<option ${h===hv?'selected':''}>${esc(h)}</option>`).join('');
+    let L=all.filter(x=>!LV.hosp || (x.w.hospital||'병원 미지정')===LV.hosp);
+    const q=LV.q.replace(/\s/g,''); if(q) L=L.filter(x=>(String(x.w.name)+String(x.w.dept||'')).replace(/\s/g,'').indexOf(q)>=0);
+    const base=L;
+    const low=x=>x.r.cur && x.r.cur.left<=3 && x.r.cur.left>=0, over=x=>x.r.cur && x.r.cur.left<0, first=x=>x.r.cur && x.r.cur.first;
+    const soon=x=>x.r.cur && x.r.endIn!=null && x.r.endIn<=60 && x.r.cur.left>0;
+    const cnt={ all:base.length, low:base.filter(low).length, over:base.filter(over).length, first:base.filter(first).length, soon:base.filter(soon).length };
+    $$('#lv-seg .seg').forEach(b=>{ b.classList.toggle('active', b.dataset.f===LV.seg); const s=b.querySelector('span'); if(s) s.textContent=cnt[b.dataset.f]; });
+    if(LV.seg==='low') L=L.filter(low); else if(LV.seg==='over') L=L.filter(over); else if(LV.seg==='first') L=L.filter(first); else if(LV.seg==='soon') L=L.filter(soon);
+    const sum=k=>base.reduce((t,x)=>t+(x.r.cur?x.r.cur[k]:0),0);
+    const acc=sum('acc')+sum('adj'), used=sum('used');
+    $('#lv-cards').innerHTML=[
+      ['대상 인원', base.length, '명', '재직 · 일용 제외'],
+      ['발생 합계', lvNum(acc), '일', '현재 연차 기간 기준'],
+      ['사용 합계', lvNum(used), '일', acc?Math.round(used/acc*100)+'% 사용':'–'],
+      ['잔여 합계', lvNum(acc-used), '일', '1인 평균 '+(base.length?lvNum((acc-used)/base.length):'0')+'일'],
+      ['기간 종료 60일 이내', cnt.soon, '명', '잔여가 남은 사람 · 사용 촉진 대상', cnt.soon?'warn':''],
+      ['초과 사용', cnt.over, '명', '잔여가 0 미만', cnt.over?'bad':'']
+    ].map(([t,n,u,s,cls])=>`<div class="lv-card ${cls||''}"><div class="t">${t}</div><div class="n">${n}<small>${u}</small></div><div class="s">${s}</div></div>`).join('');
+    $('#lv-count').textContent=L.length+'명';
+    L.sort((a,b)=>String(a.w.hospital||'').localeCompare(String(b.w.hospital||''),'ko') || String(a.w.name).localeCompare(String(b.w.name),'ko'));
+    const tb=$('#lv-rows');
+    if(!L.length){ tb.innerHTML=`<tr><td colspan="10" class="empty-row">${base.length?'조건에 맞는 근무자가 없습니다.':'재직 중인 근무자가 없습니다. 근무자 마스터 명단이 들어오면 자동으로 채워집니다.'}</td></tr>`; return; }
+    tb.innerHTML=L.map(({w,r})=>{
+      const c=r.cur;
+      if(!c) return `<tr class="x-click" data-lvw="${esc(w.id)}"><td><div class="x-who"><b>${esc(w.name)}</b><small>${esc(w.hospital||'')}${w.dept?' · '+esc(w.dept):''}</small></div></td><td class="x-num">${esc(v3Dot(w.join)||'–')}</td><td colspan="7" class="x-mut">${w.join?'입사 전':'입사일이 없어 계산할 수 없습니다 (근무자 마스터에서 확인)'}</td><td></td></tr>`;
+      const tot=c.acc+c.adj, pct=tot>0?Math.max(0,Math.min(100,c.used/tot*100)):0, lc=c.left<0?'bad':(c.left<=3?'warn':'');
+      const endP=(r.endIn!=null && r.endIn<=60 && c.left>0)?` <span class="x-pill warn" title="기간이 끝나면 남은 연차는 소멸되거나 수당으로 정산됩니다">종료 D-${r.endIn}</span>`:'';
+      return `<tr class="x-click" data-lvw="${esc(w.id)}">`+
+        `<td><div class="x-who"><b>${esc(w.name)}</b><small>${esc(w.hospital||'')}${w.dept?' · '+esc(w.dept):''}${w.emp?' · '+esc(w.emp):''}</small></div></td>`+
+        `<td class="x-num">${esc(v3Dot(w.join))}</td><td class="x-num">${esc(r.ten)}</td>`+
+        `<td class="x-num lv-per">${esc(v3Dot(c.a))} – ${esc(v3Dot(c.b))}${c.first?' <span class="x-pill ghost">1년 미만</span>':''}${endP}</td>`+
+        `<td class="r x-num">${lvNum(c.acc)}</td><td class="r x-num ${c.adj?'':'x-mut'}">${c.adj?(c.adj>0?'+':'')+lvNum(c.adj):'–'}</td><td class="r x-num">${lvNum(c.used)}</td>`+
+        `<td class="r"><div class="lv-left ${lc}"><b class="x-num">${lvNum(c.left)}</b><i><u style="width:${pct}%"></u></i></div></td>`+
+        `<td class="x-num x-mut">${r.last?esc(v3Dot(r.last.date))+' · '+esc(r.last.kind):'–'}</td>`+
+        `<td class="r"><button class="x-btn" data-lvadd="${esc(w.id)}">사용 등록</button></td></tr>`;
+    }).join('');
+  }
+  function lvFind(id){ return lvWorkers().find(w=>String(w.id)===String(id)) || ((DATA['v2wk']&&DATA['v2wk'].v.list)||[]).find(w=>String(w.id)===String(id)); }
+  function lvAdd(wid, preset){
+    const ws=lvWorkers().slice().sort((a,b)=>String(a.hospital||'').localeCompare(String(b.hospital||''),'ko')||String(a.name).localeCompare(String(b.name),'ko'));
+    const p=preset||{};
+    xOpen({ title:'연차 사용 등록', sub:'연차 1일 · 반차 0.5일 · 반반차 0.25일. 발생 일수를 바로잡을 때는 \'조정\'으로 ±일수를 넣으세요.',
+      body:`<div class="x-form2">`+
+        `<div style="grid-column:1/-1"><label class="x-lab" for="la-w">근무자</label><select id="la-w" class="x-select"><option value="">선택하세요</option>${ws.map(w=>`<option value="${esc(w.id)}" ${String(w.id)===String(wid)?'selected':''}>${esc(w.name)} · ${esc(w.hospital||'')}${w.dept?' · '+esc(w.dept):''}</option>`).join('')}</select></div>`+
+        `<div><label class="x-lab" for="la-d">날짜</label><input id="la-d" type="date" class="x-input" value="${esc(p.date||lvToday())}"></div>`+
+        `<div><label class="x-lab" for="la-k">종류</label><select id="la-k" class="x-select">${['연차','반차','반반차','조정'].map(k=>`<option ${k===(p.kind||'연차')?'selected':''}>${k}</option>`).join('')}</select></div>`+
+        `<div id="la-dw" ${p.kind==='조정'?'':'hidden'}><label class="x-lab" for="la-n">조정 일수 <span class="x-mut">(+ 늘림 · − 줄임)</span></label><input id="la-n" type="number" step="0.25" class="x-input" value="${esc(p.days!=null&&p.kind==='조정'?p.days:'')}" placeholder="예: -2"></div>`+
+        `<div style="grid-column:1/-1"><label class="x-lab" for="la-m">사유 <span class="x-mut">(선택)</span></label><input id="la-m" class="x-input" maxlength="200" value="${esc(p.memo||'')}" placeholder="예: 개인 사유 · 병원 승인"></div>`+
+        `</div><div id="la-prev" class="lv-prev"></div>`,
+      onOpen:(el)=>{
+        const upd=()=>{ const k=el.querySelector('#la-k').value; el.querySelector('#la-dw').hidden=k!=='조정';
+          const w=lvFind(el.querySelector('#la-w').value), box=el.querySelector('#la-prev');
+          if(!w){ box.innerHTML=''; return; }
+          const r=lvCalc(w, el.querySelector('#la-d').value||lvToday(), LV.items||[]), c=r.cur;
+          if(!c){ box.innerHTML='<span class="x-mut">입사일 기준으로 계산할 수 없습니다.</span>'; return; }
+          const add=k==='조정'?0:(LV_KIND[k]||0), after=c.left-add;
+          box.innerHTML=`<b>${esc(w.name)}</b> · ${esc(v3Dot(c.a))} – ${esc(v3Dot(c.b))} 기간 · 발생 ${lvNum(c.acc+c.adj)}일 · 사용 ${lvNum(c.used)}일 · 잔여 <b>${lvNum(c.left)}</b>일`+(add?` → 등록 후 <b class="${after<0?'bad':''}">${lvNum(after)}</b>일${after<0?' (초과 사용)':''}`:'');
+        };
+        ['#la-w','#la-k','#la-d'].forEach(s=>el.querySelector(s).addEventListener('change', upd)); upd();
+      },
+      foot:[{label:'취소', ghost:true},{label:'등록', onClick:()=>{
+        const w=lvFind($('#la-w').value), date=$('#la-d').value, kind=$('#la-k').value, memo=$('#la-m').value.trim();
+        if(!w){ toast('근무자를 고르세요.'); return true; }
+        if(!date){ toast('날짜를 고르세요.'); return true; }
+        let days=LV_KIND[kind];
+        if(kind==='조정'){ days=Number($('#la-n').value); if(!isFinite(days)||!days){ toast('조정 일수를 입력하세요 (예: 1, -2).'); return true; } }
+        const tmp={ id:'tmp_'+Date.now(), wid:String(w.id), hid:String(w.hospitalId||''), name:w.name, date, kind, days, memo, by:(ME&&ME.user&&ME.user.name)||'', at:lvToday() };
+        bgSave({ key:'lv:'+w.id, label:w.name+' 님 '+kind+' 등록', okMsg:w.name+' 님 '+kind+(kind==='조정'?' '+(days>0?'+':'')+lvNum(days)+'일':'')+' 등록했습니다.',
+          apply:()=>{ LV.items=(LV.items||[]).concat([tmp]); lvRender(); lvDetailRefresh(w.id); },
+          req:()=>call('addLeave',TOKEN,{ workerId:w.id, date, kind, days, memo }),
+          done:r=>{ if(r && r.id) tmp.id=r.id; if(DATA['lv']) DATA['lv'].t=0; },
+          revert:()=>{ LV.items=(LV.items||[]).filter(x=>x!==tmp); lvRender(); lvDetailRefresh(w.id); },
+          retry:()=>lvAdd(w.id, { date, kind, days, memo }) });
+      }}] });
+  }
+  let lvDetailId=null;
+  function lvDetailRefresh(wid){ if(lvDetailId && String(lvDetailId)===String(wid) && $('#xmodal').classList.contains('on') && $('#lvd')) lvDetail(wid, true); }
+  function lvDetail(wid, keep){
+    const w=lvFind(wid); if(!w) return;
+    const r=lvCalc(w, LV.ref||lvToday(), LV.items||[]); lvDetailId=wid;
+    const per=r.ps.slice().reverse().map(p=>`<tr><td class="x-num">${esc(v3Dot(p.a))} – ${esc(v3Dot(p.b))}${p===r.cur?' <span class="x-pill info">현재</span>':''}</td><td>${p.first?'1년 미만 (월 1일)':(p.n+1)+'년차'}</td><td class="r x-num">${lvNum(p.acc)}</td><td class="r x-num">${p.adj?(p.adj>0?'+':'')+lvNum(p.adj):'–'}</td><td class="r x-num">${lvNum(p.used)}</td><td class="r x-num"><b>${lvNum(p.left)}</b></td></tr>`).join('');
+    const hist=r.mine.slice().sort((a,b)=>a.date<b.date?1:-1).map(x=>`<tr><td class="x-num">${esc(v3Dot(x.date))}</td><td>${esc(x.kind)}</td><td class="r x-num">${x.kind==='조정'?(x.days>0?'+':'')+lvNum(x.days):lvNum(x.days)}</td><td>${esc(x.memo||'')}</td><td class="x-mut">${esc(x.by||'')}</td><td class="r">${String(x.id).indexOf('tmp_')===0?'<span class="x-mut x-small">저장 중</span>':`<button class="x-btn" data-lvdel="${esc(x.id)}">삭제</button>`}</td></tr>`).join('');
+    const c=r.cur;
+    const body=`<div id="lvd"><div class="lv-dsum">${c?`<div><span>현재 기간</span><b>${esc(v3Dot(c.a))} – ${esc(v3Dot(c.b))}</b></div><div><span>발생</span><b>${lvNum(c.acc)}${c.adj?' '+(c.adj>0?'+':'')+lvNum(c.adj):''}</b></div><div><span>사용</span><b>${lvNum(c.used)}</b></div><div><span>잔여</span><b class="${c.left<0?'bad':''}">${lvNum(c.left)}</b></div>`:'<div><span>계산 불가</span><b>입사일 없음</b></div>'}</div>`+
+      `<div class="b-head" style="margin-top:18px;border-bottom:1px solid var(--ink);padding-bottom:8px"><h3 style="margin:0;font-size:15px">기간별 내역</h3><span class="meta x-mut x-small">입사일 ${esc(v3Dot(w.join)||'–')} · 근속 ${esc(r.ten||'–')}</span></div>`+
+      `<table class="htbl x-tbl lv-dt" style="min-width:0"><thead><tr><th>기간</th><th>구분</th><th class="r">발생</th><th class="r">조정</th><th class="r">사용</th><th class="r">잔여</th></tr></thead><tbody>${per||'<tr><td colspan="6" class="x-mut">기간이 없습니다.</td></tr>'}</tbody></table>`+
+      `<div class="b-head" style="margin-top:20px;border-bottom:1px solid var(--ink);padding-bottom:8px"><h3 style="margin:0;font-size:15px">사용·조정 기록</h3><span class="meta x-mut x-small">${r.mine.length}건</span></div>`+
+      `<table class="htbl x-tbl lv-dt" style="min-width:0"><tbody>${hist||'<tr><td class="x-mut">아직 기록이 없습니다.</td></tr>'}</tbody></table></div>`;
+    const opts={ title:w.name+' · 연차', sub:(w.hospital||'')+(w.dept?' · '+w.dept:'')+(w.emp?' · '+w.emp:''), wide:true, body,
+      foot:[{label:'닫기', ghost:true},{label:'사용 등록', onClick:()=>{ setTimeout(()=>lvAdd(w.id),0); }}],
+      onOpen:()=>lvBindDetail(w) };
+    if(keep && $('#lvd')){ $('#xm-body').innerHTML=body; lvBindDetail(w); return; }
+    xOpen(opts);
+  }
+  function lvBindDetail(w){
+    const box=$('#lvd'); if(!box) return;
+    box.addEventListener('click', async e=>{ const b=e.target.closest('[data-lvdel]'); if(!b) return; e.stopPropagation();
+        const x=(LV.items||[]).find(i=>String(i.id)===String(b.dataset.lvdel)); if(!x) return;
+        if(!await xAsk('이 기록을 삭제할까요?', v3Dot(x.date)+' '+x.kind+' '+lvNum(x.days)+'일 기록을 지웁니다.', '삭제')) return;
+        bgSave({ key:'lv:'+w.id, label:'연차 기록 삭제', okMsg:'삭제했습니다.',
+          apply:()=>{ LV.items=(LV.items||[]).filter(i=>i!==x); lvRender(); lvDetail(w.id, true); },
+          req:()=>call('deleteLeave',TOKEN,x.id),
+          done:()=>{ if(DATA['lv']) DATA['lv'].t=0; },
+          revert:()=>{ LV.items=(LV.items||[]).concat([x]); lvRender(); lvDetailRefresh(w.id); } });
+    });
+  }
+  async function lvExport(){
+    try{
+      const X=await loadLib('xlsx'), ref=LV.ref||lvToday();
+      const rows=lvRows().filter(x=>!LV.hosp || (x.w.hospital||'병원 미지정')===LV.hosp).sort((a,b)=>String(a.w.hospital||'').localeCompare(String(b.w.hospital||''),'ko')||String(a.w.name).localeCompare(String(b.w.name),'ko'));
+      const t1=rows.map(({w,r})=>{ const c=r.cur||{}; return { '병원':w.hospital||'', '부서':w.dept||'', '이름':w.name, '고용형태':w.emp||'', '입사일':v3Dot(w.join), '근속':r.ten, '연차 기간 시작':c.a?v3Dot(c.a):'', '연차 기간 종료':c.b?v3Dot(c.b):'', '발생':c.acc!=null?c.acc:'', '조정':c.adj||0, '사용':c.used||0, '잔여':c.left!=null?c.left:'', '마지막 사용':r.last?v3Dot(r.last.date)+' '+r.last.kind:'' }; });
+      const ids=new Set(rows.map(x=>String(x.w.id)));
+      const t2=(LV.items||[]).filter(x=>ids.has(String(x.wid))).sort((a,b)=>a.date<b.date?1:-1).map(x=>{ const w=lvFind(x.wid)||{}; return { '날짜':v3Dot(x.date), '병원':w.hospital||'', '이름':x.name, '종류':x.kind, '일수':x.days, '사유':x.memo||'', '등록자':x.by||'', '등록일':v3Dot(x.at) }; });
+      const wb=X.utils.book_new();
+      const s1=X.utils.json_to_sheet(t1); s1['!cols']=[14,10,8,8,11,10,12,12,6,6,6,6,16].map(w=>({wch:w})); X.utils.book_append_sheet(wb, s1, '연차관리대장');
+      const s2=X.utils.json_to_sheet(t2.length?t2:[{ '날짜':'', '병원':'', '이름':'', '종류':'', '일수':'', '사유':'', '등록자':'', '등록일':'' }]); X.utils.book_append_sheet(wb, s2, '사용내역');
+      X.writeFile(wb, '연차관리대장_'+ref+(LV.hosp?'_'+LV.hosp:'')+'.xlsx'); toast(t1.length+'명 연차관리대장을 받았습니다.');
+    }catch(e){ toast('엑셀을 만들지 못했습니다: '+String((e&&e.message)||e)); }
+  }
+  $('#lv-seg').addEventListener('click', e=>{ const b=e.target.closest('.seg'); if(!b) return; LV.seg=b.dataset.f; lvRender(); });
+  $('#lv-hosp').addEventListener('change', e=>{ LV.hosp=e.target.value; lvRender(); });
+  $('#lv-q').addEventListener('input', e=>{ LV.q=e.target.value; lvRender(); });
+  $('#lv-ref').addEventListener('change', e=>{ LV.ref=e.target.value||''; lvRender(); });
+  $('#lv-add').addEventListener('click', ()=>lvAdd(''));
+  $('#lv-export').addEventListener('click', lvExport);
+  $('#lv-rows').addEventListener('click', e=>{ const a=e.target.closest('[data-lvadd]'); if(a){ e.stopPropagation(); lvAdd(a.dataset.lvadd); return; } const r=e.target.closest('[data-lvw]'); if(r) lvDetail(r.dataset.lvw); });
+  views.leave=$('#view-leave');
+  V2_LOAD.leave=async(force)=>{ if(force){ invalidate('lv'); } await lvLoad(force); };
+
+  /* ═══════════════════ 운영: 사업장 지출 결의서 ═══════════════════
+     작성 → 결재요청 → 승인 / 반려 → 지급완료 (승인·반려·지급완료는 관리자)
+     같은 결의서를 인쇄하면 결재란이 있는 A4 양식으로 나온다 */
+  const EX={ list:null, ym:'', st:'', hosp:'', q:'' };
+  const EX_CAT=['복리후생비','회식비','간식비','소모품비','비품비','교통비','경조사비','교육훈련비','접대비','통신비','기타'];
+  const EX_PAY=['법인카드','계좌이체','현금','개인카드(정산)'];
+  const EX_PROOF=['카드전표','세금계산서','현금영수증','간이영수증','없음'];
+  const EX_STC={ '작성':'ghost', '결재요청':'warn', '승인':'ok', '반려':'bad', '지급완료':'info' };
+  const exWon=n=>(Number(n)||0).toLocaleString('ko-KR');
+  const exYm=()=>EX.ym||lvToday().slice(0,7);
+  const exYmLab=ym=>ym.slice(0,4)+'년 '+Number(ym.slice(5,7))+'월';
+  const exShift=(ym,n)=>{ const d=new Date(Number(ym.slice(0,4)), Number(ym.slice(5,7))-1+n, 1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); };
+  function exHan(n){                                // 금액 한글 표기: 123000 → 일십이만삼천
+    n=Math.floor(Math.abs(Number(n)||0)); if(!n) return '영';
+    const D='영일이삼사오육칠팔구'.split(''), U=['','십','백','천'], B=['','만','억','조'];
+    let s='', g=0;
+    while(n>0){ const part=n%10000; if(part){ let p=''; String(part).padStart(4,'0').split('').forEach((c,i)=>{ const v=+c; if(v) p+=D[v]+U[3-i]; }); s=p+B[g]+s; } n=Math.floor(n/10000); g++; }
+    return s;
+  }
+  const exMe=()=>(ME&&ME.user)||{};
+  const exAdmin=()=>v5IsAdmin();
+  const exMine=x=>String(x.authorId)===String(exMe().id);
+  async function exLoad(force){
+    if(!EX.list) $('#ex-rows').innerHTML='<tr><td colspan="9" class="loading">불러오는 중…</td></tr>';
+    try{ await ensureHospitals(); }catch(_){ }
+    try{ await swr('ex', ()=>call('listExpense',TOKEN), v=>{ EX.list=Array.isArray(v)?v:[]; exRender(); }); }
+    catch(e){ xFail(e); $('#ex-rows').innerHTML='<tr><td colspan="9" class="empty-row">불러오지 못했습니다.</td></tr>'; }
+  }
+  function exRender(){
+    if(!$('#view-expense')) return;
+    const ym=exYm(); $('#ex-ym').textContent=exYmLab(ym); $('#ex-next').disabled=ym>=lvToday().slice(0,7);
+    const all=(EX.list||[]).filter(x=>String(x.date||'').slice(0,7)===ym);
+    const hs=[...new Set((EX.list||[]).map(x=>x.hospital).filter(Boolean).concat((hospitalCache||[]).map(h=>h['병원명'])))].sort((a,b)=>a.localeCompare(b,'ko'));
+    $('#ex-hosp').innerHTML='<option value="">전체 사업장</option>'+hs.map(h=>`<option ${h===EX.hosp?'selected':''}>${esc(h)}</option>`).join('');
+    let base=all.filter(x=>!EX.hosp || x.hospital===EX.hosp);
+    const q=EX.q.replace(/\s/g,''); if(q) base=base.filter(x=>(x.title+x.payee+x.no+x.author+x.cat+(x.items||[]).map(i=>i.name).join('')).replace(/\s/g,'').indexOf(q)>=0);
+    const cnt={ '':base.length }; Object.keys(EX_STC).forEach(k=>cnt[k]=base.filter(x=>x.status===k).length);
+    $$('#ex-seg .seg').forEach(b=>{ b.classList.toggle('active', b.dataset.f===EX.st); const s=b.querySelector('span'); if(s) s.textContent=cnt[b.dataset.f]; });
+    const L=base.filter(x=>!EX.st || x.status===EX.st);
+    const sumOf=a=>a.reduce((t,x)=>t+(Number(x.amount)||0),0), ok=base.filter(x=>x.status==='승인'||x.status==='지급완료'), wait=base.filter(x=>x.status==='결재요청');
+    $('#ex-cards').innerHTML=[
+      ['이번 달 결의', base.length, '건', '₩ '+exWon(sumOf(base.filter(x=>x.status!=='반려')))+' (반려 제외)'],
+      ['결재 대기', wait.length, '건', '₩ '+exWon(sumOf(wait)), wait.length?'warn':''],
+      ['승인 금액', '₩ '+exWon(sumOf(ok)), '', ok.length+'건 · 지급완료 '+base.filter(x=>x.status==='지급완료').length+'건'],
+      ['반려', base.filter(x=>x.status==='반려').length, '건', '사유 확인 후 수정해 다시 요청', base.some(x=>x.status==='반려')?'bad':'']
+    ].map(([t,n,u,s,cls])=>`<div class="lv-card ${cls||''}"><div class="t">${t}</div><div class="n">${n}${u?`<small>${u}</small>`:''}</div><div class="s">${s}</div></div>`).join('');
+    const live=base.filter(x=>x.status!=='반려'), tot=sumOf(live)||1;
+    const grp=(k)=>{ const m={}; live.forEach(x=>{ m[x[k]||'–']=(m[x[k]||'–']||0)+(Number(x.amount)||0); }); return Object.entries(m).sort((a,b)=>b[1]-a[1]); };
+    const bars=(arr)=>arr.length?arr.map(([k,v])=>`<div class="ex-bar"><span>${esc(k)}</span><i><u style="width:${Math.max(2,v/tot*100)}%"></u></i><b class="x-num">₩ ${exWon(v)}</b></div>`).join(''):'<div class="x-mut x-small">이번 달 결의가 없습니다.</div>';
+    $('#ex-break').innerHTML=`<div class="ex-bk"><div class="h">구분별</div>${bars(grp('cat'))}</div><div class="ex-bk"><div class="h">사업장별</div>${bars(grp('hospital'))}</div>`;
+    $('#ex-count').textContent=L.length+'건 · ₩ '+exWon(sumOf(L));
+    const tb=$('#ex-rows');
+    if(!L.length){ tb.innerHTML=`<tr><td colspan="9" class="empty-row">${all.length?'조건에 맞는 결의서가 없습니다.':exYmLab(ym)+' 결의서가 없습니다. <b>＋ 결의서 작성</b>으로 시작하세요.'}</td></tr>`; return; }
+    tb.innerHTML=L.map(x=>`<tr class="x-click" data-exid="${esc(x.id)}"><td class="x-num">${esc(x.no||'저장 중')}</td><td class="x-num">${esc(v3Dot(x.date))}</td><td>${esc(x.hospital)}</td><td>${esc(x.cat)}</td>`+
+      `<td><div class="x-who"><b>${esc(x.title)}</b><small>${esc((x.items||[]).map(i=>i.name).filter(Boolean).slice(0,3).join(', '))}${(x.items||[]).length>3?' 외 '+((x.items||[]).length-3)+'건':''}${x.payee?' · '+esc(x.payee):''}</small></div></td>`+
+      `<td class="r x-num"><b>₩ ${exWon(x.amount)}</b></td><td>${esc(x.pay)}</td><td><span class="x-pill ${EX_STC[x.status]||'ghost'}">${esc(x.status)}</span></td><td class="x-mut">${esc(x.author)}</td></tr>`).join('');
+  }
+  function exItemRow(i){ i=i||{}; return `<div class="ex-ir"><input class="x-input" data-i="name" maxlength="60" placeholder="품명" value="${esc(i.name||'')}"><input class="x-input x-num" data-i="qty" type="number" min="0" step="1" placeholder="수량" value="${i.qty!=null&&i.qty!==''?esc(i.qty):''}"><input class="x-input x-num" data-i="price" type="number" min="0" step="10" placeholder="단가" value="${i.price!=null&&i.price!==''?esc(i.price):''}"><input class="x-input x-num" data-i="amount" type="number" min="0" step="10" placeholder="금액" value="${i.amount!=null&&i.amount!==''?esc(i.amount):''}"><input class="x-input" data-i="memo" maxlength="60" placeholder="비고" value="${esc(i.memo||'')}"><button type="button" class="x-btn ex-irx" aria-label="이 줄 삭제">✕</button></div>`; }
+  function exEdit(x){
+    const e=x||{}, hs=(hospitalCache||[]);
+    const sel=(id,arr,v,ph)=>`<select id="${id}" class="x-select">${ph?`<option value="">${ph}</option>`:''}${arr.map(a=>`<option ${a===v?'selected':''}>${esc(a)}</option>`).join('')}</select>`;
+    xOpen({ title:e.id?'지출 결의서 수정 · '+(e.no||''):'지출 결의서 작성', sub:'품목 금액을 비우면 수량 × 단가로 계산합니다. 임시저장하면 나중에 이어서 쓰고, 결재 요청하면 관리자 결재로 넘어갑니다.', wide:true,
+      body:`<div class="x-form2">`+
+        `<div><label class="x-lab" for="ef-h">사업장</label><select id="ef-h" class="x-select"><option value="">선택하세요</option>${hs.map(h=>`<option value="${esc(h['병원ID'])}" ${String(h['병원ID'])===String(e.hid)?'selected':''}>${esc(h['병원명'])}</option>`).join('')}</select></div>`+
+        `<div><label class="x-lab" for="ef-c">구분</label>${sel('ef-c',EX_CAT,e.cat,'선택하세요')}</div>`+
+        `<div><label class="x-lab" for="ef-d">결의일</label><input id="ef-d" type="date" class="x-input" value="${esc(e.date||lvToday())}"></div>`+
+        `<div><label class="x-lab" for="ef-s">지출일 <span class="x-mut">(선택)</span></label><input id="ef-s" type="date" class="x-input" value="${esc(e.spend||'')}"></div>`+
+        `<div style="grid-column:1/-1"><label class="x-lab" for="ef-t">적요 (지출 내용)</label><input id="ef-t" class="x-input" maxlength="120" value="${esc(e.title||'')}" placeholder="예: 11월 병동 근무자 간담회 다과"></div>`+
+        `</div>`+
+        `<div class="ex-items"><div class="ex-ih"><span>품명</span><span>수량</span><span>단가</span><span>금액</span><span>비고</span><span></span></div><div id="ef-items">${(e.items&&e.items.length?e.items:[{}]).map(exItemRow).join('')}</div>`+
+        `<div class="ex-if"><button type="button" class="x-btn" id="ef-addi">＋ 품목 추가</button><span>합계 <b class="x-num" id="ef-sum">₩ 0</b><small id="ef-han"></small></span></div></div>`+
+        `<div class="x-form2" style="margin-top:14px">`+
+        `<div><label class="x-lab" for="ef-p">지급처 <span class="x-mut">(상호·받는 사람)</span></label><input id="ef-p" class="x-input" maxlength="60" value="${esc(e.payee||'')}"></div>`+
+        `<div><label class="x-lab" for="ef-pay">결제 수단</label>${sel('ef-pay',EX_PAY,e.pay||'법인카드')}</div>`+
+        `<div><label class="x-lab" for="ef-pr">증빙</label>${sel('ef-pr',EX_PROOF,e.proof||'카드전표')}</div>`+
+        `<div><label class="x-lab" for="ef-m">비고 <span class="x-mut">(선택)</span></label><input id="ef-m" class="x-input" maxlength="300" value="${esc(e.memo||'')}"></div>`+
+        `</div>${e.status==='반려'&&e.reject?`<div class="ex-rej">반려 사유 · ${esc(e.reject)}</div>`:''}`,
+      onOpen:(el)=>{
+        const box=el.querySelector('#ef-items');
+        const recalc=()=>{ let t=0; box.querySelectorAll('.ex-ir').forEach(r=>{ const g=k=>r.querySelector('[data-i="'+k+'"]'); const a=g('amount'); const auto=(Number(g('qty').value)||0)*(Number(g('price').value)||0);
+          if(a.dataset.auto!=='0' && (g('qty').value||g('price').value)) a.value=auto?String(Math.round(auto)):''; t+=Number(a.value)||0; });
+          el.querySelector('#ef-sum').textContent='₩ '+exWon(t); el.querySelector('#ef-han').textContent=t?'금 '+exHan(t)+'원정':''; };
+        box.addEventListener('input', ev=>{ const i=ev.target; if(i.dataset.i==='amount') i.dataset.auto=i.value?'0':''; recalc(); });
+        box.addEventListener('click', ev=>{ const b=ev.target.closest('.ex-irx'); if(!b) return; if(box.querySelectorAll('.ex-ir').length>1) b.parentElement.remove(); else b.parentElement.querySelectorAll('input').forEach(i=>{ i.value=''; i.dataset.auto=''; }); recalc(); });
+        el.querySelector('#ef-addi').addEventListener('click', ()=>{ box.insertAdjacentHTML('beforeend', exItemRow()); box.lastElementChild.querySelector('input').focus(); });
+        box.querySelectorAll('[data-i="amount"]').forEach(a=>{ const r=a.closest('.ex-ir'), q=Number(r.querySelector('[data-i="qty"]').value)||0, p=Number(r.querySelector('[data-i="price"]').value)||0; if(a.value && Math.round(q*p)!==Number(a.value)) a.dataset.auto='0'; });
+        recalc();
+      },
+      foot:[{label:'취소', ghost:true},{label:'임시저장', ghost:true, onClick:()=>exSave(e, false)},{label:'결재 요청', onClick:()=>exSave(e, true)}] });
+  }
+  function exSave(e, submit){
+    const hid=$('#ef-h').value, h=(hospitalCache||[]).find(x=>String(x['병원ID'])===String(hid));
+    const items=[...document.querySelectorAll('#ef-items .ex-ir')].map(r=>{ const g=k=>r.querySelector('[data-i="'+k+'"]').value; return { name:g('name').trim(), qty:g('qty')===''?'':Number(g('qty')), price:g('price')===''?'':Number(g('price')), amount:g('amount')===''?'':Number(g('amount')), memo:g('memo').trim() }; }).filter(i=>i.name||i.amount);
+    const d={ id:e.id||'', hospitalId:hid, hospital:h?h['병원명']:'', date:$('#ef-d').value, spend:$('#ef-s').value, cat:$('#ef-c').value, title:$('#ef-t').value.trim(), items,
+      payee:$('#ef-p').value.trim(), pay:$('#ef-pay').value, proof:$('#ef-pr').value, memo:$('#ef-m').value.trim(), submit };
+    const miss=!hid?'사업장을 고르세요.':!d.cat?'구분을 고르세요.':!d.date?'결의일을 고르세요.':!d.title?'적요(지출 내용)를 입력하세요.':!items.length?'품목을 한 줄 이상 입력하세요.':'';
+    if(miss){ toast(miss); return true; }
+    const amount=items.reduce((t,i)=>t+(Number(i.amount)||0),0); if(!(amount>0)){ toast('금액을 입력하세요.'); return true; }
+    const me=exMe(), st=submit?'결재요청':(e.status==='반려'?'반려':'작성');
+    const rec=Object.assign({}, e, { hid, hospital:d.hospital, date:d.date, spend:d.spend, cat:d.cat, title:d.title, items, amount, payee:d.payee, pay:d.pay, proof:d.proof, memo:d.memo, status:st,
+      author:e.author||me.name||'', authorId:e.authorId||me.id||'', reject:submit?'':(e.reject||''), id:e.id||('tmp_'+Date.now()), no:e.no||'' });
+    const prev=e.id ? Object.assign({}, (EX.list||[]).find(x=>x.id===e.id)||e) : null;
+    EX.ym=d.date.slice(0,7);
+    bgSave({ key:'ex:'+(e.id||rec.id), label:'지출 결의서 '+(submit?'결재 요청':'저장'), okMsg:submit?'결재를 요청했습니다.':'임시저장했습니다.',
+      apply:()=>{ const L=EX.list||(EX.list=[]); const i=L.findIndex(x=>x.id===rec.id); if(i>=0) L[i]=rec; else L.unshift(rec); exRender(); },
+      req:()=>call('saveExpense',TOKEN,d),
+      done:r=>{ if(r){ if(r.id) rec.id=r.id; if(r.no) rec.no=r.no; } exRender(); if(DATA['ex']) DATA['ex'].t=0; },
+      revert:()=>{ const L=EX.list||[]; const i=L.findIndex(x=>x.id===rec.id); if(prev){ if(i>=0) L[i]=prev; } else if(i>=0) L.splice(i,1); exRender(); },
+      retry:()=>exEdit(Object.assign({}, rec, { id:e.id||'', no:e.no||'', status:e.status||'작성' })) });
+  }
+  function exDocHtml(x, forPrint){
+    const items=(x.items||[]), rows=items.map((i,k)=>`<tr><td class="c">${k+1}</td><td>${esc(i.name||'')}</td><td class="r">${i.qty!==''&&i.qty!=null?esc(i.qty):''}</td><td class="r">${i.price?exWon(i.price):''}</td><td class="r">${exWon(i.amount)}</td><td>${esc(i.memo||'')}</td></tr>`).join('');
+    const pad=Math.max(0, (forPrint?8:0)-items.length), blank=Array.from({length:pad},()=>'<tr><td class="c">&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>').join('');
+    const ok=x.status==='승인'||x.status==='지급완료';
+    return `<div class="exd">`+
+      `<div class="exd-top"><div><div class="exd-t">지 출 결 의 서</div><div class="exd-no">문서번호 ${esc(x.no||'(저장 중)')}</div></div>`+
+      `<table class="exd-sign"><tr><th rowspan="2" class="v">결<br>재</th><th>작성</th><th>검토</th><th>승인</th></tr><tr><td>${esc(x.author||'')}<small>${esc(v3Dot(x.created||x.date)||'')}</small></td><td></td><td>${ok?esc(x.approver||'')+`<small>${esc(v3Dot(x.apAt)||'')}</small>`:(x.status==='반려'?'<span class="rej">반려</span>':'')}</td></tr></table></div>`+
+      `<table class="exd-info"><tr><th>사업장</th><td>${esc(x.hospital)}</td><th>구분</th><td>${esc(x.cat)}</td></tr>`+
+      `<tr><th>결의일</th><td>${esc(v3Dot(x.date))}</td><th>지출일</th><td>${esc(v3Dot(x.spend)||'')}</td></tr>`+
+      `<tr><th>지급처</th><td>${esc(x.payee||'')}</td><th>결제 · 증빙</th><td>${esc(x.pay||'')} · ${esc(x.proof||'')}</td></tr>`+
+      `<tr><th>적요</th><td colspan="3">${esc(x.title)}</td></tr>`+
+      `<tr class="amt"><th>금액</th><td colspan="3"><b>금 ${exHan(x.amount)}원정</b> <span>(₩ ${exWon(x.amount)})</span></td></tr></table>`+
+      `<table class="exd-items"><thead><tr><th class="c">No</th><th>품명</th><th class="r">수량</th><th class="r">단가</th><th class="r">금액</th><th>비고</th></tr></thead><tbody>${rows}${blank}</tbody>`+
+      `<tfoot><tr><td colspan="4" class="r">합계</td><td class="r"><b>${exWon(x.amount)}</b></td><td></td></tr></tfoot></table>`+
+      (x.memo?`<div class="exd-memo"><b>비고</b> ${esc(x.memo)}</div>`:'')+
+      (x.status==='반려'&&x.reject?`<div class="exd-memo rej"><b>반려 사유</b> ${esc(x.reject)}${x.approver?' · '+esc(x.approver):''}</div>`:'')+
+      `<div class="exd-foot">위 금액을 지출하고자 하오니 결재하여 주시기 바랍니다.<div>${esc(v3Dot(x.date))}<br>작성자 ${esc(x.author||'')} (인)</div></div></div>`;
+  }
+  const EXD_CSS=`.exd{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#171614;font-size:13px}
+    .exd-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+    .exd-t{font-size:26px;font-weight:800;letter-spacing:.32em}.exd-no{margin-top:8px;font-size:12px;color:#6E6A62}
+    .exd table{border-collapse:collapse}.exd th,.exd td{border:1px solid #171614;padding:7px 9px;vertical-align:middle}
+    .exd th{background:#F4F2EC;font-weight:600;white-space:nowrap}
+    .exd-sign th,.exd-sign td{width:76px;text-align:center;font-size:12px}.exd-sign th.v{width:24px;line-height:1.3}
+    .exd-sign td{height:56px;font-weight:600}.exd-sign small{display:block;font-weight:400;color:#6E6A62;font-size:10.5px;margin-top:4px}
+    .exd-sign .rej{color:#B42318;font-weight:800}
+    .exd-info,.exd-items{width:100%;margin-bottom:12px}.exd-info th{width:92px;text-align:left}
+    .exd-info .amt td b{font-size:15px}.exd-info .amt td span{color:#55524C}
+    .exd-items th{text-align:left}.exd .c{text-align:center;width:40px}.exd .r{text-align:right}
+    .exd-items tfoot td{background:#F4F2EC;font-weight:600}
+    .exd-memo{border:1px solid #171614;padding:9px 11px;margin-bottom:12px;line-height:1.6}.exd-memo.rej{border-color:#B42318;color:#B42318}
+    .exd-foot{text-align:center;margin-top:22px;line-height:2}.exd-foot div{text-align:right;margin-top:14px}`;
+  function exPrint(x){
+    const f=document.createElement('iframe'); f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
+    const d=f.contentDocument;
+    d.open(); d.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>지출결의서 ${esc(x.no||'')}</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"><style>@page{size:A4;margin:16mm 14mm}body{margin:0}${EXD_CSS}</style></head><body>${exDocHtml(x, true)}</body></html>`); d.close();
+    const go=()=>{ try{ f.contentWindow.focus(); f.contentWindow.print(); }catch(_){ } setTimeout(()=>f.remove(), 2000); };
+    if(d.fonts && d.fonts.ready) d.fonts.ready.then(()=>setTimeout(go, 150)); else setTimeout(go, 400);
+  }
+  function exStatus(x, st, reason){
+    const prev={ status:x.status, approver:x.approver, apAt:x.apAt, reject:x.reject, paidAt:x.paidAt, reqAt:x.reqAt }, me=exMe();
+    const msg={ '결재요청':'결재를 요청했습니다.', '작성':'결재 요청을 회수했습니다.', '승인':'승인했습니다.', '반려':'반려했습니다.', '지급완료':'지급완료로 바꿨습니다.' }[st];
+    bgSave({ key:'ex:'+x.id, label:'결의서 '+st, okMsg:msg,
+      apply:()=>{ x.status=st; if(st==='승인'||st==='반려'){ x.approver=me.name||''; x.apAt=lvToday(); } if(st==='반려') x.reject=reason; if(st==='결재요청'){ x.reject=''; x.reqAt=lvToday(); } if(st==='지급완료') x.paidAt=lvToday(); exRender(); },
+      req:()=>call('setExpenseStatus',TOKEN,x.id,st,reason||''),
+      done:()=>{ if(DATA['ex']) DATA['ex'].t=0; },
+      revert:()=>{ Object.assign(x, prev); exRender(); } });
+  }
+  function exView(id){
+    const x=(EX.list||[]).find(e=>e.id===id); if(!x) return;
+    const adm=exAdmin(), mine=exMine(x), editable=(x.status==='작성'||x.status==='반려') && (mine||adm), tmp=String(x.id).indexOf('tmp_')===0;
+    const foot=[{label:'닫기', ghost:true},{label:'인쇄 · PDF', ghost:true, onClick:()=>{ exPrint(x); return true; }}];
+    if(!tmp){
+      if(editable) foot.push({label:'삭제', ghost:true, onClick:async()=>{ if(!await xAsk('결의서를 삭제할까요?', (x.no||'')+' '+x.title+' — 삭제하면 되돌릴 수 없습니다.', '삭제')) return true;
+          const L=EX.list||[], i=L.indexOf(x);
+          bgSave({ key:'ex:'+x.id, label:'결의서 삭제', okMsg:'삭제했습니다.', apply:()=>{ if(i>=0) L.splice(L.indexOf(x),1); exRender(); }, req:()=>call('deleteExpense',TOKEN,x.id), done:()=>{ if(DATA['ex']) DATA['ex'].t=0; }, revert:()=>{ if(L.indexOf(x)<0) L.splice(Math.max(0,i),0,x); exRender(); } }); }},
+        {label:'수정', ghost:true, onClick:()=>{ setTimeout(()=>exEdit(x),0); }}, {label:'결재 요청', onClick:()=>exStatus(x,'결재요청')});
+      if(x.status==='결재요청' && (mine||adm)) foot.push({label:'회수', ghost:true, onClick:()=>exStatus(x,'작성')});
+      if(x.status==='결재요청' && adm) foot.push({label:'반려', ghost:true, onClick:()=>{ const box=$('#exd-rj'); if(box.hidden){ box.hidden=false; $('#exd-rjt').focus(); toast('반려 사유를 적고 다시 [반려]를 누르세요.'); return true; }
+          const why=$('#exd-rjt').value.trim(); if(!why){ toast('반려 사유를 입력하세요.'); $('#exd-rjt').focus(); return true; } exStatus(x,'반려',why); }},
+        {label:'승인', onClick:()=>exStatus(x,'승인')});
+      if(x.status==='승인' && adm) foot.push({label:'지급완료', onClick:()=>exStatus(x,'지급완료')});
+    }
+    const trail=[['작성', x.created||x.date, x.author], ['결재요청', x.reqAt, ''], [x.status==='반려'?'반려':'승인', x.apAt, x.approver], ['지급완료', x.paidAt, '']].filter(t=>t[1]);
+    xOpen({ title:(x.no||'저장 중')+' · '+x.title, sub:x.hospital+' · '+x.cat+' · ₩ '+exWon(x.amount), wide:true,
+      body:`<div class="ex-trail">${trail.map(t=>`<span><b>${esc(t[0])}</b> ${esc(v3Dot(t[1]))}${t[2]?' · '+esc(t[2]):''}</span>`).join('<i>›</i>')}<span class="x-pill ${EX_STC[x.status]||'ghost'}" style="margin-left:auto">${esc(x.status)}</span></div>`+
+        `<style>${EXD_CSS.replace(/\.exd/g,'#xm-body .exd')}</style>${exDocHtml(x,false)}`+
+        `<div id="exd-rj" class="ex-rjbox" hidden><label class="x-lab" for="exd-rjt">반려 사유</label><input id="exd-rjt" class="x-input" maxlength="200" placeholder="예: 증빙 누락 — 카드전표를 첨부해 다시 요청하세요"></div>`,
+      foot });
+  }
+  async function exExport(){
+    try{
+      const X=await loadLib('xlsx'), ym=exYm();
+      const L=(EX.list||[]).filter(x=>String(x.date||'').slice(0,7)===ym && (!EX.hosp||x.hospital===EX.hosp)).sort((a,b)=>a.no<b.no?-1:1);
+      const t1=L.map(x=>({ '문서번호':x.no, '결의일':v3Dot(x.date), '지출일':v3Dot(x.spend), '사업장':x.hospital, '구분':x.cat, '적요':x.title, '금액':x.amount, '지급처':x.payee, '결제수단':x.pay, '증빙':x.proof, '상태':x.status, '작성자':x.author, '결재자':x.approver, '결재일':v3Dot(x.apAt), '지급일':v3Dot(x.paidAt), '반려사유':x.reject, '비고':x.memo }));
+      const t2=[]; L.forEach(x=>(x.items||[]).forEach((i,k)=>t2.push({ '문서번호':x.no, '사업장':x.hospital, 'No':k+1, '품명':i.name, '수량':i.qty, '단가':i.price, '금액':i.amount, '비고':i.memo })));
+      const wb=X.utils.book_new();
+      const s1=X.utils.json_to_sheet(t1.length?t1:[{ '문서번호':'' }]); s1['!cols']=[15,11,11,16,10,30,12,16,12,11,9,8,8,11,11,20,20].map(w=>({wch:w})); X.utils.book_append_sheet(wb, s1, '결의서 목록');
+      X.utils.book_append_sheet(wb, X.utils.json_to_sheet(t2.length?t2:[{ '문서번호':'' }]), '품목');
+      X.writeFile(wb, '지출결의서_'+ym+(EX.hosp?'_'+EX.hosp:'')+'.xlsx'); toast(L.length+'건을 받았습니다.');
+    }catch(e){ toast('엑셀을 만들지 못했습니다: '+String((e&&e.message)||e)); }
+  }
+  $('#ex-seg').addEventListener('click', e=>{ const b=e.target.closest('.seg'); if(!b) return; EX.st=b.dataset.f; exRender(); });
+  $('#ex-hosp').addEventListener('change', e=>{ EX.hosp=e.target.value; exRender(); });
+  $('#ex-q').addEventListener('input', e=>{ EX.q=e.target.value; exRender(); });
+  $('#ex-prev').addEventListener('click', ()=>{ EX.ym=exShift(exYm(),-1); exRender(); });
+  $('#ex-next').addEventListener('click', ()=>{ EX.ym=exShift(exYm(),1); exRender(); });
+  $('#ex-add').addEventListener('click', ()=>exEdit(null));
+  $('#ex-export').addEventListener('click', exExport);
+  $('#ex-rows').addEventListener('click', e=>{ const r=e.target.closest('[data-exid]'); if(r) exView(r.dataset.exid); });
+  views.expense=$('#view-expense');
+  V2_LOAD.expense=async(force)=>{ if(force) invalidate('ex'); await exLoad(force); };
+
   views.kpi=$('#view-kpi');
   const kpAll=s=>[...document.querySelectorAll(s)];   // 페이지의 $$ 는 NodeList라 map/find가 없다
   const KP={ info:null, cache:{}, d:{ period:'weekly', hosp:'', metric:'p', anchor:'', open:{1:true,2:true,3:true,4:true,5:false,6:false} }, formOpen:true };
