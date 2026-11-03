@@ -5305,8 +5305,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
               const att=$('#wf-att').value;
               const patch={ '고용형태':$('#wf-emp').value, '생년월일':$('#wf-birth').value, '연락처':$('#wf-tel').value.trim(), '검진월':$('#wf-chk').value?Number($('#wf-chk').value):'', '근태이상':att===''?'':Number(att), '비고':$('#wf-memo').value.trim(), '만료일직접':$('#wf-exp').value||'', '파견법해제':$('#wf-exm').value==='Y'?'Y':'', '입사일직접':(()=>{ const j=$('#wf-join'), v=j.value||''; return (!v || v===j.dataset.sync) ? '' : v; })() };
               const jv=patch['입사일직접'];
-              const lv={ join:jv?v3Dot(jv):(w.joinSync||w.join), joinManual:jv?v3Dot(jv):'', emp:patch['고용형태'], birth:patch['생년월일'], tel:patch['연락처'], checkup:patch['검진월'], attend:patch['근태이상'], memo:patch['비고'], expiryManual:patch['만료일직접'], exempt:patch['파견법해제']==='Y' };
-              const c=DATA['v2wk'], x=(c&&c.v&&c.v.list||[]).find(o=>String(o.id)===String(w.id))||w, F=['emp','birth','tel','checkup','attend','memo','expiryManual','exempt','expiry','join','joinManual','expiryAuto'];
+              const js0=w.joinSync||(w.joinManual?'':w.join);
+              const lv={ join:jv?v3Dot(jv):(js0||w.join), joinManual:jv?v3Dot(jv):'', joinSync:js0, emp:patch['고용형태'], birth:patch['생년월일'], tel:patch['연락처'], checkup:patch['검진월'], attend:patch['근태이상'], memo:patch['비고'], expiryManual:patch['만료일직접'], exempt:patch['파견법해제']==='Y' };
+              const c=DATA['v2wk'], x=(c&&c.v&&c.v.list||[]).find(o=>String(o.id)===String(w.id))||w, F=['emp','birth','tel','checkup','attend','memo','expiryManual','exempt','expiry','join','joinManual','joinSync','expiryAuto'];
               const prev={}; F.forEach(k=>prev[k]=x[k]);
               bgSave({ key:'wk:'+w.id, label:w.name+' 님 정보 저장', okMsg:'저장했습니다.',
                 apply:()=>{ Object.assign(x, lv); { const j=v3Date(x.join); x.expiryAuto=(x.emp==='파견' && j) ? v3Dot(v3Key(v3Two(j))) : ''; } x.expiry = lv.exempt ? '' : (lv.expiryManual ? v3Dot(lv.expiryManual) : x.expiryAuto); if(c) renderWorkers(c.v); },
