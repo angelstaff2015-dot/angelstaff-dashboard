@@ -4188,7 +4188,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   function renderWorkersOld(d){
     const L=wkLists(d), nm=d.nextMonth;
     const rs=d.roster, sy=$('#wk-sync');
-    if(sy){ if(rs){ sy.hidden=false; sy.innerHTML=`<i></i>휴먼관리시스템 자동 동기화 · 마지막 ${esc(rs.at)} · 재직 ${rs.total}명${(rs.added||rs.left||rs.changed||rs.rejoined)?` · 입사 ${rs.added} · 퇴사 ${rs.left} · 변경 ${rs.changed}${rs.rejoined?' · 재입사 '+rs.rejoined:''}`:' · 변동 없음'}`; } else sy.hidden=true; }
+    if(sy){ if(rs){ sy.hidden=false; sy.innerHTML=`<i></i>휴먼관리시스템 자동 동기화 · 마지막 ${esc(rs.at)} · 재직 ${rs.total}명${(rs.added||rs.left||rs.changed||rs.rejoined||rs.held)?` · 입사 ${rs.added} · 퇴사 ${rs.left} · 변경 ${rs.changed}${rs.rejoined?' · 재입사 '+rs.rejoined:''}${rs.held?' · 퇴사 보호 '+rs.held+'명':''}`:' · 변동 없음'}`; } else sy.hidden=true; }
     $('#wk-kpis').innerHTML=[
       [L.act.length,'재직'], [L.newJoin.length,'이번 달 입사'], [L.birth.length, nm+'월 생일쿠폰 대상'], [L.checkup.length, nm+'월 건강검진 대상'], [L.missing.length,'생년월일 미입력']
     ].map(k=>`<div class="kpi"><div class="k-val">${k[0]}</div><div class="k-lab">${esc(k[1])}</div></div>`).join('');
@@ -4290,7 +4290,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const act=d.list.filter(w=>w.status==='재직'), P=wkPend(act);
     const wn=$('#wk-wn'); if(wn) wn.textContent=P.wait.length||'';
     const ln=$('#wk-ln'); if(ln) ln.textContent=(P.lvIn.length+P.lvOut.length)||'';
-    if(sy){ if(rs){ sy.hidden=false; sy.innerHTML=`<i></i>휴먼관리시스템 자동 동기화 · 마지막 ${esc(rs.at)} · 재직 ${rs.total}명${(rs.added||rs.left||rs.changed||rs.rejoined)?` · 입사 ${rs.added} · 퇴사 ${rs.left} · 변경 ${rs.changed}${rs.rejoined?' · 재입사 '+rs.rejoined:''}`:' · 변동 없음'} · 입사대기 ${P.wait.length}명 · 퇴사대기 ${P.lvIn.length+P.lvOut.length}명`; } else sy.hidden=true; }
+    if(sy){ if(rs){ sy.hidden=false; sy.innerHTML=`<i></i>휴먼관리시스템 자동 동기화 · 마지막 ${esc(rs.at)} · 재직 ${rs.total}명${(rs.added||rs.left||rs.changed||rs.rejoined||rs.held)?` · 입사 ${rs.added} · 퇴사 ${rs.left} · 변경 ${rs.changed}${rs.rejoined?' · 재입사 '+rs.rejoined:''}${rs.held?' · 퇴사 보호 '+rs.held+'명':''}`:' · 변동 없음'} · 입사대기 ${P.wait.length}명 · 퇴사대기 ${P.lvIn.length+P.lvOut.length}명`; } else sy.hidden=true; }
     /* 병원 카드 — 현인원 = 재직 + 입사대기 (+ 재직 명단에 없는 퇴사대기) */
     const g={}; act.forEach(w=>{ const k=w.hospital||'병원 미지정'; (g[k]=g[k]||[]).push(w); });
     [...P.wait, ...P.lvOut].forEach(w=>{ const k=w.hospital||'병원 미지정'; if(!g[k]) g[k]=[]; });
@@ -4384,7 +4384,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         `<td class="r x-num">${w.exempt?'<span class="x-pill ghost" title="파견법 해제 — 파견 2년 만료 관리 제외">파견법 해제</span>':''}${w.expiryManual&&!w.exempt?'<span class="v3-man" title="담당자가 직접 지정한 만료일">직접</span>':''}${w.expiry?esc(v3Dot(w.expiry)):(w.exempt?'':'<span class="muted">–</span>')} ${on?v3DdPill(n):''}</td>`+
         `<td class="x-num">${w.birth?esc(w.birth.replace(/-/g,'.')):'<span class="x-pill warn">미입력</span>'}</td>`+
         `<td class="x-num">${w.tel?esc(w.tel):'<span class="muted">–</span>'}</td><td class="r">${w.checkup?w.checkup+'월':'–'}</td>`+
-        `<td class="r">${!on&&!w.contractId?`<button class="x-btn" data-wkback="${esc(w.id)}" title="퇴사 처리를 취소하고 재직으로">재직으로</button> `:''}<button class="x-btn" data-wkedit="${esc(w.id)}">수정</button></td></tr>`;
+        `<td class="r">${!on&&w.hold?`<span class="x-mut" title="통합 HR에서 퇴사 처리한 사람입니다. 휴먼관리시스템에 재직으로 남아 있어도 동기화가 재직으로 되돌리지 않습니다." style="font-size:11px;margin-right:6px">동기화 보호</span>`:''}${!on&&!w.contractId?`<button class="x-btn" data-wkback="${esc(w.id)}" title="퇴사 처리를 취소하고 재직으로">재직으로</button> `:''}<button class="x-btn" data-wkedit="${esc(w.id)}">수정</button></td></tr>`;
     }).join('') + pend.map(wkPendRow).join('');
     wkBar();
   }
@@ -5271,7 +5271,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const prev=x ? { status:x.status, left:x.left } : null;
     const d=new Date(), today=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
     bgSave({ key:'wk:'+w.id, label:w.name+' 님 '+(status==='퇴사'?'퇴사 처리':'재직 되돌리기'), okMsg,
-      apply:()=>{ if(x){ x.status=status; x.left=status==='퇴사'?today:''; renderWorkers(c.v); } },
+      apply:()=>{ if(x){ x.status=status; x.left=status==='퇴사'?today:''; x.hold=status==='퇴사'; renderWorkers(c.v); } },
       req,
       done:()=>{ invalidate('v2rk','v2fc'); if(DATA['v2wk']) DATA['v2wk'].t=0; persistSave(); },
       revert:()=>{ if(x && prev){ x.status=prev.status; x.left=prev.left; const cc=DATA['v2wk']; if(cc) renderWorkers(cc.v); } } });
@@ -5296,7 +5296,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         `</div>`+
         `<div class="b-head" style="margin-top:26px;border-bottom:1px solid var(--ink);padding-bottom:9px;display:flex;justify-content:space-between"><h3 style="margin:0;font-size:15px">만족도 응답</h3><span class="meta x-mut x-small">이름·병원이 같은 응답</span></div><div id="wf-sv"><div class="loading" style="padding:16px 2px">불러오는 중…</div></div>`,
       foot:[{label:'닫기', ghost:true}, ...(!w.contractId && w.status==='재직' ? [{label:'퇴사 처리', ghost:true, onClick: async(btn)=>{
-              if(!await xAsk('퇴사 처리할까요?', w.name+' 님을 오늘 날짜로 퇴사 처리합니다. 잘못 처리해도 「재직으로 되돌리기」로 복구할 수 있습니다.', '퇴사 처리')) return true;
+              if(!await xAsk('퇴사 처리할까요?', w.name+' 님을 오늘 날짜로 퇴사 처리합니다. 휴먼관리시스템에 아직 재직으로 남아 있어도 동기화가 재직으로 되돌리지 않습니다. 잘못 처리해도 「재직으로 되돌리기」로 복구할 수 있습니다.', '퇴사 처리')) return true;
               wkOptimistic(w, '퇴사', ()=>call('setWorkerLeft',TOKEN,w.id,''), w.name+' 님을 퇴사 처리했습니다. 퇴사 탭에서 되돌릴 수 있습니다.'); }}] : []),
             ...(!w.contractId && w.status!=='재직' ? [{label:'재직으로 되돌리기', ghost:true, onClick: async(btn)=>{
               if(!await xAsk('재직으로 되돌릴까요?', w.name+' 님의 퇴사 처리'+(w.left?'('+w.left+')':'')+'를 취소하고 재직 상태로 바꿉니다.', '재직으로 되돌리기', false)) return true;
