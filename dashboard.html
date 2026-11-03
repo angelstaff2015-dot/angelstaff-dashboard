@@ -309,7 +309,10 @@
   .ex-calc{margin-top:14px}.ex-tg{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer}
   .ex-amt{margin-top:14px}.ex-amt>div{display:flex;align-items:center;gap:14px}.ex-amt .x-input{max-width:220px;font-size:15px;font-weight:700}.ex-amt b{font-size:14px}
   .ex-amt .x-input[readonly]{background:var(--panel)}
-  .exf-wrap{border:1px solid var(--line);border-radius:12px;padding:26px 24px;background:#fff;overflow-x:auto}
+  .exf-wrap{border:1px solid var(--line);border-radius:12px;padding:34px 40px;background:#fff}
+  .modal.x-xl{width:min(1000px,96vw);max-height:94vh}
+  #xm-body .exf{max-width:none}
+  @media (max-width:760px){ .exf-wrap{padding:16px 10px;overflow-x:auto} #xm-body .exf{min-width:640px} }
   .ex-trail{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3);margin-bottom:16px}
   .ex-trail b{color:var(--ink);font-weight:600}.ex-trail i{font-style:normal;color:var(--line)}
   @media (max-width:760px){ .ex-break{grid-template-columns:1fr} .lv-dsum{grid-template-columns:1fr 1fr} .ex-ih{display:none} .ex-ir{grid-template-columns:1fr 1fr;padding:8px;border:1px solid var(--line-2);border-radius:10px} .ex-ir input[data-i="name"],.ex-ir input[data-i="memo"]{grid-column:1/-1} }
@@ -2014,7 +2017,7 @@
         <div class="segs" id="ex-seg"><button class="seg active" data-f="">전체 <span></span></button><button class="seg" data-f="작성">작성 <span></span></button><button class="seg" data-f="결재요청">결재 대기 <span></span></button><button class="seg" data-f="승인">승인 <span></span></button><button class="seg" data-f="반려">반려 <span></span></button><button class="seg" data-f="지급완료">지급완료 <span></span></button></div>
         <div class="x-filter"><span class="muted" id="ex-count" style="font-size:13px;margin-right:6px"></span><select id="ex-hosp" class="filter-sel"><option value="">전체 사업장</option></select><input id="ex-q" class="x-search" placeholder="적요·지급처·품명 검색" aria-label="적요·지급처·품명 검색"></div>
       </div>
-      <div class="tbl-scroll"><table class="htbl x-tbl ex-tbl"><thead><tr><th>문서번호</th><th>결의일</th><th>사업장</th><th>구분</th><th>적요</th><th class="r">금액</th><th>결제</th><th>상태</th><th>작성자</th></tr></thead><tbody id="ex-rows"><tr><td colspan="9" class="loading">불러오는 중…</td></tr></tbody></table></div>
+      <div class="tbl-scroll"><table class="htbl x-tbl ex-tbl"><thead><tr><th>문서번호</th><th>결의일</th><th>사업장</th><th>구분</th><th>적요</th><th class="r">금액</th><th>증빙</th><th>상태</th><th>작성자</th></tr></thead><tbody id="ex-rows"><tr><td colspan="9" class="loading">불러오는 중…</td></tr></tbody></table></div>
     </section>
     <section class="page" id="view-risk" style="display:none">
       <div class="head">
@@ -4027,7 +4030,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     $('#xm-title').textContent=o.title||'';
     $('#xm-sub').textContent=o.sub||''; $('#xm-sub').hidden=!o.sub;
     $('#xm-body').innerHTML=o.body||'';
-    const m=$('#xmodal .modal'); m.classList.toggle('x-wide', !!o.wide); m.classList.toggle('x-mid', !o.wide);
+    const m=$('#xmodal .modal'); m.classList.toggle('x-wide', !!o.wide); m.classList.toggle('x-mid', !o.wide); m.classList.toggle('x-xl', !!o.xl);
     const f=$('#xm-foot'); f.innerHTML=''; f.dataset.noenter=o.enter===false?'1':'';
     (o.foot||[{label:'닫기', ghost:true}]).forEach(b=>{
       const el=document.createElement('button'); el.type='button';
@@ -6697,8 +6700,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const tb=$('#ex-rows');
     if(!L.length){ tb.innerHTML=`<tr><td colspan="9" class="empty-row">${all.length?'조건에 맞는 결의서가 없습니다.':exYmLab(ym)+' 결의서가 없습니다. <b>＋ 결의서 작성</b>으로 시작하세요.'}</td></tr>`; return; }
     tb.innerHTML=L.map(x=>`<tr class="x-click" data-exid="${esc(x.id)}"><td class="x-num">${esc(x.no||'저장 중')}</td><td class="x-num">${esc(v3Dot(x.date))}</td><td>${esc(x.hospital)}</td><td>${esc(exCatLab(x.cat))}</td>`+
-      `<td><div class="x-who"><b>${esc(x.title)}</b><small>${esc((x.items||[]).map(i=>i.name).filter(Boolean).slice(0,3).join(', '))}${(x.items||[]).length>3?' 외 '+((x.items||[]).length-3)+'건':''}${x.payee?' · '+esc(x.payee):''}</small></div></td>`+
-      `<td class="r x-num"><b>₩ ${exWon(x.amount)}</b></td><td>${esc(x.pay)}</td><td><span class="x-pill ${EX_STC[x.status]||'ghost'}">${esc(x.status)}</span></td><td class="x-mut">${esc(x.author)}</td></tr>`).join('');
+      `<td><div class="x-who"><b>${esc(x.title)}</b><small>${esc((x.items||[]).map(i=>i.name).filter(Boolean).slice(0,3).join(', '))}${(x.items||[]).length>3?' 외 '+((x.items||[]).length-3)+'건':''}${x.claimant?' · '+esc(x.claimant):''}</small></div></td>`+
+      `<td class="r x-num"><b>₩ ${exWon(x.amount)}</b></td><td>${esc(x.proof||'')}</td><td><span class="x-pill ${EX_STC[x.status]||'ghost'}">${esc(x.status)}</span></td><td class="x-mut">${esc(x.author)}</td></tr>`).join('');
   }
   function exItemRow(i){ i=i||{}; return `<div class="ex-ir"><input class="x-input" data-i="name" maxlength="60" placeholder="품명" value="${esc(i.name||'')}"><input class="x-input x-num" data-i="qty" type="number" min="0" step="1" placeholder="수량" value="${i.qty!=null&&i.qty!==''?esc(i.qty):''}"><input class="x-input x-num" data-i="price" type="number" min="0" step="10" placeholder="단가" value="${i.price!=null&&i.price!==''?esc(i.price):''}"><input class="x-input x-num" data-i="amount" type="number" min="0" step="10" placeholder="금액" value="${i.amount!=null&&i.amount!==''?esc(i.amount):''}"><input class="x-input" data-i="memo" maxlength="60" placeholder="비고" value="${esc(i.memo||'')}"><button type="button" class="x-btn ex-irx" aria-label="이 줄 삭제">✕</button></div>`; }
   /* 회사 지출결의서 양식(엑셀) 항목: 일자 · 일련No · 증명No · 부서명 · 내역 · 청구인 · 세부내역 · 청구내역(일금 ○○원정) · 증빙 · 비고 · 결재란 6칸 */
@@ -6733,10 +6736,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         `<div class="ex-if"><button type="button" class="x-btn" id="ef-addi">＋ 품목 추가</button><span class="x-mut x-small">합계가 청구 금액이 됩니다</span></div></div></div>`+
         `<div class="ex-amt"><label class="x-lab" for="ef-amt">청구 금액</label><div><input id="ef-amt" type="number" min="0" step="10" class="x-input x-num" value="${e.amount?esc(e.amount):''}" placeholder="0"><b id="ef-han"></b></div></div>`+
         `<div class="x-form2" style="margin-top:14px">`+
-        `<div><label class="x-lab" for="ef-pr">증빙</label>${sel('ef-pr',EX_PROOF,e.proof||'카드전표')}</div>`+
-        `<div><label class="x-lab" for="ef-pay">결제 수단</label>${sel('ef-pay',EX_PAY,e.pay||'법인카드')}</div>`+
-        `<div><label class="x-lab" for="ef-p">지급처 <span class="x-mut">(선택)</span></label><input id="ef-p" class="x-input" maxlength="60" value="${esc(e.payee||'')}"></div>`+
-        `<div><label class="x-lab" for="ef-m">비고 <span class="x-mut">(선택)</span></label><input id="ef-m" class="x-input" maxlength="300" value="${esc(e.memo||'')}"></div>`+
+        `<div><label class="x-lab" for="ef-pr">증빙</label>${sel('ef-pr',EX_PROOF,e.proof||'카드전표')}</div><div></div>`+
+        `<div style="grid-column:1/-1"><label class="x-lab" for="ef-m">비고 <span class="x-mut">(선택 · 여러 줄 가능)</span></label><textarea id="ef-m" class="x-text" rows="3" maxlength="300">${esc(e.memo||'')}</textarea></div>`+
         `</div>${e.status==='반려'&&e.reject?`<div class="ex-rej">반려 사유 · ${esc(e.reject)}</div>`:''}`,
       onOpen:(el)=>{
         const box=el.querySelector('#ef-items'), amt=el.querySelector('#ef-amt'), use=el.querySelector('#ef-useitems');
@@ -6762,7 +6763,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const amount=use ? items.reduce((t,i)=>t+(Number(i.amount)||0),0) : Math.round(Number($('#ef-amt').value)||0);
     const claimant=$('#ef-who').value.trim(), deptName=$('#ef-dep').value.trim(), proofNo=$('#ef-pno').value.trim();
     const d={ id:e.id||'', hospitalId:hid, hospital:h?h['병원명']:'', date:$('#ef-d').value, cat:$('#ef-c').value, detail, items, amount, claimant, deptName, proofNo,
-      payee:$('#ef-p').value.trim(), pay:$('#ef-pay').value, proof:$('#ef-pr').value, memo:$('#ef-m').value.trim(), submit };
+      payee:'', pay:'', proof:$('#ef-pr').value, memo:$('#ef-m').value.trim(), submit };
     const miss=!hid?'사업장을 고르세요.':!d.cat?'내역을 고르세요.':!d.date?'일자를 고르세요.':(!detail && !items.length)?'세부내역을 입력하세요.':!(amount>0)?'청구 금액을 입력하세요.':'';
     if(miss){ toast(miss); return true; }
     if(claimant) exLsSet('who', claimant); if(deptName) exLsSet('dep', deptName);
@@ -6782,8 +6783,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   function exDateLab(s){ const d=v3Date(s); return d ? d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일' : ''; }
   function exDocHtml(x){
     const lines=exDetailLines(x).map(esc).join('<br>');
-    const proof=[x.proof, x.pay, x.payee?'지급처 '+x.payee:''].filter(Boolean).map(esc).join(' · ');
-    const memo=[x.hospital?'사업장 : '+x.hospital:'', x.memo||''].filter(Boolean).map(esc).join('<br>');
+    const proof=esc(x.proof||'');
+    const memo=[x.hospital?'사업장 : '+x.hospital:'', ...String(x.memo||'').split('\n')].filter(Boolean).map(esc).join('<br>');
     const ok=x.status==='승인'||x.status==='지급완료';
     const R=[]; const sg=i=>`<td class="sl" rowspan="4">${esc(EX_SIGN[i]).replace(/\n/g,'<br>')}</td><td class="sb" rowspan="4"></td>`;
     R.push(`<tr><td class="lb" rowspan="2">내&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;역</td><td class="v c" colspan="2" rowspan="2">${esc(exCatLab(x.cat||''))}</td><td class="lb" rowspan="2">청구인</td><td class="v c rb" rowspan="2">${esc(x.claimant||x.author||'')}</td>${sg(0)}</tr>`);
@@ -6803,7 +6804,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     R.push(`<tr></tr>`);
     R.push(`<tr>${sg(5)}</tr>`);
     R.push(`<tr></tr>`); R.push(`<tr></tr>`); R.push(`<tr></tr>`);
-    const sys = x.status==='작성' ? '' : `<div class="exf-sys">HR 시스템 · ${esc(x.status)}${x.reqAt?' · 결재요청 '+esc(v3Dot(x.reqAt)):''}${(ok||x.status==='반려')&&x.approver?' · '+(x.status==='반려'?'반려':'승인')+' '+esc(x.approver)+' '+esc(v3Dot(x.apAt)):''}${x.paidAt?' · 지급 '+esc(v3Dot(x.paidAt)):''}${x.status==='반려'&&x.reject?' — '+esc(x.reject):''}</div>`;
+    const sys='';   // 결재란·양식 안에는 시스템 표시를 넣지 않음 (직접 서명)
     return `<div class="exf"><div class="exf-top"><div class="exf-tc"><div class="exf-t">지출결의서</div><div class="exf-d">${esc(exDateLab(x.date))}</div></div>`+
       `<div class="exf-no"><div><b>일련No</b><span>${esc(x.no||'')}</span></div><div><b>증명No</b><span>${esc(x.proofNo||'')}</span></div><div><b>부서명 : ${esc(x.deptName||'의료사업본부')}</b></div></div></div>`+
       `<table class="exf-tb"><colgroup><col style="width:11.6%"><col style="width:10.4%"><col style="width:30.4%"><col style="width:10.4%"><col style="width:20.6%"><col style="width:6.4%"><col style="width:10.2%"></colgroup><tbody>${R.join('')}`+
@@ -6813,7 +6814,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   const EXD_CSS=`.exf{font-family:'Malgun Gothic','맑은 고딕','Pretendard',sans-serif;color:#000;font-size:13px;max-width:760px;margin:0 auto}
     .exf-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:12px;margin-bottom:14px}
     .exf-tc{grid-column:2;text-align:center}
-    .exf-no{grid-column:3;justify-self:end;width:180px}
+    .exf-no{grid-column:3;justify-self:end;width:190px}
     .exf-t{display:inline-block;font-family:'Batang','바탕','Nanum Myeongjo',serif;font-size:24px;font-weight:700;padding:0 6px 6px calc(6px + .8em);letter-spacing:.8em;border-bottom:3px double #000;white-space:nowrap}
     .exf-d{margin-top:9px;font-size:13px}
     .exf-no{font-size:12px;white-space:nowrap}.exf-no div{display:flex;gap:6px;border-bottom:1px solid #000;padding:3px 0;font-weight:700}.exf-no span{font-weight:500;margin-left:auto}
@@ -6852,8 +6853,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       ws.mergeCells('B8:B9'); put('B8','내      역'); ws.mergeCells('C8:D9'); put('C8', exCatLab(x.cat||'')); ws.mergeCells('E8:E9'); put('E8','청구인'); ws.mergeCells('F8:F9'); put('F8', x.claimant||x.author||'');
       ws.mergeCells('B10:B20'); put('B10','세부내역'); ws.mergeCells('C10:F20'); put('C10', exDetailLines(x).join('\n'),{ h:'left', v:'top' });
       ws.mergeCells('B21:B23'); put('B21','청구내역'); ws.mergeCells('C21:D23'); put('C21','일금 '+exHan(x.amount)+'원정',{ h:'left', b:true }); ws.mergeCells('E21:F23'); put('E21','(₩'+exWon(x.amount)+')',{ h:'left' });
-      ws.mergeCells('B24:B25'); put('B24','증      빙'); ws.mergeCells('C24:F25'); put('C24', [x.proof, x.pay, x.payee?'지급처 '+x.payee:''].filter(Boolean).join(' · '),{ h:'left' });
-      ws.mergeCells('B26:B31'); put('B26','비      고'); ws.mergeCells('C26:F31'); put('C26', [x.hospital?'사업장 : '+x.hospital:'', x.memo||''].filter(Boolean).join('\n'),{ h:'left', v:'top' });
+      ws.mergeCells('B24:B25'); put('B24','증      빙'); ws.mergeCells('C24:F25'); put('C24', x.proof||'',{ h:'left' });
+      ws.mergeCells('B26:B31'); put('B26','비      고'); ws.mergeCells('C26:F31'); put('C26', [x.hospital?'사업장 : '+x.hospital:'', ...String(x.memo||'').split('\n')].filter(Boolean).join('\n'),{ h:'left', v:'top' });
       const S=[['G8:G11','H8:H11','대\n표\n이\n사'],['G12:G15','H12:H15','전\n\n무'],['G16:G19','H16:H19','이\n\n사\n(경영)'],['G20:G23','H20:H23','이\n사\n(의료)'],['G24:G27','H24:H27','팀\n\n장'],['G28:G31','H28:H31','담\n\n당']];
       S.forEach(([g,h,t])=>{ ws.mergeCells(g); put(g.split(':')[0], t,{ sz:11, fill:true }); ws.mergeCells(h); put(h.split(':')[0], '',{ sz:10 }); });
       ws.mergeCells('B32:H34'); put('B32','위의 금액을 정히 (청구)하오니 지급하여 주십시오.',{ sz:11, fill:true });
@@ -6893,7 +6894,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       if(x.status==='승인' && adm) foot.push({label:'지급완료', onClick:()=>exStatus(x,'지급완료')});
     }
     const trail=[['작성', x.created||x.date, x.author], ['결재요청', x.reqAt, ''], [x.status==='반려'?'반려':'승인', x.apAt, x.approver], ['지급완료', x.paidAt, '']].filter(t=>t[1]);
-    xOpen({ title:(x.no||'저장 중')+' · '+x.title, sub:x.hospital+' · '+x.cat+' · ₩ '+exWon(x.amount), wide:true, enter:false,
+    xOpen({ title:(x.no||'저장 중')+' · '+x.title, sub:x.hospital+' · '+exCatLab(x.cat)+' · ₩ '+exWon(x.amount), wide:true, xl:true, enter:false,
       body:`<div class="ex-trail">${trail.map(t=>`<span><b>${esc(t[0])}</b> ${esc(v3Dot(t[1]))}${t[2]?' · '+esc(t[2]):''}</span>`).join('<i>›</i>')}<span class="x-pill ${EX_STC[x.status]||'ghost'}" style="margin-left:auto">${esc(x.status)}</span></div>`+
         `<style>${EXD_CSS.replace(/\.exf/g,'#xm-body .exf')}</style><div class="exf-wrap">${exDocHtml(x)}</div>`+
         `<div id="exd-rj" class="ex-rjbox" hidden><label class="x-lab" for="exd-rjt">반려 사유</label><input id="exd-rjt" class="x-input" maxlength="200" placeholder="예: 증빙 누락 — 카드전표를 첨부해 다시 요청하세요"></div>`,
@@ -6903,7 +6904,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     try{
       const X=await loadLib('xlsx'), ym=exYm();
       const L=(EX.list||[]).filter(x=>String(x.date||'').slice(0,7)===ym && (!EX.hosp||x.hospital===EX.hosp)).sort((a,b)=>a.no<b.no?-1:1);
-      const t1=L.map(x=>({ '문서번호':x.no, '결의일':v3Dot(x.date), '지출일':v3Dot(x.spend), '사업장':x.hospital, '구분':x.cat, '적요':x.title, '금액':x.amount, '청구인':x.claimant||x.author, '부서명':x.deptName||'', '증명No':x.proofNo||'', '세부내역':x.detail||'', '지급처':x.payee, '결제수단':x.pay, '증빙':x.proof, '상태':x.status, '작성자':x.author, '결재자':x.approver, '결재일':v3Dot(x.apAt), '지급일':v3Dot(x.paidAt), '반려사유':x.reject, '비고':x.memo }));
+      const t1=L.map(x=>({ '문서번호':x.no, '결의일':v3Dot(x.date), '지출일':v3Dot(x.spend), '사업장':x.hospital, '구분':x.cat, '적요':x.title, '금액':x.amount, '청구인':x.claimant||x.author, '부서명':x.deptName||'', '증명No':x.proofNo||'', '세부내역':x.detail||'', '증빙':x.proof, '상태':x.status, '작성자':x.author, '결재자':x.approver, '결재일':v3Dot(x.apAt), '지급일':v3Dot(x.paidAt), '반려사유':x.reject, '비고':x.memo }));
       const t2=[]; L.forEach(x=>(x.items||[]).forEach((i,k)=>t2.push({ '문서번호':x.no, '사업장':x.hospital, 'No':k+1, '품명':i.name, '수량':i.qty, '단가':i.price, '금액':i.amount, '비고':i.memo })));
       const wb=X.utils.book_new();
       const s1=X.utils.json_to_sheet(t1.length?t1:[{ '문서번호':'' }]); s1['!cols']=[15,11,11,16,10,30,12,16,12,11,9,8,8,11,11,20,20].map(w=>({wch:w})); X.utils.book_append_sheet(wb, s1, '결의서 목록');
