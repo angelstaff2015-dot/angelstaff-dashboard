@@ -6721,14 +6721,14 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const e=x||{}, hs=(hospitalCache||[]), me=exMe();
     const sel=(id,arr,v,ph,lab)=>`<select id="${id}" class="x-select">${ph?`<option value="">${ph}</option>`:''}${arr.map(a=>`<option value="${esc(a)}" ${a===v?'selected':''}>${esc(lab?lab(a):a)}</option>`).join('')}</select>`;
     const useItems=!!(e.items && e.items.length);
-    xOpen({ title:e.id?'지출결의서 수정 · '+(e.no||''):'지출결의서 작성', sub:'회사 지출결의서 양식 그대로 출력됩니다. 세부내역은 한 줄에 하나씩(▶ 자동), 금액은 직접 쓰거나 품목으로 계산하세요.', wide:true,
+    xOpen({ title:e.id?'지출결의서 수정':'지출결의서 작성', sub:'회사 지출결의서 양식 그대로 출력됩니다. 세부내역은 한 줄에 하나씩(▶ 자동), 금액은 직접 쓰거나 품목으로 계산하세요.', wide:true,
       body:`<div class="x-form2">`+
         `<div><label class="x-lab" for="ef-h">사업장</label><select id="ef-h" class="x-select"><option value="">선택하세요</option>${hs.map(h=>`<option value="${esc(h['병원ID'])}" ${String(h['병원ID'])===String(e.hid)?'selected':''}>${esc(h['병원명'])}</option>`).join('')}</select></div>`+
         `<div><label class="x-lab" for="ef-c">내역</label>${sel('ef-c',EX_CAT,e.cat,'선택하세요',exCatLab)}</div>`+
         `<div><label class="x-lab" for="ef-d">일자</label><input id="ef-d" type="date" class="x-input" value="${esc(e.date||lvToday())}"></div>`+
         `<div><label class="x-lab" for="ef-who">청구인 <span class="x-mut">(이름 직급)</span></label><input id="ef-who" class="x-input" maxlength="30" value="${esc(e.claimant||exLsGet('who', me.name||''))}" placeholder="예: 고재윤 대리"></div>`+
         `<div><label class="x-lab" for="ef-dep">부서명</label><input id="ef-dep" class="x-input" maxlength="40" value="${esc(e.deptName||exLsGet('dep','의료사업본부'))}"></div>`+
-        `<div><label class="x-lab" for="ef-pno">증명No <span class="x-mut">(선택)</span></label><input id="ef-pno" class="x-input" maxlength="40" value="${esc(e.proofNo||'')}"></div>`+
+        `<div></div>`+
         `<div style="grid-column:1/-1"><label class="x-lab" for="ef-det">세부내역 <span class="x-mut">(한 줄에 하나 · 앞에 ▶ 자동)</span></label><textarea id="ef-det" class="x-text" rows="6" maxlength="2000" placeholder="11월 병동 근무자 간담회 다과&#10;장소: 강동성심병원 8층 휴게실 · 참석 12명">${esc(e.detail||(e.items&&e.items.length?'':(e.title||'')))}</textarea></div>`+
         `</div>`+
         `<div class="ex-calc"><label class="ex-tg"><input type="checkbox" id="ef-useitems" ${useItems?'checked':''}> 품목으로 금액 계산 <span class="x-mut">(품명·수량·단가가 세부내역에 함께 찍힘)</span></label>`+
@@ -6761,7 +6761,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const items=use?[...document.querySelectorAll('#ef-items .ex-ir')].map(r=>{ const g=k=>r.querySelector('[data-i="'+k+'"]').value; return { name:g('name').trim(), qty:g('qty')===''?'':Number(g('qty')), price:g('price')===''?'':Number(g('price')), amount:g('amount')===''?'':Number(g('amount')), memo:g('memo').trim() }; }).filter(i=>i.name||i.amount):[];
     const detail=$('#ef-det').value.replace(/\r/g,'').trim();
     const amount=use ? items.reduce((t,i)=>t+(Number(i.amount)||0),0) : Math.round(Number($('#ef-amt').value)||0);
-    const claimant=$('#ef-who').value.trim(), deptName=$('#ef-dep').value.trim(), proofNo=$('#ef-pno').value.trim();
+    const claimant=$('#ef-who').value.trim(), deptName=$('#ef-dep').value.trim(), proofNo=e.proofNo||'';
     const d={ id:e.id||'', hospitalId:hid, hospital:h?h['병원명']:'', date:$('#ef-d').value, cat:$('#ef-c').value, detail, items, amount, claimant, deptName, proofNo,
       payee:'', pay:'', proof:$('#ef-pr').value, memo:$('#ef-m').value.trim(), submit };
     const miss=!hid?'사업장을 고르세요.':!d.cat?'내역을 고르세요.':!d.date?'일자를 고르세요.':(!detail && !items.length)?'세부내역을 입력하세요.':!(amount>0)?'청구 금액을 입력하세요.':'';
@@ -6784,7 +6784,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   function exDocHtml(x){
     const lines=exDetailLines(x).map(esc).join('<br>');
     const proof=esc(x.proof||'');
-    const memo=[x.hospital?'사업장 : '+x.hospital:'', ...String(x.memo||'').split('\n')].filter(Boolean).map(esc).join('<br>');
+    const memo=String(x.memo||'').split('\n').filter(Boolean).map(esc).join('<br>');
     const ok=x.status==='승인'||x.status==='지급완료';
     const R=[]; const sg=i=>`<td class="sl" rowspan="4">${esc(EX_SIGN[i]).replace(/\n/g,'<br>')}</td><td class="sb" rowspan="4"></td>`;
     R.push(`<tr><td class="lb" rowspan="2">내&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;역</td><td class="v c" colspan="2" rowspan="2">${esc(exCatLab(x.cat||''))}</td><td class="lb" rowspan="2">청구인</td><td class="v c rb" rowspan="2">${esc(x.claimant||x.author||'')}</td>${sg(0)}</tr>`);
@@ -6806,7 +6806,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     R.push(`<tr></tr>`); R.push(`<tr></tr>`); R.push(`<tr></tr>`);
     const sys='';   // 결재란·양식 안에는 시스템 표시를 넣지 않음 (직접 서명)
     return `<div class="exf"><div class="exf-top"><div class="exf-tc"><div class="exf-t">지출결의서</div><div class="exf-d">${esc(exDateLab(x.date))}</div></div>`+
-      `<div class="exf-no"><div><b>일련No</b><span>${esc(x.no||'')}</span></div><div><b>증명No</b><span>${esc(x.proofNo||'')}</span></div><div><b>부서명 : ${esc(x.deptName||'의료사업본부')}</b></div></div></div>`+
+      `<div class="exf-no"><div><b>부서명 : ${esc(x.deptName||'의료사업본부')}</b></div></div></div>`+
       `<table class="exf-tb"><colgroup><col style="width:11.6%"><col style="width:10.4%"><col style="width:30.4%"><col style="width:10.4%"><col style="width:20.6%"><col style="width:6.4%"><col style="width:10.2%"></colgroup><tbody>${R.join('')}`+
       `<tr><td class="band" colspan="7">위의 금액을 정히 (청구)하오니 지급하여 주십시오.</td></tr></tbody></table>`+
       `<div class="exf-co">㈜엔젤스태프</div>${sys}</div>`;
@@ -6833,7 +6833,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   function exPrint(x){
     const f=document.createElement('iframe'); f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
     const d=f.contentDocument;
-    d.open(); d.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>지출결의서 ${esc(x.no||'')}</title><style>@page{size:A4 portrait;margin:14mm 12mm}body{margin:0}${EXD_CSS}</style></head><body>${exDocHtml(x)}</body></html>`); d.close();
+    d.open(); d.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>지출결의서</title><style>@page{size:A4 portrait;margin:0}html,body{margin:0}body{padding:14mm 12mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}${EXD_CSS}</style></head><body>${exDocHtml(x)}</body></html>`); d.close();
     setTimeout(()=>{ try{ f.contentWindow.focus(); f.contentWindow.print(); }catch(_){ } setTimeout(()=>f.remove(), 2000); }, 300);
   }
   async function exXlsx(x){                          // 회사 엑셀 양식 그대로 (열 너비 · 병합 · 회색 결재칸 · 인쇄영역 B1:H35)
@@ -6848,13 +6848,12 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       const box=(r1,c1,r2,c2,o)=>{ for(let r=r1;r<=r2;r++) for(let c=c1;c<=c2;c++){ const cell=ws.getRow(r).getCell(c); const b={}; b.top=r===r1?(o.t||th):undefined; b.bottom=r===r2?(o.b||th):undefined; b.left=c===c1?(o.l||th):undefined; b.right=c===c2?(o.r||th):undefined; cell.border=Object.assign({}, cell.border||{}, Object.fromEntries(Object.entries(b).filter(([,v])=>v))); if(o.fill) cell.fill=grey; } };
       ws.mergeCells('D3:E4'); put('D3','지    출    결    의    서',{ font:'바탕', sz:20, b:true }); box(3,4,4,5,{ b:{style:'double'}, t:{style:'none'}, l:{style:'none'}, r:{style:'none'} });
       ['D3','E3','D4','E4'].forEach(a=>{ const c=ws.getCell(a); c.border={ bottom:{style:'double'} }; });
-      put('H4','일련No  '+(x.no||''),{ sz:11, b:true, u:true, h:'right', nowrap:true }); put('H5','증명No  '+(x.proofNo||''),{ sz:11, b:true, u:true, h:'right', nowrap:true });
       ws.mergeCells('D6:E6'); put('D6', exDateLab(x.date),{ sz:11 }); put('H6','부서명 : '+(x.deptName||'의료사업본부'),{ sz:11, b:true, u:true, h:'right', nowrap:true });
       ws.mergeCells('B8:B9'); put('B8','내      역'); ws.mergeCells('C8:D9'); put('C8', exCatLab(x.cat||'')); ws.mergeCells('E8:E9'); put('E8','청구인'); ws.mergeCells('F8:F9'); put('F8', x.claimant||x.author||'');
       ws.mergeCells('B10:B20'); put('B10','세부내역'); ws.mergeCells('C10:F20'); put('C10', exDetailLines(x).join('\n'),{ h:'left', v:'top' });
       ws.mergeCells('B21:B23'); put('B21','청구내역'); ws.mergeCells('C21:D23'); put('C21','일금 '+exHan(x.amount)+'원정',{ h:'left', b:true }); ws.mergeCells('E21:F23'); put('E21','(₩'+exWon(x.amount)+')',{ h:'left' });
       ws.mergeCells('B24:B25'); put('B24','증      빙'); ws.mergeCells('C24:F25'); put('C24', x.proof||'',{ h:'left' });
-      ws.mergeCells('B26:B31'); put('B26','비      고'); ws.mergeCells('C26:F31'); put('C26', [x.hospital?'사업장 : '+x.hospital:'', ...String(x.memo||'').split('\n')].filter(Boolean).join('\n'),{ h:'left', v:'top' });
+      ws.mergeCells('B26:B31'); put('B26','비      고'); ws.mergeCells('C26:F31'); put('C26', String(x.memo||'').split('\n').filter(Boolean).join('\n'),{ h:'left', v:'top' });
       const S=[['G8:G11','H8:H11','대\n표\n이\n사'],['G12:G15','H12:H15','전\n\n무'],['G16:G19','H16:H19','이\n\n사\n(경영)'],['G20:G23','H20:H23','이\n사\n(의료)'],['G24:G27','H24:H27','팀\n\n장'],['G28:G31','H28:H31','담\n\n당']];
       S.forEach(([g,h,t])=>{ ws.mergeCells(g); put(g.split(':')[0], t,{ sz:11, fill:true }); ws.mergeCells(h); put(h.split(':')[0], '',{ sz:10 }); });
       ws.mergeCells('B32:H34'); put('B32','위의 금액을 정히 (청구)하오니 지급하여 주십시오.',{ sz:11, fill:true });
@@ -6865,7 +6864,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       box(8,2,31,6,{ t:md, b:th, l:md, r:md }); box(8,7,31,8,{ t:md, l:md, r:md }); box(32,2,34,8,{ t:md, b:md, l:md, r:md, fill:true });
       const buf=await wb.xlsx.writeBuffer();
       const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([buf],{ type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
-      a.download='지출결의서_'+(x.no||'')+'_'+(x.hospital||'')+'.xlsx'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+      a.download='지출결의서_'+(x.hospital||'')+'_'+String(x.date||'').replace(/-/g,'')+'.xlsx'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
       toast('엑셀 양식으로 받았습니다.');
     }catch(err){ toast('엑셀을 만들지 못했습니다: '+String((err&&err.message)||err)); }
   }
@@ -6894,7 +6893,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       if(x.status==='승인' && adm) foot.push({label:'지급완료', onClick:()=>exStatus(x,'지급완료')});
     }
     const trail=[['작성', x.created||x.date, x.author], ['결재요청', x.reqAt, ''], [x.status==='반려'?'반려':'승인', x.apAt, x.approver], ['지급완료', x.paidAt, '']].filter(t=>t[1]);
-    xOpen({ title:(x.no||'저장 중')+' · '+x.title, sub:x.hospital+' · '+exCatLab(x.cat)+' · ₩ '+exWon(x.amount), wide:true, xl:true, enter:false,
+    xOpen({ title:'지출결의서 · '+x.title, sub:x.hospital+' · '+exCatLab(x.cat)+' · ₩ '+exWon(x.amount), wide:true, xl:true, enter:false,
       body:`<div class="ex-trail">${trail.map(t=>`<span><b>${esc(t[0])}</b> ${esc(v3Dot(t[1]))}${t[2]?' · '+esc(t[2]):''}</span>`).join('<i>›</i>')}<span class="x-pill ${EX_STC[x.status]||'ghost'}" style="margin-left:auto">${esc(x.status)}</span></div>`+
         `<style>${EXD_CSS.replace(/\.exf/g,'#xm-body .exf')}</style><div class="exf-wrap">${exDocHtml(x)}</div>`+
         `<div id="exd-rj" class="ex-rjbox" hidden><label class="x-lab" for="exd-rjt">반려 사유</label><input id="exd-rjt" class="x-input" maxlength="200" placeholder="예: 증빙 누락 — 카드전표를 첨부해 다시 요청하세요"></div>`,
