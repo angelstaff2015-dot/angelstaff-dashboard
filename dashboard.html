@@ -4444,6 +4444,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       });
     }catch(err){ xFail(err); }
   });
+  document.addEventListener('click', e=>{ if(e.target && e.target.id==='wf-join-x'){ const i=$('#wf-join'); if(i) i.value=i.dataset.sync||''; toast('저장하면 휴먼관리시스템 입사일로 돌아갑니다.'); } });
   document.addEventListener('click', e=>{ if(e.target && e.target.id==='wf-exp-x'){ const i=$('#wf-exp'); if(i) i.value=''; toast('저장하면 입사일 + 2년 자동 계산으로 돌아갑니다.'); } });
   $('#wk-hcards').addEventListener('click', e=>{ const b=e.target.closest('[data-wkh]'); if(!b) return; wkFilter.hosp=b.dataset.wkh; const c=DATA['v2wk']; if(c) renderWorkers(c.v); });
 
@@ -5281,9 +5282,10 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     xOpen({
       title: w.name+' · 근무자 정보', sub: (w.hospital||'병원 미지정')+(w.dept?' · '+w.dept:'')+' · 입사 '+(w.join||'–')+(w.expiry?' · 만료 '+w.expiry:''), wide:true,
       body:
-        h3Timeline(w)+`<div class="x-sub" style="margin:0 0 16px">이름·병원·부서·입사·계약종료일은 매일 아침 휴먼관리시스템에서 자동으로 맞춰집니다.</div>`+
+        h3Timeline(w)+`<div class="x-sub" style="margin:0 0 16px">이름·병원·부서·계약종료일은 매일 아침 휴먼관리시스템에서 자동으로 맞춰집니다. 입사일은 여기서 고치면 그 값이 계속 유지됩니다.</div>`+
         `<div class="x-form2">`+
-          `<div><label class="x-lab" for="wf-emp">고용형태</label><select id="wf-emp" class="x-select">${['파견','도급','일용'].map(x=>`<option ${w.emp===x?'selected':''}>${x}</option>`).join('')}</select></div>`+
+          `<div><label class="x-lab" for="wf-emp">고용형태</label><select id="wf-emp" class="x-select">${[...new Set(['파견','도급','위탁','일용'].concat(w.emp?[w.emp]:[]))].map(x=>`<option ${w.emp===x?'selected':''}>${esc(x)}</option>`).join('')}</select></div>`+
+          `<div><label class="x-lab" for="wf-join">입사일 <span class="x-mut">${w.joinManual?'(직접 지정 · 휴먼관리시스템: '+esc(w.joinSync||'없음')+')':'(휴먼관리시스템 값)'}</span></label><div style="display:flex;gap:6px"><input id="wf-join" type="date" class="x-input" value="${esc(w.join?v3Key(v3Date(w.join)):'')}" data-sync="${esc(w.joinSync?v3Key(v3Date(w.joinSync)):'')}">${w.joinManual?'<button type="button" class="x-btn" id="wf-join-x" title="휴먼관리시스템 입사일로 되돌리기">원래대로</button>':''}</div></div>`+
           `<div><label class="x-lab" for="wf-birth">생년월일</label><input id="wf-birth" type="date" class="x-input" value="${esc(w.birth||'')}"></div>`+
           `<div><label class="x-lab" for="wf-tel">연락처</label><input id="wf-tel" class="x-input" value="${esc(w.tel||'')}" placeholder="010-0000-0000"></div>`+
           `<div><label class="x-lab" for="wf-chk">건강검진 월</label><select id="wf-chk" class="x-select">${months}</select></div>`+
@@ -5301,12 +5303,13 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
               wkOptimistic(w, '재직', ()=>call('setWorkerActive',TOKEN,w.id), w.name+' 님을 재직으로 되돌렸습니다.'); }}] : []),
             {label:'저장', onClick: async(btn)=>{
               const att=$('#wf-att').value;
-              const patch={ '고용형태':$('#wf-emp').value, '생년월일':$('#wf-birth').value, '연락처':$('#wf-tel').value.trim(), '검진월':$('#wf-chk').value?Number($('#wf-chk').value):'', '근태이상':att===''?'':Number(att), '비고':$('#wf-memo').value.trim(), '만료일직접':$('#wf-exp').value||'', '파견법해제':$('#wf-exm').value==='Y'?'Y':'' };
-              const lv={ emp:patch['고용형태'], birth:patch['생년월일'], tel:patch['연락처'], checkup:patch['검진월'], attend:patch['근태이상'], memo:patch['비고'], expiryManual:patch['만료일직접'], exempt:patch['파견법해제']==='Y' };
-              const c=DATA['v2wk'], x=(c&&c.v&&c.v.list||[]).find(o=>String(o.id)===String(w.id))||w, F=['emp','birth','tel','checkup','attend','memo','expiryManual','exempt','expiry'];
+              const patch={ '고용형태':$('#wf-emp').value, '생년월일':$('#wf-birth').value, '연락처':$('#wf-tel').value.trim(), '검진월':$('#wf-chk').value?Number($('#wf-chk').value):'', '근태이상':att===''?'':Number(att), '비고':$('#wf-memo').value.trim(), '만료일직접':$('#wf-exp').value||'', '파견법해제':$('#wf-exm').value==='Y'?'Y':'', '입사일직접':(()=>{ const j=$('#wf-join'), v=j.value||''; return (!v || v===j.dataset.sync) ? '' : v; })() };
+              const jv=patch['입사일직접'];
+              const lv={ join:jv?v3Dot(jv):(w.joinSync||w.join), joinManual:jv?v3Dot(jv):'', emp:patch['고용형태'], birth:patch['생년월일'], tel:patch['연락처'], checkup:patch['검진월'], attend:patch['근태이상'], memo:patch['비고'], expiryManual:patch['만료일직접'], exempt:patch['파견법해제']==='Y' };
+              const c=DATA['v2wk'], x=(c&&c.v&&c.v.list||[]).find(o=>String(o.id)===String(w.id))||w, F=['emp','birth','tel','checkup','attend','memo','expiryManual','exempt','expiry','join','joinManual','expiryAuto'];
               const prev={}; F.forEach(k=>prev[k]=x[k]);
               bgSave({ key:'wk:'+w.id, label:w.name+' 님 정보 저장', okMsg:'저장했습니다.',
-                apply:()=>{ Object.assign(x, lv); x.expiry = lv.exempt ? '' : (lv.expiryManual || x.expiryAuto || (prev.expiryManual||prev.exempt ? '' : prev.expiry) || ''); if(c) renderWorkers(c.v); },
+                apply:()=>{ Object.assign(x, lv); { const j=v3Date(x.join); x.expiryAuto=(x.emp==='파견' && j) ? v3Dot(v3Key(v3Two(j))) : ''; } x.expiry = lv.exempt ? '' : (lv.expiryManual ? v3Dot(lv.expiryManual) : x.expiryAuto); if(c) renderWorkers(c.v); },
                 req:()=>call('updateWorker',TOKEN,w.id,patch),
                 done:()=>{ invalidate('v2rk','v2fc'); if(DATA['v2wk']) DATA['v2wk'].t=0; V2_LOAD.workers(); },
                 revert:()=>{ Object.assign(x, prev); const cc=DATA['v2wk']; if(cc) renderWorkers(cc.v); },
