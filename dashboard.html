@@ -6184,7 +6184,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
             if(uid){ await call('setAdminLimit', TOKEN, uid, wantLim); await V2_LOAD.users(true); }
           }
           if((r.newHospitals||[]).length){ try{ hospitalCache=null; invalidate('hosp'); }catch(_){} }
-          if(r.tempPassword) setTimeout(()=>usShowTemp(body.name, body.login, r.tempPassword, true), 50); else toast((r.newHospitals||[]).length?'저장했습니다. 새 병원 등록: '+r.newHospitals.join(', '):'저장했습니다.');
+          const ap=r.applied, apMsg=ap&&ap.hospitals?' 미지정 명단 바로 반영: '+ap.hospitals.join(', ')+' '+ap.total+'명(신규 '+ap.added+')':(ap&&ap.error?' 미지정 명단 반영 실패: '+ap.error:'');
+          if(ap&&ap.hospitals){ try{ invalidate('v2wk'); }catch(_){} }
+          if(r.tempPassword) setTimeout(()=>usShowTemp(body.name, body.login, r.tempPassword, true), 50); else toast(((r.newHospitals||[]).length?'저장했습니다. 새 병원 등록: '+r.newHospitals.join(', '):'저장했습니다.')+apMsg);
         }catch(e){ btn.disabled=false; btn.textContent=isNew?'계정 만들기':'저장'; xFail(e); return true; }
       } }]),
       onOpen:()=>{
@@ -6194,7 +6196,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         const hNorm=s=>String(s||'').replace(/\(.*?\)/g,'').replace(/\s/g,'').replace(/(병원|의원)$/,'');
         const hAdd=name=>{ name=String(name||'').replace(/,/g,' ').trim(); if(!name){ toast('병원 이름을 입력하세요.'); return; }
           const bx=[...document.querySelectorAll('[data-hx]')], hit=bx.find(x=>x.dataset.hx===name || (hNorm(x.dataset.hx) && hNorm(x.dataset.hx)===hNorm(name)));
-          if(hit){ hit.checked=true; toast((hit.dataset.hx)+' 병원을 선택했습니다.'); }
+          if(hit){ const was=hit.checked; hit.checked=true; toast((was?hit.dataset.hx+' — 이미 선택되어 있습니다.':hit.dataset.hx+' 병원을 선택했습니다.')+' [저장]을 누르면 반영됩니다.'); }
           else{ const lb=document.createElement('label'); lb.innerHTML=`<input type="checkbox" data-hx="${esc(name)}" checked>${esc(name)} <small style="color:var(--ink-3)">(새 병원)</small>`; $('#ue-hlist').appendChild(lb); toast(name+' — 저장하면 새 병원으로 등록됩니다.'); }
           const inp=$('#ue-hnew'); if(inp) inp.value=''; };
         $('#ue-hadd').onclick=()=>hAdd($('#ue-hnew').value);
