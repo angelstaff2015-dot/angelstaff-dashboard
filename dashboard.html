@@ -1418,6 +1418,9 @@
   .v5-checks label{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;color:var(--ink);margin:0;padding:7px 9px;border:1px solid var(--line-2);border-radius:8px;cursor:pointer}
   .v5-checks label:hover{background:var(--panel)}
   .v5-checks input{width:auto;margin:0}
+  .v5-checks .ue-hdel{margin-left:auto;border:0;background:none;color:var(--ink-3);font-size:15px;line-height:1;padding:0 2px;cursor:pointer;opacity:.55}
+  .v5-checks label:hover .ue-hdel{opacity:1}
+  .v5-checks .ue-hdel:hover{color:var(--danger,#C0392B)}
   .v5-checks .g{grid-column:1/-1;font-size:11.5px;font-weight:700;color:var(--ink-3);margin-top:6px}
   .v5-checks.dis label{opacity:.55;cursor:default}
   @media (max-width:640px){ .v5-checks{grid-template-columns:repeat(2,minmax(0,1fr))} .v5-form .v5-row{grid-template-columns:1fr} }
@@ -6147,7 +6150,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const isLim=!isNew && u.role==='관리자' && (d.limited||[]).indexOf(String(u.id))>=0;
     u=u||{ name:'', login:'', role:'담당자', active:true, folder:'', extra:[], menus:d.staffDefault.slice(), email:'' };
     const folders=d.folders.slice(); if(u.folder && folders.indexOf(u.folder)<0) folders.push(u.folder);
-    const hospOpts=d.hospitals.map(h=>`<label><input type="checkbox" data-hx="${esc(h.name)}" ${(u.extra||[]).some(x=>x===h.name||x===h.id)?'checked':''}>${esc(v5HospShort(h.name))}</label>`).join('');
+    const hospOpts=d.hospitals.map(h=>`<label title="${esc(h.name)}${h.n?' · 재직 '+h.n+'명':''}"><input type="checkbox" data-hx="${esc(h.name)}" ${(u.extra||[]).some(x=>x===h.name||x===h.id)?'checked':''}>${esc(v5HospShort(h.name))}<button type="button" class="ue-hdel" data-hdel="${esc(h.id)}" title="${esc(h.name)} 병원 삭제" aria-label="${esc(h.name)} 병원 삭제">×</button></label>`).join('');
     xOpen({ title:isNew?'계정 추가':u.name+' 계정 수정', sub:isNew?'저장하면 임시 비밀번호가 만들어집니다. 처음 로그인할 때 본인이 새 비밀번호를 정합니다.':'담당 병원은 공유자료실 폴더 기준이며, 아래에서 추가 병원을 더할 수 있습니다.', wide:true,
       body:`<div class="v5-form">
         <div class="v5-row"><div class="f"><label>이름</label><input id="ue-name" value="${esc(u.name)}" maxlength="20" placeholder="예: 홍길동"></div>
@@ -6197,6 +6200,26 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         $('#ue-hadd').onclick=()=>hAdd($('#ue-hnew').value);
         $('#ue-hnew').onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); const t=e.target; setTimeout(()=>{ if(t.value.trim()) hAdd(t.value); },0); } };   // 엔터 = 병원 추가 (창 저장 아님, 한글 조합 끝난 뒤 읽음)
         document.querySelectorAll('[data-hq]').forEach(b=>{ b.onclick=()=>{ hAdd(b.dataset.hq); b.remove(); }; });
+        $('#ue-hlist').addEventListener('click', async e=>{   // v6.22 병원 삭제 (병원 마스터에서 지움)
+          const x=e.target.closest('[data-hdel]'); if(!x) return;
+          e.preventDefault(); e.stopPropagation();
+          const h=(d.hospitals||[]).find(v=>String(v.id)===x.dataset.hdel); if(!h) return;
+          const who=(d.list||[]).filter(v=>(v.hospitals||[]).indexOf(h.name)>=0).map(v=>v.name);
+          const msg=h.name+' 병원을 병원 마스터에서 삭제합니다. 모든 계정의 담당 병원에서 빠지고, 다음 근무자 동기화부터 이 병원은 반영되지 않습니다.'
+            +(h.n?' 현재 재직 '+h.n+'명은 지워지지 않고 관리자 화면에만 남습니다.':'')
+            +(who.length?' 담당 중인 계정: '+who.join(', ')+'.':'')
+            +(h.drive?' 공유자료실 폴더가 있어도 다시 자동 등록되지 않습니다.':'')+' 계정 화면에서 같은 이름을 다시 추가하면 되살릴 수 있습니다.';
+          if(!await xAsk(h.name+' 병원을 삭제할까요?', msg, '삭제')) return;
+          x.disabled=true;
+          try{
+            const r=await call('deleteHospitalAdmin', TOKEN, h.id);
+            d.hospitals=d.hospitals.filter(v=>String(v.id)!==String(h.id));
+            const lb=x.closest('label'); if(lb) lb.remove();
+            try{ hospitalCache=null; invalidate('hosp'); }catch(_){}
+            toast(r.name+' 병원을 삭제했습니다.'+(r.workers?' (재직 '+r.workers+'명은 남아 있음)':''));
+            V2_LOAD.users(true);
+          }catch(err){ x.disabled=false; xFail(err); }
+        });
         $('#ue-def').onclick=()=>{ const adm=$('#ue-role').value!=='담당자'; $('#ue-mwrap').innerHTML=usMenusHtml(d, adm?d.views.map(v=>v.id):d.staffDefault, adm); };
         setTimeout(()=>$('#ue-name').focus(),30);
       } });
