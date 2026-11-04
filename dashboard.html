@@ -6119,8 +6119,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   };
   function renderUsers(){
     const d=usData; if(!d) return;
-    const ua=d.syncUnassigned, uaN=ua&&ua.names?Object.keys(ua.names):[];
-    $('#us-list').innerHTML=(uaN.length?`<div class="v5-alert" style="margin-bottom:12px"><b>담당자 미지정 병원 ${uaN.length}곳</b>&nbsp;— 최근 근무자 동기화(${esc(ua.at||'')})에서 어느 계정에도 부여되지 않아 반영되지 않았습니다: ${uaN.map(n=>esc(n)+' '+ua.names[n]+'명').join(', ')}. 담당자 계정 [수정 → 담당 병원 추가]에서 부여하면 다음 동기화부터 그 담당자에게 배정됩니다.</div>`:'')+`<div class="v5-ul">${d.list.map(u=>{
+    const ua=d.syncUnassigned, uaN=ua&&ua.names?Object.keys(ua.names):[], uaA=ua&&ua.assigned?Object.keys(ua.assigned):[];
+    $('#us-list').innerHTML=(uaN.length?`<div class="v5-alert" style="margin-bottom:12px"><b>담당자 미지정 병원 ${uaN.length}곳</b>&nbsp;— 최근 근무자 동기화(${esc(ua.at||'')})에서 어느 계정에도 부여되지 않았습니다: ${uaN.map(n=>esc(n)+' '+ua.names[n]+'명').join(', ')}. 담당자 계정 [수정]에서 병원 버튼을 누르면 그 담당자에게 배정·저장됩니다.</div>`:'')
+      +(uaA.length?`<div class="v5-alert g" style="margin-bottom:12px"><b>배정 완료 · 명단 반영 대기</b>&nbsp;— ${uaA.map(n=>esc(n)+' '+ua.assigned[n].n+'명 → '+esc(ua.assigned[n].users.join('·'))).join(', ')}. 다음 근무자 동기화(실행파일 또는 매일 08:30) 때 근무자로 들어옵니다.</div>`:'')+`<div class="v5-ul">${d.list.map(u=>{
       const adm=u.role==='관리자', lim=adm && (d.limited||[]).indexOf(String(u.id))>=0;
       const tags=adm?(lim?'<span>모든 사업장 자료</span><span class="x">계정·권한 제외</span>':'<span>모든 메뉴</span>'):u.menus.map(m=>{ const v=d.views.find(x=>x.id===m); return v?`<span>${esc(v.t)}</span>`:''; }).join('');
       return `<div class="v5-ur ${u.active?'':'off'}"><div class="p"><div class="av ${adm?'adm':''}">${esc(v5Ini(u.name))}</div><div><b>${esc(u.name)}<span class="v5-badge ${adm?'adm':''}">${esc(lim?'관리자 · 사업장 전용':u.role)}</span>${u.active?'':'<span class="v5-badge r">중지</span>'}${u.locked?'<span class="v5-badge r">잠김</span>':''}${u.mustChange&&u.active?'<span class="v5-badge a">첫 로그인 전</span>':''}</b><small>${esc(u.login?'아이디 '+u.login:'아이디 없음 — 이름으로 로그인')} · 폴더 ${esc(u.folder||'-')}</small></div></div>
@@ -6145,6 +6146,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     d.views.filter(v=>!v.admin).forEach(v=>{ if(v.g!==g){ g=v.g; out+=`<div class="g">${esc(g)}</div>`; } out+=`<label><input type="checkbox" data-mn="${esc(v.id)}" ${sel.indexOf(v.id)>=0?'checked':''} ${dis?'disabled':''}>${esc(v.t)}</label>`; });
     return `<div class="v5-checks ${dis?'dis':''}" id="ue-menus">${out}</div>`;
   }
+  let usHqSaved=false;
   function usEdit(u){
     const d=usData, isNew=!u;
     const isLim=!isNew && u.role==='관리자' && (d.limited||[]).indexOf(String(u.id))>=0;
@@ -6162,7 +6164,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         <div class="v5-checks" id="ue-hlist">${hospOpts}</div>
         <div class="v5-row" style="margin-top:8px"><div class="f"><label>병원 추가 <span style="font-weight:500;color:var(--ink-3)">목록에 없는 병원 — 휴먼관리시스템 거래처명 그대로</span></label><input id="ue-hnew" data-ownenter="1" maxlength="40" placeholder="예: 린텍스"></div>
           <div class="f" style="display:flex;align-items:flex-end;max-width:120px"><button class="btn-sm" type="button" id="ue-hadd">추가</button></div></div>
-        ${(()=>{ const ua=d.syncUnassigned, n=ua&&ua.names?Object.keys(ua.names):[]; return n.length?`<div class="hint">최근 동기화 담당자 미지정: ${n.map(x=>`<button type="button" class="btn-sm" data-hq="${esc(x)}" style="margin:2px 4px 2px 0">+ ${esc(x)} (${ua.names[x]}명)</button>`).join('')}</div>`:''; })()}
+        ${(()=>{ const ua=d.syncUnassigned, n=ua&&ua.names?Object.keys(ua.names):[], a=ua&&ua.assigned?Object.keys(ua.assigned):[];
+          return (n.length?`<div class="hint">최근 동기화 담당자 미지정 — 누르면 이 계정에 배정하고 바로 저장합니다: ${n.map(x=>`<button type="button" class="btn-sm" data-hq="${esc(x)}" style="margin:2px 4px 2px 0">+ ${esc(x)} (${ua.names[x]}명)</button>`).join('')}</div>`:'')
+            +(a.length?`<div class="hint">배정 완료 · 다음 동기화 때 반영: ${a.map(x=>esc(x)+' '+ua.assigned[x].n+'명 → '+esc(ua.assigned[x].users.join('·'))).join(', ')}</div>`:''); })()}
         <div class="hint">저장하면 목록에 없던 병원은 병원 마스터에 자동 등록되고, 이 계정의 담당 병원이 됩니다.</div>
         <div class="sec">메뉴 권한 <button type="button" id="ue-def">기본값으로</button></div>
         <div id="ue-mwrap">${usMenusHtml(d, u.role==='관리자'?d.views.map(v=>v.id):u.menus, u.role==='관리자')}</div>
@@ -6184,7 +6188,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
             if(uid){ await call('setAdminLimit', TOKEN, uid, wantLim); await V2_LOAD.users(true); }
           }
           if((r.newHospitals||[]).length){ try{ hospitalCache=null; invalidate('hosp'); }catch(_){} }
-          const ap=r.applied, apMsg=ap&&ap.hospitals?' 미지정 명단 바로 반영: '+ap.hospitals.join(', ')+' '+ap.total+'명(신규 '+ap.added+')':(ap&&ap.error?' 미지정 명단 반영 실패: '+ap.error:'');
+          const ap=r.applied, apMsg=ap&&ap.hospitals?' 미지정 명단 바로 반영: '+ap.hospitals.join(', ')+' '+ap.total+'명(신규 '+ap.added+')':(ap&&ap.error?' 미지정 명단 반영 실패: '+ap.error:(usHqSaved?' 배정했습니다. 명단은 다음 근무자 동기화 때 이 담당자에게 들어옵니다.':''));
+          usHqSaved=false;
           if(ap&&ap.hospitals){ try{ invalidate('v2wk'); }catch(_){} }
           if(r.tempPassword) setTimeout(()=>usShowTemp(body.name, body.login, r.tempPassword, true), 50); else toast(((r.newHospitals||[]).length?'저장했습니다. 새 병원 등록: '+r.newHospitals.join(', '):'저장했습니다.')+apMsg);
         }catch(e){ btn.disabled=false; btn.textContent=isNew?'계정 만들기':'저장'; xFail(e); return true; }
@@ -6201,7 +6206,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
           const inp=$('#ue-hnew'); if(inp) inp.value=''; };
         $('#ue-hadd').onclick=()=>hAdd($('#ue-hnew').value);
         $('#ue-hnew').onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); const t=e.target; setTimeout(()=>{ if(t.value.trim()) hAdd(t.value); },0); } };   // 엔터 = 병원 추가 (창 저장 아님, 한글 조합 끝난 뒤 읽음)
-        document.querySelectorAll('[data-hq]').forEach(b=>{ b.onclick=()=>{ hAdd(b.dataset.hq); b.remove(); }; });
+        document.querySelectorAll('[data-hq]').forEach(b=>{ b.onclick=()=>{ hAdd(b.dataset.hq); b.remove(); usHqSaved=true;   // v6.24 미지정 병원 버튼 = 배정 + 바로 저장
+          const sv=[...document.querySelectorAll('#xm-foot button, .m-foot button')].find(x=>x.offsetParent!==null && !x.disabled && /^(저장|계정 만들기)$/.test(x.textContent.trim())); if(sv) sv.click(); }; });
         $('#ue-hlist').addEventListener('click', async e=>{   // v6.22 병원 삭제 (병원 마스터에서 지움)
           const x=e.target.closest('[data-hdel]'); if(!x) return;
           e.preventDefault(); e.stopPropagation();
