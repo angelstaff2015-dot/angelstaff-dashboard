@@ -4686,9 +4686,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
 
   /* ── 만족도 조사: 설문 링크(survey.html?h=) 카드 + 설문 종류별 결과 ── */
   const SV3_LINKS=[ ['강동성심병원','gd'], ['강남하트스캔의원','gn'], ['의정부성모병원','uj'] ];
-  const SV3_BASE='https://angel-staff.github.io/angelstaff-dashboard/survey.html?h=';
+  const SV3_BASE='https://angelstaff2015-dot.github.io/angelstaff-dashboard/survey.html?h=';
   let sv3Type='';
-  const SV3_BASE_HN='https://angel-staff.github.io/angelstaff-dashboard/survey.html?hn=';
+  const SV3_BASE_HN='https://angelstaff2015-dot.github.io/angelstaff-dashboard/survey.html?hn=';
   const svClean=x=>String(x||'').replace(/[^\uAC00-\uD7A3A-Za-z0-9 ()·\-]/g,'').replace(/\s+/g,' ').trim().slice(0,30);
   /* 병원 이름 → 설문 링크 (기존 3곳은 짧은 코드, 그 밖은 ?hn=이름) */
   function svUrl(name, type){
