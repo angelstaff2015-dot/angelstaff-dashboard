@@ -262,6 +262,8 @@
   .lv-sheet td.note{white-space:normal;min-width:110px;max-width:180px;text-align:left;color:var(--ink-3);font-size:11.5px}
   .lv-sheet td.z{background:#FFFDF4;font-weight:600}.lv-sheet td.z small{display:block;font-size:10.5px;color:var(--trace-ink)}
   .lv-sheet td.left{font-size:14px;font-weight:800}
+  .lv-sheet tr.lv-qsep td{text-align:left;background:var(--panel);color:var(--ink-2);font-weight:700;font-size:12.5px;padding:10px 14px;border-top:2px solid var(--line)}
+  .lv-sheet tr.lv-qsep td span{margin-left:10px;font-weight:500;font-size:11.5px;color:var(--ink-3)}
   .lv-sheet td.left.warn{color:var(--trace-ink);background:#FFF4CC}.lv-sheet td.left.bad{color:var(--danger);background:var(--danger-bg)}
   .lv-sheet tr.quit td{color:var(--ink-3)}.lv-sheet tr.quit td.nm .x-link{color:var(--ink-3)}
   .lv-sheet td:first-child,.lv-sheet th:first-child{border-left:1px solid var(--line-2)}
@@ -6503,7 +6505,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     $('#lv-ylab').textContent=y+'년'; $('#lv-ynext').disabled=y>=now.getFullYear()+1;
     const all=lvRows(), tabs=LV.tabs||[];
     if(tabs.length && LV.tab!=='*' && !tabs.some(t=>lvTabKey(t)===LV.tab)) LV.tab=lvTabKey(tabs[0]);
-    $('#lv-htabs').innerHTML=tabs.map(t=>{ const k=lvTabKey(t), n=all.filter(x=>lvMatch(x,t)).length;
+    $('#lv-htabs').innerHTML=tabs.map(t=>{ const k=lvTabKey(t), n=all.filter(x=>lvMatch(x,t) && x.w.status==='재직').length;   // 탭 숫자 = 재직 인원
         return `<span class="lv-ht ${k===LV.tab?'on':''}" data-lvt="${esc(k)}" role="button" tabindex="0">${esc(lvTabLab(t))}<span>${n}</span><button type="button" class="lv-hx" data-lvx="${esc(k)}" aria-label="${esc(lvTabLab(t))} 탭 빼기">✕</button></span>`; }).join('')+
       (tabs.length>1?`<span class="lv-ht ${LV.tab==='*'?'on':''}" data-lvt="*" role="button" tabindex="0">모아 보기<span>${tabs.length}</span></span>`:'')+
       `<button type="button" class="lv-hadd" id="lv-hadd">＋ 대장 추가</button>`;
@@ -6521,8 +6523,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const M=[...Array(12)].map((_,i)=>i);
     $('#lv-book').innerHTML=shown.map(t=>{
       const base=all.filter(x=>lvMatch(x,t)), rows=filt(base).sort((a,b)=>String(a.w.dept||'').localeCompare(String(b.w.dept||''),'ko') || String(a.w.join||'').localeCompare(String(b.w.join||'')) || String(a.w.name).localeCompare(String(b.w.name),'ko'));
-      const sum={ acc:0, tot:0, left:0 }; base.forEach(({r})=>{ if(r.acc!=null){ sum.acc+=r.acc+r.adj; sum.tot+=r.tot; sum.left+=r.left; } });
-      const body=rows.map(({w,r},i)=>{
+      const baseAct=base.filter(x=>x.w.status==='재직'), baseQuit=base.length-baseAct.length;   // v6.26 퇴사자는 총원·합계에서 빼고 표 아래에 따로
+      const sum={ acc:0, tot:0, left:0 }; baseAct.forEach(({r})=>{ if(r.acc!=null){ sum.acc+=r.acc+r.adj; sum.tot+=r.tot; sum.left+=r.left; } });
+      const rowHtml=({w,r},i)=>{
         const quit=w.status!=='재직', lc=r.left==null?'':(r.left<0?'bad':(r.left<=3?'warn':''));
         const note=[r.adj?'조정 '+(r.adj>0?'+':'')+lvNum(r.adj)+'일':'', ...r.mine.filter(x=>x.memo).slice(-1).map(x=>x.memo)].filter(Boolean).join(' · ');
         const mc=(k,arr,days)=>M.map(i=>`<td class="m ${i===curMo?'cur':''} ${arr[i]?'v':''}" data-lvc="${esc(w.id)}|${i}|${k}" title="${arr[i]?esc((days[i]||[]).join(', ')+'일'):''}">${lvCell(arr[i])}</td>`).join('');
@@ -6530,8 +6533,11 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
           `<td class="k">연차</td>${mc('연차',r.m.a,r.m.ad)}<td class="s x-num">${lvCell(r.ua)}</td><td rowspan="2" class="note">${esc(note)}</td>`+
           `<td rowspan="2" class="z x-num">${r.ten==null?'–':r.ten.toFixed(1)}</td><td rowspan="2" class="z x-num">${r.acc==null?'–':lvNum(r.acc)+(r.adj?`<small>${r.adj>0?'+':''}${lvNum(r.adj)}</small>`:'')}</td><td rowspan="2" class="z x-num">${lvNum(r.ua)}</td><td rowspan="2" class="z x-num">${lvNum(r.uh)}</td><td rowspan="2" class="z x-num">${lvNum(r.tot)}</td><td rowspan="2" class="z x-num left ${lc}">${r.left==null?'–':lvNum(r.left)}</td></tr>`+
           `<tr class="b ${quit?'quit':''}"><td class="k">반차</td>${mc('반차',r.m.h,r.m.hd)}<td class="s x-num">${lvCell(r.uh)}</td></tr>`;
-      }).join('') || `<tr><td colspan="26" class="x-empty" style="text-align:left;padding:20px 14px">${base.length?'조건에 맞는 근무자가 없습니다.':y+'년 이 대장에 해당하는 근무자가 없습니다.'}</td></tr>`;
-      return `<section class="lv-led"><div class="lv-lh"><div><h2>${y}년 ${esc(t.h)}${t.e?' '+esc(t.e):''} 연차관리대장</h2><span>총원 <b>${base.length}</b>명 · 기준일 ${esc(v3Dot(ref))}${y===now.getFullYear()?' (오늘)':''}</span></div>`+
+      };
+      const rAct=rows.filter(x=>x.w.status==='재직'), rQuit=rows.filter(x=>x.w.status!=='재직');
+      const body=(rAct.map(rowHtml).join('')
+        + (rQuit.length?`<tr class="lv-qsep"><td colspan="26">퇴사자 ${rQuit.length}명<span>${y}년 퇴사 · 총원과 발생·사용·잔여 합계에서 제외</span></td></tr>`+rQuit.map(rowHtml).join(''):'')) || `<tr><td colspan="26" class="x-empty" style="text-align:left;padding:20px 14px">${base.length?'조건에 맞는 근무자가 없습니다.':y+'년 이 대장에 해당하는 근무자가 없습니다.'}</td></tr>`;
+      return `<section class="lv-led"><div class="lv-lh"><div><h2>${y}년 ${esc(t.h)}${t.e?' '+esc(t.e):''} 연차관리대장</h2><span>총원 <b>${baseAct.length}</b>명${baseQuit?' · 퇴사 '+baseQuit+'명 별도':''} · 기준일 ${esc(v3Dot(ref))}${y===now.getFullYear()?' (오늘)':''}</span></div>`+
         `<div class="lv-ls"><span>발생 <b>${lvNum(sum.acc)}</b></span><span>사용 <b>${lvNum(sum.tot)}</b></span><span>잔여 <b>${lvNum(sum.left)}</b></span></div></div>`+
         `<div class="tbl-scroll"><table class="lv-sheet"><thead><tr><th rowspan="2" class="c">순번</th><th rowspan="2">성명</th><th rowspan="2">부서</th><th rowspan="2">입사일자</th><th rowspan="2">퇴사일자</th><th rowspan="2">구분</th><th colspan="12" class="yr">${y}</th><th rowspan="2">사용<br>일수</th><th rowspan="2">비고</th><th colspan="6" class="auto">연차 발생 / 사용 현황 (자동계산)</th></tr>`+
         `<tr>${M.map(i=>`<th class="m ${i===curMo?'cur':''}">${i+1}월</th>`).join('')}<th class="z">근속연수</th><th class="z">발생 연차</th><th class="z">사용 연차</th><th class="z">사용 반차</th><th class="z">총 사용</th><th class="z">잔여 연차</th></tr></thead><tbody>${body}</tbody></table></div></section>`;
@@ -6646,7 +6652,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         const W={A:6.4,B:9.4,C:11.4,D:12.1,E:11,F:6.4,S:8,T:20,U:2,V:10,W:10,X:10,Y:10,Z:10,AA:11}; 'GHIJKLMNOPQR'.split('').forEach(c=>W[c]=5.6);
         Object.keys(W).forEach(c=>ws.getColumn(c).width=W[c]);
         const st=(cell,o)=>{ const c=ws.getCell(cell); Object.assign(c, o.v!==undefined?{value:o.v}:{}); c.font={ name:F, size:o.sz||10, bold:!!o.b, color:o.fc?{argb:o.fc}:undefined }; c.alignment={ horizontal:o.h||'center', vertical:'middle', wrapText:!!o.wrap }; if(o.fill) c.fill=fill(o.fill); if(o.nf) c.numFmt=o.nf; c.border={ top:thin, left:thin, bottom:thin, right:thin }; return c; };
-        const rows=groups[gkey].sort((a,b)=>String(a.w.dept||'').localeCompare(String(b.w.dept||''),'ko') || String(a.w.join||'').localeCompare(String(b.w.join||'')) || String(a.w.name).localeCompare(String(b.w.name),'ko'));
+        const srt=(a,b)=>String(a.w.dept||'').localeCompare(String(b.w.dept||''),'ko') || String(a.w.join||'').localeCompare(String(b.w.join||'')) || String(a.w.name).localeCompare(String(b.w.name),'ko');
+        const rows=groups[gkey].filter(x=>x.w.status==='재직').sort(srt).concat(groups[gkey].filter(x=>x.w.status!=='재직').sort(srt));   // v6.26 퇴사자는 맨 아래, 순번 칸 '퇴사'(총원 COUNT 제외)
         const last=4+rows.length*2;
         ws.mergeCells('A1:T1'); st('A1',{ v:h+' 연차관리대장', b:true, sz:16, fill:'FFFFF200' }); ws.getRow(1).height=30;
         st('A2',{ v:'총원', b:true, fill:'FFF4F2EC' }); ws.mergeCells('B2:G2'); st('B2',{ v:'' });
@@ -6662,7 +6669,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         rows.forEach(({w,r},i)=>{
           const a=5+i*2, b=a+1;
           ['A','B','C','D','E','T','V','W','X','Y','Z','AA'].forEach(c=>ws.mergeCells(c+a+':'+c+b));
-          st('A'+a,{ v:{ formula:'MAX($A$4:A'+(a-1)+')+1', result:i+1 } });
+          const qt=w.status!=='재직';
+          st('A'+a, qt ? { v:'퇴사', fc:'FF8C887F' } : { v:{ formula:'MAX($A$4:A'+(a-1)+')+1', result:i+1 } });
           st('B'+a,{ v:w.name, b:true }); st('C'+a,{ v:w.dept||'' });
           const J=v3Date(w.join), Lv=w.status!=='재직'?v3Date(w.left):null;
           st('D'+a,{ v:J?new Date(Date.UTC(J.getFullYear(),J.getMonth(),J.getDate())):'', nf:'yyyy-mm-dd' });
@@ -6671,7 +6679,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
           'GHIJKLMNOPQR'.split('').forEach((c,mi)=>{ st(c+a,{ v:r.m.a[mi]||null, nf:'0.##' }); st(c+b,{ v:r.m.h[mi]||null, nf:'0.##' }); });
           st('S'+a,{ v:{ formula:'SUM(G'+a+':R'+a+')', result:r.ua }, b:true }); st('S'+b,{ v:{ formula:'SUM(G'+b+':R'+b+')', result:r.uh }, b:true });
           const note=[r.adj?'조정 '+(r.adj>0?'+':'')+lvNum(r.adj)+'일':'', ...r.mine.filter(x=>x.memo).slice(-1).map(x=>x.memo)].filter(Boolean).join(' · ');
-          st('T'+a,{ v:note, h:'left', wrap:true });
+          st('T'+a,{ v:qt?['퇴사자 · 총원 제외', note].filter(Boolean).join(' · '):note, h:'left', wrap:true });
+          if(qt) ['B','C','D','E'].forEach(c=>{ const x=ws.getCell(c+a); x.font=Object.assign({}, x.font, { color:{argb:'FF8C887F'} }); });
           const adj=r.adj?(r.adj>0?'+':'')+r.adj:'';
           st('V'+a,{ v:{ formula:'IF($B'+a+'="","",ROUND(YEARFRAC($D'+a+',$W$3,1),1))' }, nf:'0.0' });
           st('W'+a,{ v:{ formula:'IF($B'+a+'="","",IF(DATEDIF($D'+a+',$W$3,"y")<1,MIN(11,DATEDIF($D'+a+',$W$3,"m")),MIN(25,15+INT((DATEDIF($D'+a+',$W$3,"y")-1)/2)))'+adj+')' }, nf:'0.##' });
