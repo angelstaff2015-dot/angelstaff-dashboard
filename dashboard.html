@@ -271,6 +271,10 @@
   .lv-sms-it{display:grid;grid-template-columns:24px 1.2fr 1fr 90px auto;gap:10px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line-2);font-size:13px}
   .lv-sms-it:last-child{border-bottom:0}.lv-sms-it small{color:var(--ink-3)}.lv-sms-it .rem{font-weight:800;text-align:right}.lv-sms-it .rem.bad{color:var(--danger)}
   .lv-sms-it .acts{display:flex;gap:6px}.lv-sms-it.off{opacity:.45}
+  .lv-sms-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 10px;padding:12px 14px;border-radius:10px;background:#EEF2F9;border:1px solid #C9D3E6;font-size:13px}
+  .lv-sms-bulk b{font-size:14px}.lv-sms-bulk .grow{flex:1;min-width:200px}.lv-sms-bulk .bar{height:6px;border-radius:3px;background:#fff;overflow:hidden;margin-top:6px}.lv-sms-bulk .bar i{display:block;height:100%;background:#1E2761}
+  .lv-sms-it .sent{font-size:11px;font-weight:700;color:#1F7A4D;background:#E9F8EF;border-radius:999px;padding:2px 8px;white-space:nowrap}
+  .lv-sms-it.cur{background:#FFF8DB}
   .lv-sms-pv{grid-column:2/-1;white-space:pre-wrap;background:var(--panel);border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.6;color:var(--ink)}
   @media (max-width:720px){ .lv-sms-top{grid-template-columns:1fr} .lv-sms-it{grid-template-columns:24px 1fr 70px;} .lv-sms-it .ph,.lv-sms-it .acts{grid-column:2/-1} }
   .lv-sheet tr.lv-qsep td{text-align:left;background:var(--panel);color:var(--ink-2);font-weight:700;font-size:12.5px;padding:10px 14px;border-top:2px solid var(--line)}
@@ -6689,7 +6693,8 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
     const ref=lvRefFor(y), me=(ME&&ME.user&&ME.user.name)||'';
     let tpl=lvSmsLs('tpl')||LV_SMS_DEF, sender=lvSmsLs('sender')||me, stel=lvSmsLs('tel')||'';
     const sel=new Set(rows.filter(x=>lvTel(x.w.tel)).map(x=>String(x.w.id)));
-    const open={};
+    const open={}, api={}, todayK='sent_'+lvToday();
+    const sent=new Set((()=>{ try{ return JSON.parse(lvSmsLs(todayK)||'[]'); }catch(_){ return []; } })());   // 오늘 이 PC에서 문자 창을 연 사람
     xOpen({ title:'연차 안내 문자', xl:true, wide:true, enter:false,
       sub:y+'년 대장 · '+rows.length+'명 (퇴사·퇴사대기 제외) · 기준일 '+v3Dot(ref)+' — 문구는 사람마다 잔여 연차가 자동으로 들어갑니다. 발송은 [문자] 또는 엑셀(대량 발송용)로 직접 하세요.',
       body:`<div class="lv-sms-top"><div><label class="x-lab" for="ls-tpl">문구</label><textarea id="ls-tpl">${esc(tpl)}</textarea><div class="lv-sms-vars" id="ls-bytes"></div></div>`+
@@ -6698,7 +6703,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         `<div class="lv-sms-vars" style="margin-top:12px">넣을 수 있는 항목 (누르면 커서 위치에 들어감)<br>${['이름','병원','부서','기준일','발생','사용','잔여','담당자','담당자연락처'].map(k=>`<code data-lsv="${k}">{${k}}</code>`).join(' ')}</div>`+
         `<button type="button" class="btn-sm ghost" id="ls-reset" style="margin-top:12px">기본 문구로</button></div></div>`+
         `<div class="lv-sms-bar"><label><input type="checkbox" id="ls-all"> 전체 선택</label><span id="ls-cnt"></span><span style="flex:1"></span><span class="x-mut">연락처 없는 사람은 선택되지 않습니다</span></div>`+
-        `<div class="lv-sms-list" id="ls-list"></div>`,
+        `<div class="lv-sms-bulk" id="ls-bulk" hidden></div><div class="lv-sms-list" id="ls-list"></div>`,
       onOpen:(el)=>{
         const T=el.querySelector('#ls-tpl'), S=el.querySelector('#ls-snd'), P=el.querySelector('#ls-tel'), L=el.querySelector('#ls-list');
         const cur=()=>({ tpl:T.value, sender:S.value.trim(), stel:P.value.trim() });
@@ -6707,13 +6712,40 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
           const ex=rows[0] ? lvSmsText(c.tpl, rows[0], ref, c.sender, c.stel) : '', b=lvBytes(ex);
           el.querySelector('#ls-bytes').innerHTML=`예시(${esc(rows[0].w.name)}) ${b}바이트 · ${b>90?'장문(LMS)':'단문(SMS)'}${b>2000?' — <b style="color:var(--danger)">2,000바이트 초과, 줄여 주세요</b>':''}${/\{담당자연락처\}/.test(c.tpl)&&!c.stel?' · <b style="color:var(--danger)">담당자 연락처를 입력하세요</b>':''}`;
           L.innerHTML=rows.map(x=>{ const id=String(x.w.id), tel=lvTel(x.w.tel), on=sel.has(id), lc=x.r.left<0?'bad':'';
-            return `<div class="lv-sms-it ${tel?'':'off'}"><input type="checkbox" data-lss="${esc(id)}" ${on?'checked':''} ${tel?'':'disabled'} aria-label="${esc(x.w.name)} 선택">`+
+            return `<div class="lv-sms-it ${tel?'':'off'} ${B&&B.q[B.i]===id?'cur':''}" data-lsrow="${esc(id)}"><input type="checkbox" data-lss="${esc(id)}" ${on?'checked':''} ${tel?'':'disabled'} aria-label="${esc(x.w.name)} 선택">`+
               `<div><b>${esc(x.w.name)}</b> <small>${esc(x.w.hospital||'')}${x.w.dept?' · '+esc(x.w.dept):''}</small></div><div class="ph x-num">${tel?esc(x.w.tel):'<small>연락처 없음</small>'}</div>`+
-              `<div class="rem x-num ${lc}">잔여 ${lvNum(x.r.left)}일</div><div class="acts"><button type="button" class="btn-sm ghost" data-lsp="${esc(id)}">${open[id]?'접기':'미리보기'}</button><button type="button" class="btn-sm ghost" data-lsc="${esc(id)}">복사</button>${tel?`<a class="btn-sm" href="sms:${tel}?body=${encodeURIComponent(lvSmsText(c.tpl,x,ref,c.sender,c.stel))}" data-lso="${esc(id)}">문자</a>`:''}</div>`+
+              `<div class="rem x-num ${lc}">${sent.has(id)?'<span class="sent">✓ 오늘 보냄</span> ':''}잔여 ${lvNum(x.r.left)}일</div><div class="acts"><button type="button" class="btn-sm ghost" data-lsp="${esc(id)}">${open[id]?'접기':'미리보기'}</button><button type="button" class="btn-sm ghost" data-lsc="${esc(id)}">복사</button>${tel?`<a class="btn-sm" href="sms:${tel}?body=${encodeURIComponent(lvSmsText(c.tpl,x,ref,c.sender,c.stel))}" data-lso="${esc(id)}">문자</a>`:''}</div>`+
               (open[id]?`<div class="lv-sms-pv">${esc(lvSmsText(c.tpl,x,ref,c.sender,c.stel))}</div>`:'')+`</div>`; }).join('');
           el.querySelector('#ls-cnt').textContent='선택 '+sel.size+'명 / '+rows.length+'명';
           el.querySelector('#ls-all').checked=sel.size && rows.every(x=>!lvTel(x.w.tel) || sel.has(String(x.w.id)));
         };
+        /* 일괄 발송: 선택한 사람의 문자 창(휴대폰과 연결)을 한 명씩 차례로 연다 — 앱에서 [보내기]를 누른 뒤 [다음]
+           (문자 앱은 사이트가 대신 '보내기'를 누를 수 없어 한 명씩 확인하는 방식) */
+        let B=null;
+        const markSent=id=>{ sent.add(id); lvSmsLs(todayK, JSON.stringify([...sent])); };
+        const openSms=x=>{ const c=cur(), a=document.createElement('a'); a.href='sms:'+lvTel(x.w.tel)+'?body='+encodeURIComponent(lvSmsText(c.tpl,x,ref,c.sender,c.stel)); a.style.display='none'; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),500); };
+        const bulkDraw=()=>{ const box=el.querySelector('#ls-bulk');
+          if(!B){ box.hidden=true; box.innerHTML=''; draw(); return; }
+          box.hidden=false;
+          if(B.i>=B.q.length){ box.innerHTML=`<div class="grow"><b>일괄 발송 완료</b> · ${B.done}명 문자 창을 열었습니다${B.skip?' · 건너뜀 '+B.skip+'명':''}. 휴대폰과 연결 앱의 보낸 메시지에서 발송 여부를 확인하세요.</div><button type="button" class="btn-sm" data-lsb="close">닫기</button>`; draw(); return; }
+          const x=rows.find(v=>String(v.w.id)===B.q[B.i]);
+          box.innerHTML=`<div class="grow"><b>${B.i+1} / ${B.q.length} · ${esc(x.w.name)}</b> <span class="x-mut">${esc(x.w.tel)} · 잔여 ${lvNum(x.r.left)}일</span><br>휴대폰과 연결 앱에 문자 창이 열렸습니다. 앱에서 <b>보내기</b>를 누른 뒤 <b>다음</b>을 누르세요.<div class="bar"><i style="width:${Math.round(B.i/B.q.length*100)}%"></i></div></div>`+
+            `<button type="button" class="btn-sm ghost" data-lsb="again">다시 열기</button><button type="button" class="btn-sm ghost" data-lsb="skip">건너뛰기</button><button type="button" class="btn-sm ghost" data-lsb="stop">중지</button><button type="button" class="btn-sm" data-lsb="next">${B.i+1<B.q.length?'보냈음 · 다음':'보냈음 · 완료'}</button>`;
+          draw(); const r=L.querySelector(`[data-lsrow="${B.q[B.i]}"]`); if(r) r.scrollIntoView({ block:'nearest' });
+        };
+        api.start=()=>{
+          const q=rows.filter(x=>sel.has(String(x.w.id)) && lvTel(x.w.tel)).map(x=>String(x.w.id));
+          if(!q.length){ toast('보낼 사람을 선택하세요.'); return; }
+          const c=cur(); if(/\{담당자연락처\}/.test(c.tpl) && !c.stel){ toast('담당자 연락처를 입력하세요.'); return; }
+          const again=q.filter(id=>sent.has(id)).length;
+          B={ q, i:0, done:0, skip:0 }; if(again) toast('오늘 이미 보낸 '+again+'명이 포함돼 있습니다 — 필요 없으면 건너뛰기를 누르세요.');
+          openSms(rows.find(v=>String(v.w.id)===q[0])); bulkDraw();
+        };
+        el.querySelector('#ls-bulk').addEventListener('click',e=>{ const b=e.target.closest('[data-lsb]'); if(!b||!B) return; const a=b.dataset.lsb;
+          if(a==='close'||a==='stop'){ if(a==='stop') toast(B.done+'명까지 진행하고 중지했습니다.'); B=null; bulkDraw(); return; }
+          if(a==='again'){ openSms(rows.find(v=>String(v.w.id)===B.q[B.i])); return; }
+          if(a==='next'){ markSent(B.q[B.i]); B.done++; } else if(a==='skip') B.skip++;
+          B.i++; if(B.i<B.q.length) openSms(rows.find(v=>String(v.w.id)===B.q[B.i])); bulkDraw(); });
         let tm=null; [T,S,P].forEach(i=>i.addEventListener('input',()=>{ clearTimeout(tm); tm=setTimeout(draw,250); }));
         el.querySelectorAll('[data-lsv]').forEach(c=>c.addEventListener('click',()=>{ const k='{'+c.dataset.lsv+'}', a=T.selectionStart||T.value.length; T.value=T.value.slice(0,a)+k+T.value.slice(T.selectionEnd||a); T.focus(); T.selectionStart=T.selectionEnd=a+k.length; draw(); }));
         el.querySelector('#ls-reset').addEventListener('click',()=>{ T.value=LV_SMS_DEF; draw(); });
@@ -6722,16 +6754,18 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         L.addEventListener('click',async e=>{
           const pv=e.target.closest('[data-lsp]'), cp=e.target.closest('[data-lsc]');
           if(pv){ open[pv.dataset.lsp]=!open[pv.dataset.lsp]; draw(); return; }
+          const so=e.target.closest('[data-lso]'); if(so){ markSent(so.dataset.lso); setTimeout(draw,300); return; }
           if(cp){ const x=rows.find(v=>String(v.w.id)===cp.dataset.lsc), c=cur(); if(x && await xCopy(lvSmsText(c.tpl,x,ref,c.sender,c.stel))) toast(x.w.name+' 님 문구를 복사했습니다.'); }
         });
         draw();
       },
       foot:[{ label:'닫기', ghost:true },
+        { label:'일괄 발송 (휴대폰과 연결)', onClick:()=>{ if(api.start) api.start(); return true; } },
         { label:'선택 문구 전체 복사', ghost:true, onClick:async ()=>{ const c={ tpl:$('#ls-tpl').value, sender:$('#ls-snd').value.trim(), stel:$('#ls-tel').value.trim() };
             const L2=rows.filter(x=>sel.has(String(x.w.id))); if(!L2.length){ toast('보낼 사람을 선택하세요.'); return true; }
             const txt=L2.map(x=>'■ '+x.w.name+' ('+x.w.tel+')\n'+lvSmsText(c.tpl,x,ref,c.sender,c.stel)).join('\n\n────────\n\n');
             if(await xCopy(txt)) toast(L2.length+'명 문구를 복사했습니다.'); return true; } },
-        { label:'대량 발송용 엑셀 받기', onClick:async ()=>{ const c={ tpl:$('#ls-tpl').value, sender:$('#ls-snd').value.trim(), stel:$('#ls-tel').value.trim() };
+        { label:'대량 발송용 엑셀 받기', ghost:true, onClick:async ()=>{ const c={ tpl:$('#ls-tpl').value, sender:$('#ls-snd').value.trim(), stel:$('#ls-tel').value.trim() };
             const L2=rows.filter(x=>sel.has(String(x.w.id))); if(!L2.length){ toast('보낼 사람을 선택하세요.'); return true; }
             if(/\{담당자연락처\}/.test(c.tpl) && !c.stel){ toast('담당자 연락처를 입력하세요.'); return true; }
             const EJ=await loadLib('exceljs'), wb=new EJ.Workbook(), ws=wb.addWorksheet('연차 안내 문자', { views:[{ state:'frozen', ySplit:1 }] });
