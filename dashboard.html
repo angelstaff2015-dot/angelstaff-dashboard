@@ -3242,7 +3242,7 @@
     try{
       await swr('ev', async ()=>{
         const r=await Promise.all([ call('getEvaluations',TOKEN), getCandListCached(),
-                                    call('getResumeLinks',TOKEN).catch(()=>({})) ]);   // 백엔드 패치 전에도 화면은 정상 동작
+                                    call('getResumeLinks',TOKEN).catch(()=>({})), getCandDatesCached().catch(()=>({})) ]);   // 백엔드 패치 전에도 화면은 정상 동작 · 면접일도 함께(캘린더)
         return { evals:Array.isArray(r[0])?r[0]:[], cands:Array.isArray(r[1])?r[1]:[], resumes:(r[2]&&typeof r[2]==='object')?r[2]:{} };
       }, renderEvals);
     }catch(err){ authFail(err); tb.innerHTML='<tr><td colspan="7" class="empty-row">불러오지 못했습니다.</td></tr>'; }
@@ -4671,7 +4671,22 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
           done:()=>{ if(DATA['ev']) DATA['ev'].t=0; },
           revert:()=>{ candDatesCache=Object.assign({}, candDatesCache||{}); if(old) candDatesCache[cid]=old; else delete candDatesCache[cid]; renderEvals(v3EvData()); } });
       }); },
-      foot:[ { label:'닫기', ghost:true } ]
+      foot:[ { label:'삭제', danger:true, onClick:async ()=>{   // v6.25 캘린더 항목 삭제 — 면접일·평가만 지우고 지원자(이력서)는 그대로
+          const nm=c.name||'지원자';
+          try{ await getCandDatesCached(); }catch(_){}
+          const iv=(candDatesCache && candDatesCache[cid] && candDatesCache[cid].interview)||'';
+          const msg = e ? nm+' 님의 면접 평가'+(iv?'와 면접일('+v3Key(v3Date(iv)).replace(/-/g,'.')+')':'를')+(iv?'을':'')+' 삭제해 캘린더에서 지웁니다. 이력서 관리의 지원자 정보는 그대로 남습니다. 삭제한 평가는 되돌릴 수 없습니다.'
+                        : nm+' 님의 면접 일정('+(iv?v3Key(v3Date(iv)).replace(/-/g,'.'):'')+')을 캘린더에서 지웁니다. 이력서 관리의 지원자 정보는 그대로 남습니다.';
+          if(!await xAsk(e?'면접 평가를 삭제할까요?':'면접 일정을 삭제할까요?', msg, '삭제')) return true;
+          const join=(candDatesCache && candDatesCache[cid] && candDatesCache[cid].join)||'';
+          try{
+            if(e && e.id!=null) await call('deleteEvaluation', TOKEN, e.id);
+            if(iv) await call('setCandidateDates', TOKEN, cid, '', '', join);
+            if(candDatesCache && candDatesCache[cid]){ candDatesCache=Object.assign({}, candDatesCache); candDatesCache[cid]={ interview:'', join }; }
+            invalidate('ev','dash'); if(DATA['ev']) DATA['ev'].t=0;
+            toast(nm+' 님 '+(e?'면접 평가를':'면접 일정을')+' 삭제했습니다.'); loadEvals();
+          }catch(err){ xFail(err); return true; }
+        } }, { label:'닫기', ghost:true } ]
         .concat(res ? [{ label:'이력서 보기', ghost:true, onClick:()=>{ window.open(res.url,'_blank'); return true; } }] : [])
         .concat([{ label: e ? '평가 보기·수정' : '평가 작성', onClick:()=>{ setTimeout(()=>{ e ? openEModal(e) : openEModalFor(cid); }, 0); } }])
     });
@@ -4951,7 +4966,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
   function h3Sync(M){
     const el=$('#cmd3-sync'); if(!el) return;
     const r=M && M.roster;
-    if(r && r.at){ const d=new Date(String(r.at).replace(' ','T')); const hrs=(Date.now()-d)/36e5; el.classList.toggle('old', hrs>30); el.innerHTML=`<i></i>휴먼관리시스템 동기화 ${esc(String(r.at).slice(5).replace('-','/'))}`; el.title='재직 '+r.total+'명 · 평일 08:40 자동 동기화'; }
+    if(r && r.at){ const d=new Date(String(r.at).replace(' ','T')); const hrs=(Date.now()-d)/36e5; el.classList.toggle('old', hrs>30); el.innerHTML=`<i></i>휴먼관리시스템 동기화 ${esc(String(r.at).slice(5).replace('-','/'))}`; el.title='재직 '+r.total+'명 · 매일 08:30 자동 동기화(근무자 명단 동기화 실행파일)'; }
     else el.innerHTML='';
   }
   /* 사이드바 배지 + 알림 */
