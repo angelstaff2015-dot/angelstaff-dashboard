@@ -6646,7 +6646,7 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
       if(!tabs.length){ toast('먼저 ＋ 대장 추가로 볼 대장을 고르세요.'); return; }
       const groups={}, TL={}; tabs.forEach(t=>{ const k=lvTabKey(t); groups[k]=all.filter(x=>lvMatch(x,t)); TL[k]=t; });
       const gk=Object.keys(groups), PBx=lvPendBy(); let L=[]; gk.forEach(k=>{ L=L.concat(groups[k]); });
-      const wb=new EJ.Workbook(); wb.creator='엔젤스태프 통합 HR';
+      const wb=new EJ.Workbook(); wb.creator='엔젤스태프 통합 HR'; try{ wb.calcProperties.fullCalcOnLoad=true; }catch(_){ }   // v6.28 열 때 수식 다시 계산
       const F='맑은 고딕', thin={style:'thin',color:{argb:'FF8C887F'}}, med={style:'medium',color:{argb:'FF171614'}};
       const fill=c=>({ type:'pattern', pattern:'solid', fgColor:{argb:c} });
       const used=new Set();
@@ -6663,9 +6663,9 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
         ws.mergeCells('A1:T1'); st('A1',{ v:h+' 연차관리대장', b:true, sz:16, fill:'FFFFF200' }); ws.getRow(1).height=30;
         st('A2',{ v:'총원', b:true, fill:'FFF4F2EC' }); ws.mergeCells('B2:G2'); st('B2',{ v:'' });
         ws.mergeCells('V2:AA2'); st('V2',{ v:'연차 발생 / 사용 현황 (자동계산)', b:true, sz:12, fill:'FF1E2761', fc:'FFFFFFFF' });
-        st('A3',{ v:{ formula:'COUNT(A5:A'+last+')' }, b:true }); ws.mergeCells('G3:R3'); st('G3',{ v:y, b:true, sz:11 });
+        st('A3',{ v:{ formula:'COUNT(A5:A'+last+')', result:rows.filter(x=>!lvIsQ(x.w,PBx)).length }, b:true }); ws.mergeCells('G3:R3'); st('G3',{ v:y, b:true, sz:11 });
         st('V3',{ v:'기준', b:true, fill:'FFF4F2EC' }); ws.mergeCells('W3:X3');
-        st('W3', isNow ? { v:{ formula:'TODAY()' }, nf:'yyyy-mm-dd', b:true } : { v:new Date(ref+'T00:00:00'), nf:'yyyy-mm-dd', b:true });
+        st('W3', isNow ? { v:{ formula:'TODAY()', result:new Date(ref+'T00:00:00') }, nf:'yyyy-mm-dd', b:true } : { v:new Date(ref+'T00:00:00'), nf:'yyyy-mm-dd', b:true });
         ws.getRow(2).height=19.5; ws.getRow(3).height=19.5;
         const hd=['순번','성명','부서','입사일자','퇴사일자','구분',...[...Array(12)].map((_,i)=>(i+1)+'월'),'사용\n일수','비고'];
         hd.forEach((t,i)=>st(ws.getRow(4).getCell(i+1).address,{ v:t, b:true, fill:'FFB4C6E7', wrap:true }));
@@ -6681,18 +6681,19 @@ ${poV('po-emp')?`<div style="margin-bottom:16px;"><div style="color:${C.mut};fon
           st('D'+a,{ v:J?new Date(Date.UTC(J.getFullYear(),J.getMonth(),J.getDate())):'', nf:'yyyy-mm-dd' });
           st('E'+a,{ v:Lv?new Date(Date.UTC(Lv.getFullYear(),Lv.getMonth(),Lv.getDate())):'', nf:'yyyy-mm-dd' });
           st('F'+a,{ v:'연차' }); st('F'+b,{ v:'반차' });
-          'GHIJKLMNOPQR'.split('').forEach((c,mi)=>{ st(c+a,{ v:r.m.a[mi]||null, nf:'0.##' }); st(c+b,{ v:r.m.h[mi]||null, nf:'0.##' }); });
+          'GHIJKLMNOPQR'.split('').forEach((c,mi)=>{ st(c+a,{ v:r.m.a[mi]||null, nf:'General' }); st(c+b,{ v:r.m.h[mi]||null, nf:'General' }); });
           st('S'+a,{ v:{ formula:'SUM(G'+a+':R'+a+')', result:r.ua }, b:true }); st('S'+b,{ v:{ formula:'SUM(G'+b+':R'+b+')', result:r.uh }, b:true });
           const note=[r.adj?'조정 '+(r.adj>0?'+':'')+lvNum(r.adj)+'일':'', ...r.mine.filter(x=>x.memo).slice(-1).map(x=>x.memo)].filter(Boolean).join(' · ');
           st('T'+a,{ v:qt?[pqx?'퇴사대기(예정일) · 총원 제외':'퇴사자 · 총원 제외', note].filter(Boolean).join(' · '):note, h:'left', wrap:true });
           if(qt) ['B','C','D','E'].forEach(c=>{ const x=ws.getCell(c+a); x.font=Object.assign({}, x.font, { color:{argb:'FF8C887F'} }); });
           const adj=r.adj?(r.adj>0?'+':'')+r.adj:'';
-          st('V'+a,{ v:{ formula:'IF($B'+a+'="","",ROUND(YEARFRAC($D'+a+',$W$3,1),1))' }, nf:'0.0' });
-          st('W'+a,{ v:{ formula:'IF($B'+a+'="","",IF(DATEDIF($D'+a+',$W$3,"y")<1,MIN(11,DATEDIF($D'+a+',$W$3,"m")),MIN(25,15+INT((DATEDIF($D'+a+',$W$3,"y")-1)/2)))'+adj+')' }, nf:'0.##' });
-          st('X'+a,{ v:{ formula:'IF($B'+a+'="","",SUM($G'+a+':$R'+a+'))' }, nf:'0.##' });
-          st('Y'+a,{ v:{ formula:'IF($B'+a+'="","",SUM($G'+b+':$R'+b+'))' }, nf:'0.##' });
-          st('Z'+a,{ v:{ formula:'IF($B'+a+'="","",$X'+a+'+$Y'+a+'*0.5)' }, nf:'0.0' });
-          st('AA'+a,{ v:{ formula:'IF($B'+a+'="","",$W'+a+'-$Z'+a+')' }, nf:'0.0', b:true });
+          const RD='IF(AND($E'+a+'<>"",$E'+a+'<$W$3),$E'+a+',$W$3)';   // 기준일: 이미 퇴사했으면 퇴사일, 아니면 기준일(사이트 계산과 같음)
+          st('V'+a,{ v:{ formula:'IF(OR($B'+a+'="",$D'+a+'=""),"",ROUND(YEARFRAC($D'+a+','+RD+',1),1))', result:r.ten==null?'':r.ten }, nf:'0.0' });
+          st('W'+a,{ v:{ formula:'IF(OR($B'+a+'="",$D'+a+'=""),"",IF(DATEDIF($D'+a+','+RD+',"y")<1,MIN(11,DATEDIF($D'+a+','+RD+',"m")),MIN(25,15+INT((DATEDIF($D'+a+','+RD+',"y")-1)/2)))'+adj+')', result:r.acc==null?'':r.acc+r.adj }, nf:'General' });
+          st('X'+a,{ v:{ formula:'IF($B'+a+'="","",SUM($G'+a+':$R'+a+'))', result:r.ua }, nf:'General' });
+          st('Y'+a,{ v:{ formula:'IF($B'+a+'="","",SUM($G'+b+':$R'+b+'))', result:r.uh }, nf:'General' });
+          st('Z'+a,{ v:{ formula:'IF($B'+a+'="","",$X'+a+'+$Y'+a+'*0.5)', result:r.tot }, nf:'General' });
+          st('AA'+a,{ v:{ formula:'IF(OR($B'+a+'="",$W'+a+'=""),"",$W'+a+'-$Z'+a+')', result:r.left==null?'':r.left }, nf:'General', b:true });
           ws.getRow(a).height=19.5; ws.getRow(b).height=19.5;
         });
         ws.addConditionalFormatting({ ref:'AA5:AA'+Math.max(5,last), rules:[
